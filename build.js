@@ -21,7 +21,7 @@ function buildArtifact() {
     '<meta name="claude:viewport-fit-sides" content="cover">',
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
-    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800;1,900&family=Barlow:wght@500;600;700&display=swap">',
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap">',
     '<style>\n' + r('style.css') + '\n</style>',
     body,
     '<script>\n(function () {\n"use strict";\n' + parts + '\n})();\n</script>',
@@ -34,10 +34,9 @@ function buildArtifact() {
 }
 
 /* ---- Web-App ---- */
-const FONTS = [   // Familie, Gewicht, Kursiv
-  ['Barlow', 500, 0], ['Barlow', 600, 0], ['Barlow', 700, 0],
-  ['Barlow Condensed', 600, 0], ['Barlow Condensed', 700, 0], ['Barlow Condensed', 800, 0],
-  ['Barlow Condensed', 700, 1], ['Barlow Condensed', 800, 1], ['Barlow Condensed', 900, 1],
+const FONTS = [   // Familie, Gewicht, Kursiv: runde, kindgerechte Schriften
+  ['Fredoka', 500, 0], ['Fredoka', 600, 0], ['Fredoka', 700, 0],
+  ['Nunito', 600, 0], ['Nunito', 700, 0], ['Nunito', 800, 0], ['Nunito', 900, 0],
 ];
 const slug = f => f.toLowerCase().replace(/ /g, '-');
 function fontFiles(out) {
@@ -71,8 +70,8 @@ function buildPwa(out, test) {
     '<meta http-equiv="Content-Security-Policy" content="' + csp + '">',
     '<title>Diamanten</title>',
     '<meta name="robots" content="noindex, nofollow">',
-    '<meta name="theme-color" content="#06110b">',
-    '<meta name="color-scheme" content="dark">',
+    '<meta name="theme-color" content="#0b5563">',
+    '<meta name="color-scheme" content="light">',
     '<meta name="apple-mobile-web-app-capable" content="yes">',
     '<meta name="mobile-web-app-capable" content="yes">',
     '<meta name="apple-mobile-web-app-title" content="Diamanten">',

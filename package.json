@@ -9,8 +9,8 @@
   },
   "license": "UNLICENSED",
   "devDependencies": {
-    "@fontsource/barlow": "^5.3.0",
-    "@fontsource/barlow-condensed": "^5.3.0",
+    "@fontsource/fredoka": "^5.3.0",
+    "@fontsource/nunito": "^5.3.0",
     "esbuild": "^0.28.2",
     "firebase": "^13.1.0",
     "firebase-tools": "^15.34.2"

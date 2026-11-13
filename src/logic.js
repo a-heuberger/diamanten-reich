@@ -1,4 +1,7 @@
-/* ============ Regeln, Datum, Auswertung (rein, ohne DOM) ============ */
+/* ============ Regeln, Datum, Auswertung (rein, ohne DOM) ============
+   Diamanten-Reich: Aufgaben bringen Diamanten. Das Kind tippt „Geschafft!“ (Zustand c), ein Elternteil gibt frei (y).
+   Jeder freigegebene Diamant wartet in der Erde, bis die Schatzgräberin ihn ausgräbt (days/<ds>.dg zählt die gegrabenen).
+   Wolken sind die Verwarnungen: gelbe Wolke −1, Gewitterwolke −3 (Regeln wie bei den Karten der Torjäger-App). */
 const WD_SHORT = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 const WD_LONG = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
@@ -19,55 +22,46 @@ function isoWeek(s) {
 }
 
 /* ---------- Voreinstellungen ---------- */
-function defaultCfg(today) {
-  const all = [0, 1, 2, 3, 4, 5, 6], school = [1, 2, 3, 4, 5];
+const CFG_V = 1;
+const SLOTS = { morgens: 'Morgens', abends: 'Abends' };
+const HAIR = { braun: { name: 'Braun', fill: '#7a4a2a', dark: '#5a331b' }, blond: { name: 'Blond', fill: '#f2c45a', dark: '#c99a2e' }, schwarz: { name: 'Schwarz', fill: '#2d2433', dark: '#16111a' }, rot: { name: 'Rot', fill: '#d4643a', dark: '#a8461f' }, hellbraun: { name: 'Hellbraun', fill: '#b07a4a', dark: '#83572f' } };
+const DRESS = { tuerkis: { name: 'Türkis', fill: '#2cc6c3', dark: '#14918f' }, rosa: { name: 'Rosa', fill: '#ff8fc1', dark: '#e0609d' }, lila: { name: 'Lila', fill: '#a98bff', dark: '#7c5ce0' }, gold: { name: 'Gold', fill: '#ffc93c', dark: '#d79a12' }, blau: { name: 'Blau', fill: '#5aa8ff', dark: '#2f7fdc' } };
+const STYLE = { zoepfe: 'Zöpfe', offen: 'Offen', dutt: 'Dutt' };
+function defaultCfg() {
+  const all = [0, 1, 2, 3, 4, 5, 6];
   return {
-    v: 4,
-    name: 'Ben',
-    rival: 'Sofa United',
-    jersey: { num: 10, color: 'green' },
+    v: CFG_V,
+    name: 'Lia',
+    look: { hair: 'braun', style: 'zoepfe', dress: 'tuerkis' },
+    unicorn: 'Funkelstern',
     pin: '',
-    cardsAck: false,     // Hinweis für Eltern gelesen (schaltet Karten frei)
-    shootMode: true,     // Ben schießt jedes bestätigte Tor selbst
-    yellowPts: 1,        // Gelbe Karte = so viele Minus-Tore (zählen bei Zielen und Fang, nicht in der Übersicht)
-    redPts: 3,           // Rote Karte (auch automatisch) = so viele Minus-Tore, höchstens einmal pro Tag
-    yellowExpiry: 0,     // 0 = Gelbe verfallen nie; zwei offene Gelbe ergeben Rot
-    extraMax: 3,         // höchstens so viele Extra-Tore pro Tag
-    packEvery: 6,        // alle so viele Tore gibt es eine Sticker-Tüte
-    agreement: '',       // Abmachung der Woche (ersetzt den Untertitel der Abmachungs-Aufgabe)
-    noteMoney: { 1: 500, 2: 300, 3: 200, 4: 0, 5: 0, 6: 0 },   // Konto: Euro-Cent, die eine Note bringt (bei jeder Buchung änderbar)
-    /* Die Gründe für ein Tor oder Kein Tor (Vorgabe des Trainers). Die Untertitel bleiben leer, die Kriterien legt er selbst fest. */
+    cloudsAck: false,    // Hinweise für Eltern gelesen (schaltet Wolken frei)
+    digMode: true,       // das Kind gräbt jeden freigegebenen Diamanten selbst aus
+    digTaps: 3,          // so viele Spatenstiche je Diamant (1 bis 5)
+    digFun: true,        // ohne wartende Diamanten findet die Gräberin Kleinigkeiten (zählen nicht)
+    yellowPts: 1,        // gelbe Wolke = so viele Diamanten Abzug bei den Schätzen
+    redPts: 3,           // Gewitterwolke = so viele Diamanten Abzug, höchstens einmal pro Tag
+    extraMax: 3,         // höchstens so viele Extra-Diamanten pro Tag
+    packEvery: 5,        // alle so viele Diamanten gibt es einen Zauberbeutel
+    /* Vorschlag, bis die Eltern die echte Liste eintragen. Morgens und abends, an jedem Tag. */
     tasks: [
-      { id: 't_hefte', icon: '📓', title: 'Hefteinträge ordentlich', sub: '', pts: 1, bonus: false, days: school },
-      { id: 't_notiert', icon: '📒', title: 'Hausaufgabenheft eingetragen', sub: '', pts: 1, bonus: false, days: school },
-      { id: 't_hausaufgaben', icon: '✏️', title: 'Hausaufgaben gut gemacht', sub: '', pts: 1, bonus: false, days: school },
-      { id: 't_zimmer', icon: '🧹', title: 'Zimmer sauber', sub: '', pts: 1, bonus: false, days: all },
-      { id: 't_eincremen', icon: '🧴', title: 'Eingecremt', sub: '', pts: 1, bonus: false, days: all },
-      { id: 't_buch', icon: '📖', title: 'Buch gelesen', sub: '', pts: 1, bonus: false, days: all },
-      { id: 't_spuelmaschine', icon: '🍽️', title: 'Spülmaschine ausgeräumt', sub: '', pts: 1, bonus: false, days: all },
-      { id: 't_tisch', icon: '🍴', title: 'Tisch gedeckt und abgeräumt', sub: '', pts: 1, bonus: false, days: all },
-      { id: 't_abmachung', icon: '🤝', title: 'An Abmachungen gehalten', sub: '', pts: 1, bonus: false, days: all },
+      { id: 't_zaehne_m', icon: '🦷', title: 'Zähne putzen', slot: 'morgens', pts: 1, days: all },
+      { id: 't_anziehen', icon: '👗', title: 'Selbst anziehen', slot: 'morgens', pts: 1, days: all },
+      { id: 't_bett', icon: '🛏️', title: 'Kuscheltiere aufs Bett', slot: 'morgens', pts: 1, days: all },
+      { id: 't_aufraeumen', icon: '🧸', title: 'Spielzeug aufräumen', slot: 'abends', pts: 1, days: all },
+      { id: 't_tisch', icon: '🍽️', title: 'Beim Tischdecken helfen', slot: 'abends', pts: 1, days: all },
+      { id: 't_zaehne_a', icon: '🪥', title: 'Zähne putzen', slot: 'abends', pts: 1, days: all },
+      { id: 't_schlafanzug', icon: '🌙', title: 'Schlafanzug anziehen', slot: 'abends', pts: 1, days: all },
     ],
-    /* Ziele: Alle Tore zusammen (Aufgaben, eigene Gründe, Bonus-Tore der Sticker). Das letzte Ziel ist der große Fang. Vorgabe des Trainers. */
-    goals: [
-      { id: 'g25', at: 25, reward: 'Fußballpack' },
-      { id: 'g50', at: 50, reward: '5 € aufs Guthabenkonto' },
-      { id: 'g75', at: 75, reward: 'Eine Stunde YouTube Handyzeit' },
-      { id: 'g100', at: 100, reward: 'Wird später festgelegt' },
-      { id: 'g125', at: 125, reward: 'Fußballpack' },
-      { id: 'g150', at: 150, reward: '5 € aufs Guthabenkonto' },
-      { id: 'g175', at: 175, reward: 'Zum Asiamarkt nach Mühldorf inkl. 20 € Guthaben' },
-      { id: 'g200', at: 200, reward: 'Wird später festgelegt' },
-      { id: 'g250', at: 250, reward: '5 € aufs Guthabenkonto' },
-      { id: 'g300', at: 300, reward: 'Wird später festgelegt' },
-      { id: 'g500', at: 500, reward: 'Ausflug in den Freizeitpark' },
-    ],
-    season: { title: 'Der Riesen-Hecht' },        // Name des Fischs im Angelbild; er wird beim letzten Ziel gefangen
-    goodReasons: ['Ehrlich zugegeben', 'Wiedergutmachung', 'Hat geholfen', 'Besonders freundlich', 'Selbstständig gewesen', 'Mut gezeigt'],
+    /* Schätze: alle Diamanten zusammen (Aufgaben, Extra-Diamanten, Bonus-Diamanten der Sticker), abzüglich Wolken.
+       Der erste nach etwa 2 bis 3 Tagen, danach größere Abstände. Leer = Überraschung (die Eltern legen es fest). */
+    goals: [10, 25, 50, 75, 100, 150, 200, 300, 500].map(at => ({ id: 'g' + at, at, reward: '' })),
+    chest: { title: 'Der große Schatz' },
+    goodReasons: ['Lieb geteilt', 'Toll geholfen', 'Mutig gewesen', 'Gut zugehört', 'Allein geschafft', 'Lieb getröstet'],
   };
 }
 
-/* Ziele bereinigen: nach Tore sortiert, jede Zahl nur einmal, Belohnung als Text. Ohne brauchbare Liste gelten die Standard-Ziele. */
+/* Schätze bereinigen: nach Diamanten sortiert, jede Zahl nur einmal, Belohnung als Text. Ohne brauchbare Liste gelten die Vorgaben. */
 function normGoals(list, dflt) {
   const out = [], used = {};
   (Array.isArray(list) ? list : []).forEach(g => {
@@ -82,146 +76,104 @@ function normGoals(list, dflt) {
   return out.length ? out : dflt.map(g => Object.assign({}, g));
 }
 const clampInt = (v, a, b, dflt) => { const n = Math.round(+v); return isFinite(n) ? Math.max(a, Math.min(b, n)) : dflt; };
+const pickKey = (obj, k, dflt) => (Object.prototype.hasOwnProperty.call(obj, k) ? k : dflt);
 
-/* Aufgabenliste von Version 3 auf die neue Liste umstellen, ohne den Verlauf zu verändern und ohne vom Datum abzuhängen:
-   - gleiche Nummer (id) = dieselbe Aufgabe, nur umbenannt: Bisherige Tore bleiben dabei.
-   - alte Standard-Aufgaben ohne Gegenstück („Ehrlich geblieben“, „Gute Note“) laufen aus: Bereits gewertete Tage zählen weiter.
-   - neue Aufgaben gelten erst ab NEW_TASKS_FROM, damit frühere Tage nicht plötzlich offene Aufgaben haben.
-   - eigene Aufgaben des Trainers bleiben unverändert. */
-const NEW_TASKS_FROM = '2026-10-30';
-const RETIRED_UNTIL = '2000-01-01';
-const OLD_DEFAULT_IDS = ['t_notiert', 't_hausaufgaben', 't_zimmer', 't_abmachung', 't_ehrlich', 't_note'];
-function migrateTasks(stored, fresh) {
-  const byId = {};
-  stored.forEach(t => { byId[t.id] = t; });
-  const out = fresh.map(nt => {
-    const o = byId[nt.id];
-    if (!o) return Object.assign({}, nt, { from: NEW_TASKS_FROM });
-    delete byId[nt.id];
-    const m = Object.assign({}, o, { icon: nt.icon, title: nt.title, sub: nt.sub, pts: nt.pts, bonus: nt.bonus, days: nt.days.slice() });
-    delete m.until;
-    return m;
-  });
-  stored.forEach(t => {
-    if (!byId[t.id]) return;
-    out.push(OLD_DEFAULT_IDS.indexOf(t.id) >= 0 ? Object.assign({}, t, { until: t.until || RETIRED_UNTIL }) : t);
-  });
-  return out;
-}
-
-/* Fehlende Felder aus den Voreinstellungen ergänzen (alte Daten bleiben nutzbar). */
-function migrateCfg(c, today) {
-  const d = defaultCfg(today || todayStr());
+/* Fehlende Felder aus den Voreinstellungen ergänzen, Werte in gültige Bereiche bringen (alte Daten bleiben nutzbar). */
+function migrateCfg(c) {
+  const d = defaultCfg();
   const old = c || {};
-  const legacy = (old.v || 0) < 4;
   const out = Object.assign({}, d, old);
-  const storedTasks = Array.isArray(old.tasks) ? old.tasks : null;
-  out.tasks = (storedTasks ? (legacy ? migrateTasks(storedTasks, d.tasks) : storedTasks) : d.tasks).map(t => Object.assign({ icon: '⭐', title: '', sub: '', pts: 1, bonus: false, days: [0, 1, 2, 3, 4, 5, 6] }, t));
-  out.season = { title: String((old.season && old.season.title) || d.season.title).slice(0, 40) };
-  out.jersey = Object.assign({}, d.jersey, old.jersey || {});
-  out.noteMoney = {};
-  for (let g = 1; g <= 6; g++) { const v = old.noteMoney && old.noteMoney[g] != null ? +old.noteMoney[g] : d.noteMoney[g]; out.noteMoney[g] = Math.max(0, Math.min(2000, Math.round(v) || 0)); }
-  out.goals = normGoals(!legacy ? old.goals : null, d.goals);     // frühere Wochenpokale und Fang-Ziel fallen weg: Es gilt die neue Liste
-  /* Karten: ab Version 4 kosten sie Minus-Tore (Gelb 1, Rot 3) und verfallen nie. */
-  if (legacy) { out.yellowPts = d.yellowPts; out.redPts = d.redPts; out.yellowExpiry = 0; if (+old.packEvery === 5 || old.packEvery == null) out.packEvery = d.packEvery; }
+  out.name = String(out.name == null ? d.name : out.name).slice(0, 20);
+  out.unicorn = String(out.unicorn == null ? d.unicorn : out.unicorn).slice(0, 20);
+  const lk = old.look || {};
+  out.look = { hair: pickKey(HAIR, lk.hair, d.look.hair), style: pickKey(STYLE, lk.style, d.look.style), dress: pickKey(DRESS, lk.dress, d.look.dress) };
+  out.tasks = (Array.isArray(old.tasks) ? old.tasks : d.tasks).map(t => {
+    const n = Object.assign({ icon: '⭐', title: '', slot: 'morgens', pts: 1, days: [0, 1, 2, 3, 4, 5, 6] }, t);
+    n.slot = SLOTS[n.slot] ? n.slot : 'morgens';
+    n.pts = clampInt(n.pts, 1, 3, 1);
+    if (!Array.isArray(n.days) || !n.days.length) n.days = [0, 1, 2, 3, 4, 5, 6];
+    delete n.bonus; delete n.sub;
+    return n;
+  });
+  out.chest = { title: String((old.chest && old.chest.title) || d.chest.title).slice(0, 40) };
+  out.goals = normGoals(old.goals, d.goals);
   out.yellowPts = clampInt(out.yellowPts, 0, 5, d.yellowPts);
   out.redPts = clampInt(out.redPts, 1, 9, d.redPts);
-  out.yellowExpiry = 0;
+  out.extraMax = clampInt(out.extraMax, 1, 10, d.extraMax);
   out.packEvery = clampInt(out.packEvery, 3, 20, d.packEvery);
+  out.digTaps = clampInt(out.digTaps, 1, 5, d.digTaps);
+  out.digMode = out.digMode !== false;
+  out.digFun = out.digFun !== false;
   if (!Array.isArray(out.goodReasons)) out.goodReasons = d.goodReasons;
-  ['tiers', 'yellowRules', 'redRules', 'cardsOn', 'yellowLimit'].forEach(k => { delete out[k]; });
-  out.v = 4;
+  out.v = CFG_V;
   return out;
 }
-const normProg = p => Object.assign({ cel: {}, red: {}, redK: {}, seasons: [], album: [], foil: [], pick: {} }, p || {});
-const taskSub = (cfg, t) => (t.id === 't_abmachung' && cfg.agreement ? cfg.agreement : t.sub);
+const normProg = p => Object.assign({ cel: {}, red: {}, album: [], foil: [] }, p || {});
 
-/* ---------- Konto (Guthaben): Beträge immer in ganzen Cent ---------- */
-const fmtEUR = c => (c < 0 ? '−' : '') + Math.floor(Math.abs(c) / 100) + ',' + pad2(Math.abs(c) % 100) + ' €';
-const fmtPlain = c => Math.floor(c / 100) + ',' + pad2(c % 100);
-/* „2,5“, „2.50“, „€ 3“ → Cent. Nur Beträge über 0 bis 1000 €, sonst null. */
-function parseMoney(s) {
-  const t = String(s == null ? '' : s).replace(/[€\s ]/g, '').replace(/^\+/, '');
-  if (!/^\d{1,4}([.,]\d{1,2})?$/.test(t)) return null;
-  const c = Math.round(parseFloat(t.replace(',', '.')) * 100);
-  return c > 0 && c <= 100000 ? c : null;
-}
-const kontoBalance = S => Object.keys(S.konto || {}).reduce((n, id) => n + (Math.round(+S.konto[id].c) || 0), 0);
-const kontoList = S => Object.keys(S.konto || {}).map(id => Object.assign({ id }, S.konto[id])).sort((a, b) => ((b.ts || 0) - (a.ts || 0)) || (a.id < b.id ? 1 : -1));
-const genitive = n => (/[sßxz]$/i.test(n) ? n + '’' : n + 's');
+/* ---------- Funkel-Rufe (Diamanten an einem Tag) ---------- */
+const LADDER = { 1: 'Funkel!', 2: 'Doppel-Funkel!', 3: 'Dreifach-Funkel!', 4: 'Super-Funkel!', 5: 'Mega-Funkel!' };
+const ladderText = n => LADDER[Math.max(1, Math.min(n, 5))];
 
-/* ---------- Tagesleiter (Tore an einem Tag) ---------- */
-const LADDER = { 1: 'Tor!', 2: 'Doppelpack!', 3: 'Hattrick!', 4: 'Viererpack!', 5: 'Fünferpack!' };
-const ladderText = (n, perfect) => (perfect ? 'Weiße Weste!' : LADDER[Math.min(n, 5)] || 'Tor!');
-
-/* ---------- Sammelsticker: 100 Stück in drei Seltenheiten ----------
-   Normal zählt 1 Punkt, selten 2, ultraselten 5. Je 10 Sticker-Punkte gibt es 1 Bonus-Tor.
-   Die ersten 30 Nummern (s01 bis s30) bleiben, wie sie waren: Wer sie schon hat, behält sie. */
+/* ---------- Sammelsticker: 40 Stück in drei Seltenheiten ----------
+   Normal zählt 1 Punkt, selten 2, ultraselten 5. Je 10 Sticker-Punkte gibt es 1 Bonus-Diamant.
+   Bild: ein Emoji oder „gem:<farbe>“ (gezeichneter Edelstein). */
 const RARITY = { n: { name: 'Normal', pts: 1 }, r: { name: 'Selten', pts: 2 }, u: { name: 'Ultraselten', pts: 5 } };
 const RAR_ORDER = ['u', 'r', 'n'];
-const RAR_WEIGHT = { n: 12, r: 4, u: 1 };       // Ziehungsgewicht in der Tüte: Seltene kommen seltener
-const PTS_PER_TOR = 10;
+const RAR_WEIGHT = { n: 12, r: 4, u: 1 };       // Ziehungsgewicht im Zauberbeutel: Seltene kommen seltener
+const PTS_PER_DIAMANT = 10;
+const CATS = ['Einhörner', 'Prinzessinnen', 'Edelsteine', 'Märchenwelt'];
 const STICKER_DATA = [
-  /* Stadion 1 bis 10 */
-  ['⚽', 'Der Anstoß', 'Stadion', 'n'], ['👟', 'Gold-Schuh', 'Stadion', 'r'], ['🧤', 'Torwart-Parade', 'Stadion', 'n'], ['🥅', 'Netz-Zittern', 'Stadion', 'n'], ['🚩', 'Eckfahne', 'Stadion', 'n'],
-  ['🎽', 'Trikot-Tausch', 'Stadion', 'n'], ['🏟️', 'Heimspiel', 'Stadion', 'n'], ['📣', 'Fan-Kurve', 'Stadion', 'n'], ['🔔', 'Schiri-Pfeife', 'Stadion', 'n'], ['💡', 'Flutlicht', 'Stadion', 'r'],
-  /* Technik 11 bis 20 */
-  ['🚀', 'Hecht­kopfball', 'Technik', 'r'], ['🔄', 'Fall­rück­zieher', 'Technik', 'r'], ['🎯', 'Elfmeter-Nerven', 'Technik', 'n'], ['🤝', 'Doppelpass', 'Technik', 'n'], ['🏹', 'Flanke', 'Technik', 'n'],
-  ['🌈', 'Freistoß-Bogen', 'Technik', 'n'], ['⏱️', 'Nach­spiel­zeit', 'Technik', 'n'], ['🏆', 'Pokal-Nacht', 'Technik', 'r'], ['🔥', 'Derby-Tag', 'Technik', 'n'], ['💥', 'Seit­fall­zieher', 'Technik', 'u'],
-  /* Angeln 21 bis 30 */
-  ['🎣', 'Angel-Rolle', 'Angeln', 'n'], ['🐟', 'Der Kapitale', 'Angeln', 'u'], ['🐟', 'Zander', 'Angeln', 'r'], ['🐟', 'Barsch', 'Angeln', 'n'], ['🐟', 'Karpfen', 'Angeln', 'n'],
-  ['🌅', 'Sonnen­aufgang', 'Angeln', 'r'], ['🐟', 'Hecht', 'Angeln', 'r'], ['🐟', 'Forelle', 'Angeln', 'n'], ['🌊', 'Welle', 'Angeln', 'n'], ['⚓', 'Anker', 'Angeln', 'n'],
-  /* Stadion, neu 31 bis 45 */
-  ['🥁', 'Trommel-Takt', 'Stadion', 'n'], ['🎺', 'Stadion-Hymne', 'Stadion', 'n'], ['🧣', 'Fan-Schal', 'Stadion', 'n'], ['🎫', 'Eintritts-Karte', 'Stadion', 'n'], ['🚌', 'Mannschafts­bus', 'Stadion', 'n'],
-  ['📺', 'Live-Über­tragung', 'Stadion', 'n'], ['🎤', 'Stadion-Sprecher', 'Stadion', 'n'], ['🥤', 'Halbzeit-Limo', 'Stadion', 'n'], ['🧢', 'Fan-Mütze', 'Stadion', 'n'],
-  ['📸', 'Torjubel-Foto', 'Stadion', 'r'], ['🥇', 'Gold-Medaille', 'Stadion', 'r'], ['🎆', 'Meister-Feier', 'Stadion', 'r'], ['🎖️', 'Kapitäns-Binde', 'Stadion', 'r'], ['✨', 'Wunder-Tor', 'Stadion', 'r'],
-  ['👑', 'Torschützen-König', 'Stadion', 'u'],
-  /* Technik, neu 46 bis 60 */
-  ['🦵', 'Spann-Schuss', 'Technik', 'n'], ['👣', 'Dribbling', 'Technik', 'n'], ['🧱', 'Freistoß-Mauer', 'Technik', 'n'], ['🏃', 'Sprint-Duell', 'Technik', 'n'], ['🦶', 'Heber', 'Technik', 'n'],
-  ['⚡', 'Konter', 'Technik', 'n'], ['👀', 'Über­blick', 'Technik', 'n'], ['🏁', 'Steil-Pass', 'Technik', 'n'], ['🤹', 'Jonglage', 'Technik', 'n'],
-  ['🌀', 'Über­steiger', 'Technik', 'r'], ['☄️', 'Volley-Schuss', 'Technik', 'r'], ['🧲', 'Ball-Magnet', 'Technik', 'r'], ['🎪', 'Zirkus-Trick', 'Technik', 'r'],
-  ['🌠', 'Traum-Tor', 'Technik', 'u'], ['💎', 'Diamant-Pass', 'Technik', 'u'],
-  /* Angeln, neu 61 bis 75 */
-  ['🐟', 'Rotauge', 'Angeln', 'n'], ['🐛', 'Köder-Wurm', 'Angeln', 'n'], ['🧰', 'Angel-Kiste', 'Angeln', 'n'], ['🛶', 'Ruder-Boot', 'Angeln', 'n'], ['🌲', 'Wald-See', 'Angeln', 'n'],
-  ['🦆', 'Enten-Teich', 'Angeln', 'n'], ['🐸', 'Frosch', 'Angeln', 'n'], ['⛺', 'Zelt-Nacht', 'Angeln', 'n'],
-  ['🐟', 'Aal', 'Angeln', 'r'], ['🐟', 'Lachs', 'Angeln', 'r'], ['🦀', 'Krebs', 'Angeln', 'r'], ['🌙', 'Nacht-Fang', 'Angeln', 'r'], ['🌫️', 'Morgen-Nebel', 'Angeln', 'r'],
-  ['🐟', 'Wels', 'Angeln', 'u'], ['🐠', 'Der Goldene', 'Angeln', 'u'],
-  /* Action, neu 76 bis 100 */
-  ['🛹', 'Skateboard', 'Action', 'n'], ['🛴', 'Roller', 'Action', 'n'], ['🚲', 'Fahrrad-Tour', 'Action', 'n'], ['🏎️', 'Renn-Wagen', 'Action', 'n'], ['🪁', 'Flug-Drachen', 'Action', 'n'],
-  ['🧗', 'Kletter-Wand', 'Action', 'n'], ['⛷️', 'Ski-Abfahrt', 'Action', 'n'], ['🎮', 'Joystick', 'Action', 'n'], ['🏕️', 'Camping', 'Action', 'n'], ['🥾', 'Wander-Schuh', 'Action', 'n'],
-  ['🛷', 'Schlitten', 'Action', 'n'], ['🚒', 'Feuerwehr', 'Action', 'n'], ['🚜', 'Traktor', 'Action', 'n'], ['⛵', 'Segel-Boot', 'Action', 'n'],
-  ['🚁', 'Hub­schrauber', 'Action', 'r'], ['🤿', 'Tauch-Gang', 'Action', 'r'], ['🏍️', 'Motocross', 'Action', 'r'], ['🪂', 'Fallschirm', 'Action', 'r'], ['🎢', 'Achterbahn', 'Action', 'r'],
-  ['🦖', 'Dino-Jäger', 'Action', 'r'], ['🥷', 'Ninja', 'Action', 'r'], ['🚤', 'Speed-Boot', 'Action', 'r'],
-  ['🛸', 'Ufo-Landung', 'Action', 'u'], ['🦸', 'Super-Held', 'Action', 'u'], ['🐉', 'Drachen-Herz', 'Action', 'u'],
+  /* Einhörner */
+  ['🦄', 'Funkel-Einhorn', 'Einhörner', 'n', 'Ein Einhorn hat ein Horn auf der Stirn. Wenn es lacht, funkelt es.'],
+  ['🌈', 'Regenbogen', 'Einhörner', 'n', 'Ein Regenbogen hat sieben Farben. Einhörner rutschen gern darauf.'],
+  ['☁️', 'Wolkenbett', 'Einhörner', 'n', 'Auf weichen Wolken schlafen Einhörner am liebsten.'],
+  ['🌟', 'Sternenstaub', 'Einhörner', 'n', 'Sternenstaub glitzert, wenn man ihn in die Luft pustet.'],
+  ['🎠', 'Karussell-Pony', 'Einhörner', 'n', 'Das Karussell-Pony dreht sich im Kreis und spielt Musik.'],
+  ['🥕', 'Einhorn-Snack', 'Einhörner', 'n', 'Auch Einhörner knabbern gern eine Möhre.'],
+  ['💫', 'Sternschnuppe', 'Einhörner', 'r', 'Wenn du eine Sternschnuppe siehst, darfst du dir etwas wünschen.'],
+  ['🌙', 'Mondschein-Einhorn', 'Einhörner', 'r', 'Dieses Einhorn wacht nachts und passt auf die Träume auf.'],
+  ['🪽', 'Zauberflügel', 'Einhörner', 'r', 'Mit Zauberflügeln fliegt das Einhorn bis zu den Sternen.'],
+  ['🦄', 'Gold-Einhorn', 'Einhörner', 'u', 'Das Gold-Einhorn zeigt sich nur ganz besonderen Kindern.'],
+  /* Prinzessinnen */
+  ['👑', 'Krone', 'Prinzessinnen', 'n', 'Eine Krone trägt man auf dem Kopf. Diese hier funkelt wie du.'],
+  ['🏰', 'Schloss', 'Prinzessinnen', 'n', 'Im Schloss gibt es viele Türme und eine lange Treppe.'],
+  ['👗', 'Ballkleid', 'Prinzessinnen', 'n', 'In diesem Kleid kann man sich wunderbar im Kreis drehen.'],
+  ['👠', 'Glitzerschuh', 'Prinzessinnen', 'n', 'Der Glitzerschuh glänzt bei jedem Schritt.'],
+  ['🎀', 'Schleife', 'Prinzessinnen', 'n', 'Eine Schleife macht aus allem ein Geschenk.'],
+  ['🫖', 'Teeparty', 'Prinzessinnen', 'n', 'Bei der Teeparty sitzen alle Kuscheltiere mit am Tisch.'],
+  ['🪞', 'Zauberspiegel', 'Prinzessinnen', 'r', 'Der Zauberspiegel sagt: Du bist toll, so wie du bist.'],
+  ['🌹', 'Zauberrose', 'Prinzessinnen', 'r', 'Diese Rose blüht das ganze Jahr.'],
+  ['💍', 'Funkelring', 'Prinzessinnen', 'r', 'Ein Ring mit einem kleinen Diamanten.'],
+  ['👸', 'Prinzessin', 'Prinzessinnen', 'u', 'Eine echte Prinzessin ist mutig, freundlich und hilft anderen.'],
+  /* Edelsteine (gezeichnet) */
+  ['gem:weiss', 'Diamant', 'Edelsteine', 'n', 'Diamanten sind die härtesten Steine der Welt.'],
+  ['gem:rubin', 'Rubin', 'Edelsteine', 'n', 'Ein Rubin ist rot wie eine Erdbeere.'],
+  ['gem:saphir', 'Saphir', 'Edelsteine', 'n', 'Ein Saphir ist blau wie das Meer.'],
+  ['gem:smaragd', 'Smaragd', 'Edelsteine', 'n', 'Ein Smaragd ist grün wie eine Wiese.'],
+  ['gem:amethyst', 'Amethyst', 'Edelsteine', 'n', 'Ein Amethyst ist lila wie Flieder.'],
+  ['gem:topas', 'Topas', 'Edelsteine', 'n', 'Ein Topas leuchtet gelb wie die Sonne.'],
+  ['gem:rosa', 'Rosenquarz', 'Edelsteine', 'r', 'Rosenquarz ist rosa und heißt auch Stein der Liebe.'],
+  ['gem:tuerkis', 'Aquamarin', 'Edelsteine', 'r', 'Aquamarin heißt Meerwasser. So sieht er auch aus.'],
+  ['🦪', 'Perle', 'Edelsteine', 'r', 'Perlen wachsen in Muscheln tief im Meer.'],
+  ['gem:regenbogen', 'Regenbogen-Diamant', 'Edelsteine', 'u', 'Ein Diamant in allen Farben. Den gibt es nur einmal.'],
+  /* Märchenwelt */
+  ['🐚', 'Muschel', 'Märchenwelt', 'n', 'Halte eine Muschel ans Ohr, dann hörst du das Meer rauschen.'],
+  ['🦋', 'Schmetterling', 'Märchenwelt', 'n', 'Ein Schmetterling war früher eine kleine Raupe.'],
+  ['🌸', 'Kirschblüte', 'Märchenwelt', 'n', 'Im Frühling werden ganze Bäume rosa.'],
+  ['🍄', 'Glückspilz', 'Märchenwelt', 'n', 'Im Märchenwald wohnen Wichtel unter Pilzen.'],
+  ['🪄', 'Zauberstab', 'Märchenwelt', 'n', 'Einmal schwingen, und alles glitzert.'],
+  ['🐬', 'Delfin', 'Märchenwelt', 'n', 'Delfine sind schlau und springen hoch aus dem Wasser.'],
+  ['🦢', 'Schwan', 'Märchenwelt', 'r', 'Ein Schwan gleitet ganz leise über den See.'],
+  ['🏝️', 'Schatzinsel', 'Märchenwelt', 'r', 'Auf der Schatzinsel ist der Schatz mit einem Kreuz markiert.'],
+  ['🧜‍♀️', 'Meerjungfrau', 'Märchenwelt', 'u', 'Die Meerjungfrau hütet die Schätze am Meeresgrund.'],
+  ['🧚', 'Glücksfee', 'Märchenwelt', 'u', 'Die Glücksfee streut Glitzer auf alle, die lieb sind.'],
 ];
-const STICKERS = STICKER_DATA.map((s, i) => ({ id: 's' + pad2(i + 1), ico: s[0], name: s[1], cat: s[2], rar: s[3] }));
+const STICKERS = STICKER_DATA.map((s, i) => ({ id: 's' + pad2(i + 1), ico: s[0], name: s[1], cat: s[2], rar: s[3], fact: s[4] }));
 const STICKER_BY = {};
 STICKERS.forEach(s => { STICKER_BY[s.id] = s; });
-/* Steckbriefe (Schlüssel = Name ohne Trennstriche). Erscheinen beim Antippen und beim Öffnen der Tüte. */
-const STICKER_FACT = {
-  'Der Kapitale': 'So nennen Angler einen richtig großen Fang.',
-  Zander: 'Raubfisch mit Glasaugen: Er sieht in trübem Wasser und in der Dämmerung bestens.',
-  Barsch: 'Erkennbar am Streifenhemd und an den roten Flossen. Junge Barsche jagen im Schwarm.',
-  Karpfen: 'Schlau und zäh: Ein Karpfen kann über 30 Jahre alt werden.',
-  Hecht: 'Der Räuber im Teich: bis zu 1,5 Meter lang und mit vielen spitzen Zähnen.',
-  Forelle: 'Sie liebt kaltes, klares Wasser. An den roten Punkten erkennst du sie.',
-  Rotauge: 'Ein Schwarmfisch mit roten Augen und roten Flossen. Er lebt fast überall im Wasser.',
-  Aal: 'Aale schwimmen Tausende Kilometer durchs Meer, um ihre Eier abzulegen.',
-  Lachs: 'Lachse springen Wasserfälle hinauf, wenn sie zurück in ihren Heimatfluss wollen.',
-  Wels: 'Der größte Süßwasserfisch Europas: über zwei Meter lang, mit Barteln wie eine Katze.',
-  'Der Goldene': 'Eine Legende unter Anglern. Nur wenige wollen ihn je gesehen haben.',
-  Seitfallzieher: 'Ein Akrobatik-Tor: Der Ball fliegt, der Spieler auch.',
-  'Torschützen-König': 'Die Krone bekommt, wer in einer Saison die meisten Tore schießt.',
-  'Traum-Tor': 'So eines gelingt vielleicht einmal im Leben.',
-  'Diamant-Pass': 'So genau gespielt, dass der Stürmer den Ball nur noch einschieben muss.',
-  'Ufo-Landung': 'Gelandet! Nur die Mutigsten erzählen davon.',
-  'Super-Held': 'Auch Helden fangen klein an: mit einem aufgeräumten Zimmer.',
-  'Drachen-Herz': 'Der Drache bewacht deinen Schatz und gibt ihn nur den Besten.',
-};
-const factOf = s => STICKER_FACT[s.name.replace(/­/g, '')] || '';
 const rarOf = id => (STICKER_BY[id] ? STICKER_BY[id].rar : 'n');
-const stickerPoints = prog => (prog.album || []).reduce((n, id) => n + RARITY[rarOf(id)].pts, 0);
-const stickerBonus = prog => Math.floor(stickerPoints(prog) / PTS_PER_TOR);
+const stickerPoints = prog => (prog.album || []).filter(id => STICKER_BY[id]).reduce((n, id) => n + RARITY[rarOf(id)].pts, 0);
+const stickerBonus = prog => Math.floor(stickerPoints(prog) / PTS_PER_DIAMANT);
 /* Zieht einen Sticker aus der Liste, Seltene mit kleinerem Gewicht (rnd liefert 0 bis unter 1). */
 function pickSticker(list, rnd) {
   const r = rnd || Math.random, tot = list.reduce((n, s) => n + RAR_WEIGHT[s.rar], 0);
@@ -231,39 +183,38 @@ function pickSticker(list, rnd) {
 }
 const packsLeft = (earned, album, foil) => { const opened = album.length + (foil || []).length; return opened >= 2 * STICKERS.length ? 0 : Math.max(0, earned - opened); };
 
+/* ---------- Spaß-Funde: Was die Gräberin ohne wartende Diamanten findet (zählt nicht) ---------- */
+const FUN_FINDS = [['🪱', 'Ein Regenwurm'], ['🌼', 'Eine Blume'], ['⭐', 'Ein Stern'], ['🐚', 'Eine Muschel'], ['🐞', 'Ein Marienkäfer'], ['🪨', 'Ein runder Stein'], ['🍂', 'Ein Blatt'], ['🦴', 'Ein Knochen'], ['🔑', 'Ein alter Schlüssel'], ['🐌', 'Eine Schnecke']];
+
 /* ---------- Aufgaben eines Tages ---------- */
 function tasksOn(S, ds) {
   const day = S.days[ds], m = (day && day.m) || {}, wd = dowOf(ds);
   return S.cfg.tasks.filter(t => {
-    if (m[t.id]) return true;                       // bereits gewertet: zählt weiter, auch wenn die Aufgabe später geändert wird
+    if (m[t.id]) return true;                       // bereits eingetragen: zählt weiter, auch wenn die Aufgabe später geändert wird
     if (t.from && ds < t.from) return false;        // erst ab Anlegedatum
     if (t.until && ds >= t.until) return false;     // ausgeblendet ab Datum
     return (t.days || []).indexOf(wd) >= 0;
   });
 }
 
-/* ---------- Karten (rechnet alle Tage der Reihe nach durch) ----------
-   Gelb = Verwarnung und kostet yellowPts Minus-Tore. Gelbe verfallen nie.
-   Zwei offene Gelbe = automatisch Rot. Rot kostet redPts Minus-Tore (höchstens einmal pro Tag) und leert die Gelben.
-   Das Minus (L.minus) steht bei den Zielen und beim Fang auf der Rechnung. Die Tore des Tages und der Spielstand bleiben unberührt,
-   und der Gegner bekommt für Karten nichts.
-   Alte Fair-Play-Einträge (k: 'f') streichen weiterhin die jüngste Gelbe.
-   Automatische Rote sind abgeleitet, nicht gespeichert: Wird ein Eintrag gelöscht, rechnet sich alles neu.
+/* ---------- Wolken (rechnet alle Tage der Reihe nach durch) ----------
+   Gelbe Wolke (k: 'y') = Verwarnung, kostet yellowPts. Gelbe verfallen nie.
+   Zwei offene Gelbe = automatisch Gewitterwolke. Gewitter (k: 'r') kostet redPts (höchstens einmal pro Tag) und vertreibt die Gelben.
+   Das Minus zählt bei den Schätzen; die Diamanten des Tages und in der Truhe bleiben unberührt.
+   Extra-Diamanten (k: '+') aus einem eigenen Grund, höchstens extraMax pro Tag.
+   Automatische Gewitter sind abgeleitet, nicht gespeichert: Wird ein Eintrag gelöscht, rechnet sich alles neu.
    Der automatische Eintrag merkt sich in src die zweite Gelbe, die ihn ausgelöst hat. */
 function buildLedger(S) {
-  const cfg = S.cfg;
-  const limit = 2;
-  const expiry = Math.max(0, +cfg.yellowExpiry || 0);
+  const cfg = S.cfg, limit = 2;
   const yPts = Math.max(0, +cfg.yellowPts || 0), rPts = Math.max(0, +cfg.redPts || 0);
   const xMax = Math.max(0, cfg.extraMax == null ? 3 : +cfg.extraMax);
-  const dates = Object.keys(S.days).filter(ds => (!S.days[ds].off || S.days[ds].joker) && (S.days[ds].ev || []).length).sort();
+  const dates = Object.keys(S.days).filter(ds => (S.days[ds].ev || []).length).sort();
   const byDay = {};
   let active = [];
   for (const ds of dates) {
-    const L = { plus: 0, plusRaw: 0, plusN: 0, yellow: 0, red: 0, autoRed: 0, fair: 0, minus: 0, rivalFree: 0, freeNo: 0, entries: [] };
+    const L = { plus: 0, plusRaw: 0, plusN: 0, yellow: 0, red: 0, autoRed: 0, minus: 0, entries: [] };
     let redDone = false;
-    const live = () => { if (expiry > 0) active = active.filter(d => daysBetween(d, ds) < expiry); };
-    const sendOff = (auto, e, src) => {
+    const storm = (auto, e, src) => {
       const counts = !redDone; redDone = true;
       if (auto) L.autoRed++; else L.red++;
       if (counts) L.minus += rPts;
@@ -271,19 +222,17 @@ function buildLedger(S) {
       L.entries.push(auto ? { k: 'r', auto, capped: !counts, src } : Object.assign({}, e, { capped: !counts }));
     };
     for (const e of S.days[ds].ev) {
-      if (e.k === '+') { L.plusRaw += +e.v || 1; L.plusN++; L.entries.push(e); }
-      else if (e.k === 'n') { L.rivalFree += Math.max(1, Math.round(+e.v) || 1); L.freeNo++; L.entries.push(e); }   // eigener Grund: Kein Tor, der Gegner bekommt es
-      else if (e.k === 'f') { live(); active.pop(); L.fair++; L.entries.push(e); }   // alter Eintrag: streicht die jüngste Gelbe
-      else if (e.k === 'r') sendOff(null, e);
+      if (e.k === '+') { L.plusRaw += Math.max(1, Math.round(+e.v) || 1); L.plusN++; L.entries.push(e); }
+      else if (e.k === 'r') storm(null, e);
       else if (e.k === 'y') {
-        live(); active.push(ds); L.yellow++; L.minus += yPts; L.entries.push(e);
-        if (active.length >= limit) sendOff('sum', null, e.id);
+        active.push(ds); L.yellow++; L.minus += yPts; L.entries.push(e);
+        if (active.length >= limit) storm('sum', null, e.id);
       }
     }
     L.plus = Math.min(L.plusRaw, xMax);
     byDay[ds] = L;
   }
-  return { byDay, active, limit, expiry };
+  return { byDay, active, limit };
 }
 function ledgerOf(S) {
   if (S._ledger && S._v !== undefined && S._lv === S._v) return S._ledger;
@@ -292,45 +241,43 @@ function ledgerOf(S) {
 }
 const touch = S => { S._v = (S._v || 0) + 1; };
 
-/* Stand des Verwarnungskontos (offene Gelbe; ohne Verfall, solange yellowExpiry 0 ist). */
-function accountNow(S, today) {
+/* Offene gelbe Wolken (verfallen nie, bis eine Gewitterwolke sie vertreibt). */
+function cloudsNow(S) {
   const lg = ledgerOf(S);
-  const act = lg.expiry > 0 ? lg.active.filter(d => daysBetween(d, today) < lg.expiry) : lg.active.slice();
-  return { count: act.length, limit: lg.limit, dates: act, expires: act.length && lg.expiry > 0 ? addDays(act[0], lg.expiry) : null, expiry: lg.expiry };
+  return { count: lg.active.length, limit: lg.limit, dates: lg.active.slice() };
 }
 
-/* ---------- Ein Tag ---------- */
+/* ---------- Ein Tag ----------
+   Zustände je Aufgabe: c = vom Kind getippt (wartet auf die Eltern), y = freigegeben (Diamant), n = heute nicht.
+   gain = Diamanten des Tages (freigegebene Aufgaben und Extra-Diamanten). dug = davon ausgegraben, waiting = noch in der Erde. */
 function evalDay(S, ds) {
   const day = S.days[ds] || {};
-  const r = { ds, off: false, joker: false, items: [], max: 0, gain: 0, plus: 0, plusN: 0, minus: 0, rival: 0, freeNo: 0, open: 0, ok: 0, bad: 0, na: 0, appN: 0, bonusDone: 0, judged: 0, hasData: false, result: 'none', perfect: false, complete: false, entries: [], yellow: 0, red: 0, fair: 0 };
-  if (day.off) { r.off = true; r.joker = !!day.joker; r.result = 'off'; return r; }
+  const r = { ds, items: [], max: 0, gain: 0, plus: 0, plusN: 0, minus: 0, open: 0, claimed: 0, ok: 0, na: 0, appN: 0, judged: 0, hasData: false, result: 'none', perfect: false, complete: false, entries: [], yellow: 0, red: 0, dug: 0, waiting: 0 };
   const m = day.m || {};
   let gain = 0;
   r.items = tasksOn(S, ds).map(t => {
     const st = m[t.id] || null;
-    if (t.bonus) { if (st === 'y') { gain += t.pts; r.bonusDone++; } }
-    else if (st === 'x') r.na++;
-    else {
-      r.appN++; r.max += t.pts;
-      if (st === 'y') { gain += t.pts; r.ok++; }
-      else if (st === 'n') { r.rival += t.pts; r.bad++; }
-      else r.open++;
-    }
+    r.appN++; r.max += t.pts;
+    if (st === 'y') { gain += t.pts; r.ok++; }
+    else if (st === 'n') r.na++;
+    else { r.open++; if (st === 'c') r.claimed++; }
     return { t, st };
   });
   const led = ledgerOf(S).byDay[ds];
   if (led) {
     r.plus = led.plus; r.plusN = led.plusN; r.entries = led.entries;
-    r.yellow = led.yellow; r.red = led.red + led.autoRed; r.fair = led.fair;
-    r.minus = led.minus;                           // Abzug durch Karten: zählt bei den Zielen, nicht im Spielstand
-    r.freeNo = led.freeNo;
-    r.rival += led.rivalFree;                      // eigene „Kein Tor“-Gründe zählen wie eine nicht geschaffte Aufgabe
+    r.yellow = led.yellow; r.red = led.red + led.autoRed;
+    r.minus = led.minus;
   }
-  r.gain = gain + r.plus;                          // alle Tore des Tages ohne Abzug: Das zeigt die Übersicht
-  r.judged = r.ok + r.bad;
-  r.hasData = r.judged > 0 || r.gain > 0 || r.freeNo > 0;      // Karten allein ergeben noch kein Spiel
-  if (r.hasData) r.result = r.gain > r.rival ? 'win' : r.gain === r.rival ? 'draw' : 'loss';
-  r.perfect = r.appN > 0 && r.ok === r.appN && r.red === 0 && r.yellow === 0 && r.freeNo === 0;
+  r.gain = gain + r.plus;
+  const dg = Math.max(0, Math.round(+day.dg) || 0);
+  r.dug = S.cfg.digMode === false ? r.gain : Math.min(dg, r.gain);
+  r.waiting = r.gain - r.dug;
+  r.judged = r.ok + r.na;
+  r.hasData = r.judged > 0 || r.gain > 0;
+  if (r.gain > 0) r.result = 'win';
+  else if (r.judged > 0 && r.open === 0) r.result = 'loss';
+  r.perfect = r.appN > 0 && r.ok === r.appN && r.red === 0 && r.yellow === 0;
   r.complete = r.appN > 0 && r.open === 0;
   return r;
 }
@@ -338,86 +285,82 @@ function evalDay(S, ds) {
 /* ---------- Eine Woche (Montag bis Sonntag) ---------- */
 function evalWeek(S, mon) {
   const days = [];
-  let goals = 0, max = 0, perfect = 0, joker = null, yellow = 0, red = 0, minus = 0;
+  let gems = 0, max = 0, perfect = 0, yellow = 0, red = 0, minus = 0, sparkle = 0;
   for (let i = 0; i < 7; i++) {
     const ds = addDays(mon, i), e = evalDay(S, ds);
-    days.push(e); goals += e.gain; max += e.max; if (e.perfect) perfect++;
+    days.push(e); gems += e.gain; max += e.max; if (e.perfect) perfect++; if (e.gain > 0) sparkle++;
     yellow += e.yellow; red += e.red; minus += e.minus;
-    if (e.joker) joker = ds;
   }
-  return { mon, days, goals, max, perfect, joker, yellow, red, minus };
+  return { mon, days, gems, max, perfect, yellow, red, minus, sparkle };
 }
 
 /* ---------- Gesamtstand ----------
-   total = alle Tore (Aufgaben, eigene Gründe, Bonus-Tore der Sticker): Das zeigt die Übersicht und danach richten sich die Sticker-Tüten.
-   minus = Abzug durch Gelbe und Rote Karten, score = total − minus: Danach richten sich die Ziele und der Fang. */
+   total = alle freigegebenen Diamanten plus Bonus-Diamanten der Sticker. Danach richten sich Zauberbeutel und (abzüglich Wolken) die Schätze.
+   chest = Diamanten in der Truhe (ausgegraben plus Bonus): Das zeigen Kopf und Truhe. waiting = noch in der Erde.
+   Gefeiert wird erst, wenn nichts mehr wartet (siehe actions.js). */
 function computeStats(S, today) {
   const dates = Object.keys(S.days).filter(d => d <= today).sort();
-  let days = 0, perfect = 0, bonusDone = 0, extras = 0, cur = 0, best = 0, yellows = 0, reds = 0, minus = 0;
+  let days = 0, dug = 0, waiting = 0, perfect = 0, extras = 0, cur = 0, best = 0, yellows = 0, reds = 0, minus = 0, firstWaiting = null;
   for (const ds of dates) {
     const e = evalDay(S, ds);
-    if (e.off) continue;
-    days += e.gain; minus += e.minus; bonusDone += e.bonusDone; extras += e.plusN; yellows += e.yellow; reds += e.red;
+    days += e.gain; dug += e.dug; waiting += e.waiting; minus += e.minus; extras += e.plusN; yellows += e.yellow; reds += e.red;
+    if (e.waiting > 0 && !firstWaiting) firstWaiting = ds;
     if (e.perfect) perfect++;
-    if (e.result === 'win' || e.result === 'draw') { cur++; if (cur > best) best = cur; }
+    if (e.result === 'win') { cur++; if (cur > best) best = cur; }
     else if (e.result === 'loss') cur = 0;
   }
   const album = S.prog.album || [], foil = S.prog.foil || [];
-  const pts = stickerPoints(S.prog), bonus = Math.floor(pts / PTS_PER_TOR);
-  const total = days + bonus;                                             // Tore aus Aufgaben plus Bonus-Tore der Sticker
-  const score = total - minus;                                            // zählt für Ziele und Fang
+  const pts = stickerPoints(S.prog), bonus = Math.floor(pts / PTS_PER_DIAMANT);
+  const total = days + bonus;
+  const score = total - minus;
   const every = Math.max(1, +S.cfg.packEvery || 5);
   const earned = 1 + Math.floor(total / every);
   const cel = S.prog.cel || {};
   const last = S.cfg.goals[S.cfg.goals.length - 1];
   return {
-    total, minus, score, days, perfect, bonusDone, extras, cur, best, yellows, reds,
-    caught: !!last && goalReached(S, score, last),
-    account: accountNow(S, today),
-    stickers: { count: album.length, pts, bonus, toNext: PTS_PER_TOR - (pts % PTS_PER_TOR) },
+    total, minus, score, days, dug, waiting, firstWaiting, chest: dug + bonus, perfect, extras, cur, best, yellows, reds,
+    found: !!last && goalReached(S, score, last),
+    clouds: cloudsNow(S),
+    stickers: { count: album.length, pts, bonus, toNext: PTS_PER_DIAMANT - (pts % PTS_PER_DIAMANT) },
     packs: { earned, opened: album.length + foil.length, left: packsLeft(earned, album, foil), complete: album.length >= STICKERS.length, foil: foil.length, every, next: every - (total % every) },
     reachedOn: id => { const v = cel['g:' + id]; return typeof v === 'string' ? v : null; },
   };
 }
 
-/* Ein Ziel ist erreicht, wenn die Tore nach Abzug reichen. Ein eingelöstes Ziel bleibt erreicht: Eine Belohnung, die schon da ist, nimmt kein Minus zurück. */
+/* Ein Schatz ist erreicht, wenn die Diamanten nach Abzug reichen. Ein eingelöster bleibt erreicht: Eine Belohnung, die schon da ist, nimmt keine Wolke zurück. */
 const goalReached = (S, score, g) => score >= g.at || !!(S.prog.red && S.prog.red[g.id]);
-
-/* Die Ziele mit Stand (gerechnet mit den Toren nach Abzug). Das letzte Ziel ist der große Fang. */
+/* Edelstein je Stufe: wird mit jeder Stufe kostbarer, der letzte ist die Krone. */
+const GOAL_GEMS = ['rosa', 'tuerkis', 'topas', 'smaragd', 'saphir', 'amethyst', 'rubin', 'weiss', 'regenbogen'];
 function goalList(S, st) {
   const red = S.prog.red || {}, gs = S.cfg.goals;
   return gs.map((g, i) => ({
-    id: g.id, at: g.at, reward: g.reward, last: i === gs.length - 1, tier: i < gs.length * 0.36 ? 'bronze' : i < gs.length * 0.72 ? 'silver' : 'gold',
+    id: g.id, at: g.at, reward: g.reward, last: i === gs.length - 1, gem: GOAL_GEMS[Math.min(GOAL_GEMS.length - 1, Math.floor(i * GOAL_GEMS.length / Math.max(1, gs.length)))],
     reached: goalReached(S, st.score, g), need: Math.max(0, g.at - st.score), prev: i ? gs[i - 1].at : 0,
-    on: st.reachedOn(g.id), done: red[g.id] || null, money: rewardMoney(g.reward),
+    on: st.reachedOn(g.id), done: red[g.id] || null,
   }));
 }
-/* Nächstes noch nicht erreichtes Ziel (null, wenn alle erreicht sind). */
 const nextGoal = (S, st) => goalList(S, st).find(g => !g.reached) || null;
-/* Steht in der Belohnung „5 € aufs Guthabenkonto“, bucht die App den Betrag beim Einlösen (in Cent, sonst 0). */
-function rewardMoney(text) {
-  const m = /(\d{1,4}(?:[.,]\d{1,2})?)\s*(?:€|euro)\s*(?:auf|aufs|auf\s+das|auf\s+dem)\s*(?:guthaben)?\s*konto/i.exec(String(text || ''));
-  return m ? (parseMoney(m[1]) || 0) : 0;
-}
 
 /* Meilensteine vor/nach einer Änderung vergleichen (für Feiern). */
 function milestones(S, ds, today) {
   const e = evalDay(S, ds), st = computeStats(S, today);
-  return { perfect: e.perfect, goals: S.cfg.goals.filter(g => goalReached(S, st.score, g)).map(g => g.id), caught: st.caught, total: st.total, score: st.score, packs: st.packs.earned, ok: e.ok, red: e.red, yellow: e.yellow, account: st.account.count };
+  return { perfect: e.perfect, goals: S.cfg.goals.filter(g => goalReached(S, st.score, g)).map(g => g.id), found: st.found, total: st.total, score: st.score, packs: st.packs.earned, ok: e.ok, red: e.red, yellow: e.yellow, clouds: st.clouds.count };
 }
 
-/* Hinweise für den Trainer (Bremse): Hürde zu hoch? Belohnung offen? */
-function coachAdvice(S, today) {
+/* Hinweise für die Eltern: Hürde zu hoch? Belohnung offen? Wartet etwas auf Freigabe? */
+function parentAdvice(S, today) {
   const out = [];
-  if (S.cfg.tasks.some(t => t.id === 't_abmachung' && !(t.until && t.until <= today)) && !String(S.cfg.agreement || '').trim()) out.push({ kind: 'agreement' });
   let reds = 0;
   for (let i = 0; i < 7; i++) reds += evalDay(S, addDays(today, -i)).red;
   if (reds >= 2) out.push({ kind: 'reds', n: reds });
-  goalList(S, computeStats(S, today)).forEach(g => { if (g.reached && !g.done && g.on && daysBetween(g.on, today) >= 7) out.push({ kind: 'open', id: g.id, at: g.at, since: g.on }); });
+  const st = computeStats(S, today);
+  goalList(S, st).forEach(g => { if (g.reached && !g.done && g.on && daysBetween(g.on, today) >= 7) out.push({ kind: 'open', id: g.id, at: g.at, since: g.on }); });
+  const firstEmpty = S.cfg.goals.slice(0, 3).filter(g => !String(g.reward || '').trim()).length;
+  if (firstEmpty) out.push({ kind: 'rewards', n: firstEmpty });
   if ((S.prog.album || []).length >= STICKERS.length) out.push({ kind: 'album' });
   return out;
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { fmtEUR, fmtPlain, parseMoney, kontoBalance, kontoList, genitive, STICKER_FACT, factOf, WD_SHORT, WD_LONG, MONTHS_SHORT, fmtDate, parseDate, addDays, dowOf, mondayOf, todayStr, daysBetween, isoWeek, defaultCfg, migrateCfg, normGoals, normProg, taskSub, goalReached, goalList, nextGoal, rewardMoney, LADDER, ladderText, RARITY, RAR_ORDER, RAR_WEIGHT, PTS_PER_TOR, STICKERS, STICKER_BY, rarOf, stickerPoints, stickerBonus, pickSticker, packsLeft, tasksOn, buildLedger, ledgerOf, touch, accountNow, evalDay, evalWeek, computeStats, milestones, coachAdvice };
+  module.exports = { WD_SHORT, WD_LONG, MONTHS_SHORT, fmtDate, parseDate, addDays, dowOf, mondayOf, todayStr, daysBetween, isoWeek, CFG_V, SLOTS, HAIR, DRESS, STYLE, defaultCfg, migrateCfg, normGoals, normProg, goalReached, goalList, nextGoal, GOAL_GEMS, LADDER, ladderText, RARITY, RAR_ORDER, RAR_WEIGHT, PTS_PER_DIAMANT, CATS, STICKERS, STICKER_BY, rarOf, stickerPoints, stickerBonus, pickSticker, packsLeft, FUN_FINDS, tasksOn, buildLedger, ledgerOf, touch, cloudsNow, evalDay, evalWeek, computeStats, milestones, parentAdvice };
 }

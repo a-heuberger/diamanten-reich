@@ -1,5 +1,6 @@
 /* ============ Ton (Web Audio), Konfetti (Canvas), Vibration ============ */
-const Hap = { go(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* kein Gerät mit Vibration */ } } };
+/* Vibration nur nach einem echten Tipp (sonst meldet der Browser einen Fehler); das iPhone kann es ohnehin nicht. */
+const Hap = { go(p) { try { if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate(p); } catch (e) { /* kein Gerät mit Vibration */ } } };
 const stillMotion = () => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
 
 const Snd = (function () {
@@ -32,41 +33,27 @@ const Snd = (function () {
     a.gain.setValueAtTime(.0001, t); a.gain.linearRampToValueAtTime(g, t + d * .35); a.gain.exponentialRampToValueAtTime(.0001, t + d);
     s.connect(bp); bp.connect(a); a.connect(master); s.start(t);
   }
-  function pfiff(t, d) {
-    const o = ctx.createOscillator(), lfo = ctx.createOscillator(), lg = ctx.createGain(), a = ctx.createGain();
-    o.type = 'sine'; o.frequency.value = 2900; lfo.frequency.value = 34; lg.gain.value = 140;
-    lfo.connect(lg); lg.connect(o.frequency);
-    a.gain.setValueAtTime(.0001, t); a.gain.exponentialRampToValueAtTime(.22, t + .02); a.gain.setValueAtTime(.22, t + d - .05); a.gain.exponentialRampToValueAtTime(.0001, t + d);
-    o.connect(a); a.connect(master); o.start(t); lfo.start(t); o.stop(t + d + .05); lfo.stop(t + d + .05);
-  }
-  function brass(f, t, d, g) {
-    const o = ctx.createOscillator(), lp = ctx.createBiquadFilter(), a = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain();
-    o.type = 'sawtooth'; o.frequency.setValueAtTime(f, t); lp.type = 'lowpass'; lp.frequency.setValueAtTime(900, t); lp.frequency.linearRampToValueAtTime(2200, t + d * .5);
-    lfo.frequency.value = 5.5; lg.gain.value = f * .006; lfo.connect(lg); lg.connect(o.frequency);
-    a.gain.setValueAtTime(.0001, t); a.gain.exponentialRampToValueAtTime(g, t + .04); a.gain.setValueAtTime(g, t + d * .7); a.gain.exponentialRampToValueAtTime(.0001, t + d);
-    o.connect(lp); lp.connect(a); a.connect(master); o.start(t); lfo.start(t); o.stop(t + d + .05); lfo.stop(t + d + .05);
-  }
+  function bell(f, t, d, g) { tone(f, t, d, 'sine', g); tone(f * 2.01, t, d * .6, 'sine', g * .35); tone(f * 3.02, t, d * .3, 'triangle', g * .12); }
   const run = fn => { const c = ensure(); if (!c) return; try { fn(c.currentTime); } catch (e) { /* Ton ist nie wichtig genug für einen Fehler */ } };
   return {
     setMuted(m) { muted = !!m; },
     isMuted: () => muted,
     wake() { ensure(); },
-    tap() { run(t => tone(700, t, .06, 'sine', .07, 480)); },
-    soft() { run(t => tone(240, t, .2, 'sine', .07, 190)); },                                   // ruhig: Kein Tor, Karte
-    kick() { run(t => { tone(150, t, .14, 'sine', .45, 48); crowd(t, .07, .22, 350, 900); }); },   // Ball getreten: Wumms und Leder
-    stamp() { run(t => { tone(160, t, .16, 'sine', .38, 48); tone(90, t, .12, 'triangle', .22, 40); }); },
-    goal() { run(t => { tone(120, t, .16, 'sine', .3, 50); crowd(t, .28, .3, 3500, 6500); crowd(t + .06, 1.1, .26, 600, 1500); }); },   // Netz und Publikum
-    fanfare() { run(t => { [261.6, 329.6, 392].forEach((f, i) => brass(f, t + i * .2, .2, .1)); brass(523.3, t + .6, .9, .12); tone(130, t, .2, 'sine', .4, 46); crowd(t, 2.4, .32, 600, 1800); }); },
-    pack() { run(t => { crowd(t, .55, .3, 900, 6500); for (let i = 0; i < 6; i++) crowd(t + .1 + i * .08, .03, .26, 2500, 5000); [1318, 1760, 2093].forEach((f, i) => tone(f, t + .65 + i * .07, .22, 'sine', .07)); }); },
-    stage() { run(t => { crowd(t, .45, .3, 2500, 900); tone(300, t, .3, 'sine', .2, 90); for (let i = 0; i < 10; i++) tone(1700, t + .3 + i * .055, .02, 'square', .035); }); },
-    sparkle() { run(t => { [1318, 1760, 2093, 2637].forEach((f, i) => tone(f, t + i * .07, .22, 'sine', .07)); }); },
-    splash() { run(t => { crowd(t, .5, .3, 3000, 900); tone(300, t, .3, 'sine', .2, 90); }); },
+    tap() { run(t => tone(880, t, .07, 'sine', .07, 640)); },
+    soft() { run(t => tone(330, t, .22, 'sine', .07, 262)); },                                      // ruhig: noch nicht, Wolke
+    claim() { run(t => { bell(988, t, .35, .09); bell(1319, t + .09, .45, .08); }); },               // Kind tippt „Geschafft!“
+    dig(n) { run(t => { tone(150 - (n || 0) * 12, t, .12, 'sine', .35, 60); crowd(t, .16, .22, 1800, 600); }); },   // Spatenstich: Plopp und Sand
+    gem() { run(t => { [1319, 1661, 1976, 2637].forEach((f, i) => bell(f, t + i * .06, .5, .08)); }); },              // Diamant springt heraus
+    find() { run(t => { tone(520, t, .12, 'sine', .12, 780); tone(780, t + .1, .16, 'sine', .1, 620); }); },         // Spaß-Fund
+    fanfare() { run(t => { [523.3, 659.3, 784, 1046.5, 1318.5, 1568].forEach((f, i) => bell(f, t + i * .11, .9, .09)); [1046.5, 1318.5, 1568].forEach(f => bell(f, t + .8, 1.4, .07)); crowd(t + .7, 1.2, .08, 5000, 9000); }); },
+    pack() { run(t => { crowd(t, .45, .22, 1200, 5000); [1568, 1976, 2349, 2637].forEach((f, i) => bell(f, t + .5 + i * .07, .4, .07)); }); },
+    sparkle() { run(t => { [1568, 1976, 2349, 3136].forEach((f, i) => bell(f, t + i * .07, .4, .06)); }); },
   };
 })();
 
 const FX = (function () {
   let cv = null, cx = null, parts = [], raf = 0, last = 0, W = 0, H = 0;
-  const COLORS = ['#c6ff3d', '#ffd23c', '#ff8a1f', '#38c9f2', '#ffffff', '#ff5a52'];
+  const COLORS = ['#2cc6c3', '#ffd45a', '#ff8fc1', '#bb96ff', '#ffffff', '#6fe3dc'];
   function fit() {
     if (!cv) return;
     const d = Math.min(2, window.devicePixelRatio || 1);
@@ -114,16 +101,51 @@ const FX = (function () {
   const ok = () => cv && !stillMotion();
   return {
     init,
-    /* kleiner Knall an einer Stelle (beim Tor) */
-    pop(x, y, emojis) { if (ok()) add(x, y, 26, { speed: 7, spread: Math.PI * 1.4, angle: -Math.PI / 2, emojis: emojis || ['⚽'], emojiShare: .25, life: 1.7 }); },
+    /* kleiner Funkelregen an einer Stelle (beim Diamanten) */
+    pop(x, y, emojis) { if (ok()) add(x, y, 26, { speed: 7, spread: Math.PI * 1.4, angle: -Math.PI / 2, emojis: emojis || ['💎'], emojiShare: .25, life: 1.7 }); },
     /* große Feier: zwei Kanonen von unten und Regen von oben */
     party(emojis) {
       if (!ok()) return;
-      const e = emojis || ['⚽', '⭐'];
+      const e = emojis || ['💎', '✨'];
       add(W * .08, H * .92, 70, { angle: -Math.PI * .36, spread: .7, speed: 17, emojis: e, emojiShare: .2, life: 3.2, gravity: .3 });
       add(W * .92, H * .92, 70, { angle: -Math.PI * .64, spread: .7, speed: 17, emojis: e, emojiShare: .2, life: 3.2, gravity: .3 });
       setTimeout(() => add(() => Math.random() * W, -20, 70, { fall: true, still: true, emojis: e, emojiShare: .15, life: 3.6, gravity: .1 }), 350);
     },
     clear() { parts = []; },
+  };
+})();
+
+/* ============ Vorlesen: deutsche Stimme des Geräts (iPhone: nur nach einem Tipp) ============ */
+const Say = (function () {
+  let on = true, voice = null;
+  const ok = () => { try { return 'speechSynthesis' in window && typeof SpeechSynthesisUtterance === 'function'; } catch (e) { return false; } };
+  function pick() {
+    if (voice || !ok()) return voice;
+    try {
+      const vs = speechSynthesis.getVoices() || [];
+      const de = vs.filter(v => /^de(-|_|$)/i.test(v.lang));
+      voice = de.find(v => /anna|helena|marlene|petra|vicki|female|frau/i.test(v.name)) || de.find(v => /de-DE/i.test(v.lang)) || de[0] || null;
+    } catch (e) { voice = null; }
+    return voice;
+  }
+  if (ok()) { try { speechSynthesis.onvoiceschanged = () => { voice = null; pick(); }; } catch (e) { /* egal */ } }
+  return {
+    available: ok,
+    hasGerman: () => !!pick(),
+    setOn(v) { on = !!v; if (!on) this.stop(); },
+    isOn: () => on,
+    stop() { try { if (ok()) speechSynthesis.cancel(); } catch (e) { /* egal */ } },
+    say(text, force) {
+      if ((!on && !force) || !ok() || !text) return false;
+      try {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(String(text).replace(/­/g, ''));
+        u.lang = 'de-DE'; u.rate = .92; u.pitch = 1.12;
+        const v = pick(); if (v) u.voice = v;
+        speechSynthesis.speak(u);
+        window.__said = (window.__said || []).concat(String(text));
+        return true;
+      } catch (e) { return false; }
+    },
   };
 })();
