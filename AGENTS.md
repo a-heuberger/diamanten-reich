@@ -7,7 +7,7 @@ Belohnungs-App für ein Mädchen (5, bald 6), Schwester der Torjäger-App für d
 
 ## Stand in einem Satz
 
-Das **Gerüst steht und ist getestet**: eine Kopie der Torjäger-App (Stand `53b8f5e` im Repo `a-heuberger/torjaeger-app`: Web-App, Firestore, Familienlink, Offline, iPhone-Abstände, Pages-Unterpfad) mit eigenen Kennungen. **Spielregeln, Texte und Bilder sind noch die von Ben (Fußball)**; die Umgestaltung nach dem Konzept unten ist der Auftrag. `docs/` ist bewusst noch nicht eingecheckt, bis die App fertig ist.
+Die **App ist fertig gebaut und getestet** (Regeln, Optik, Graben, Wolken, Schätze, Album, Vorlesen, Woche, Eltern-Bereich), aber **noch nicht veröffentlicht**: Es fehlen das Repo `diamanten-reich`, der Familiencode in den Firestore-Regeln und Pages (Einrichtung in `UEBERGABE.md`, Abschnitt 10). Die offenen Fragen an den Nutzer sind mit Vorgaben belegt, die er im Eltern-Bereich ändern kann (`UEBERGABE.md`, Abschnitt 4). Auf einem echten iPhone ist diese App noch nicht geprüft.
 
 ## Namen und Datenschutz im öffentlichen Repo
 
@@ -22,20 +22,20 @@ Das **Gerüst steht und ist getestet**: eine Kopie der Torjäger-App (Stand `53b
 | Claude-Seite (Artifact) | `build/diamanten.html`, `build/diamanten.test.html` | Claude-db (in Tests: `test/mock-claude.js`) | Vorschau per Artifact-Werkzeug und **schnelle Browser-Tests ohne Emulator** |
 
 `src/`: `logic.js` (Regeln, rein), `svg.js` (Bilder), `fx.js` (Effekte, Ton), `store.js` (Speicher, Sync, Echo-Erkennung), `cloud.js` (Web-App: Familienlink, Firestore-Adapter, Sperrseiten), `views.js`, `actions.js`, `style.css`, `body.html`.
-Dokumente: `cfg/main` (Einstellungen), `cfg/progress` (Feiern, Eingelöstes, Album), `days/<JJJJ-MM-TT>`, `konto/<id>` (bei Diamanten-Reich entfällt das Konto). Beide Ausgaben nutzen dieselben Dokumente und dieselbe Schnittstelle; `fsAdapter` in `cloud.js` bildet sie auf Firestore ab.
+Dokumente: `cfg/main` (Einstellungen), `cfg/progress` (Feiern, Eingelöstes, Album), `days/<JJJJ-MM-TT>` (`m` Aufgaben, `ev` Extras und Wolken, `dg` ausgegrabene Diamanten). Kein Konto. Beide Ausgaben nutzen dieselben Dokumente und dieselbe Schnittstelle; `fsAdapter` in `cloud.js` bildet sie auf Firestore ab.
 
 ## Befehle
 
 ```bash
-npm install                      # in einer frischen Sitzung nötig (firebase, esbuild, Schriften, firebase-tools für den Emulator); Playwright ist global da: export NODE_PATH=$(npm root -g)
+npm install                      # in einer frischen Sitzung nötig (firebase, esbuild, Schriften Fredoka/Nunito, firebase-tools für den Emulator)
+# Playwright ist nicht in package.json: in der Cloud global (export NODE_PATH=$(npm root -g)), am Mac: npm install --no-save playwright@<Version passend zum vorhandenen Chromium>
 node build.js                    # baut build/ (Claude-Seite, Testversionen) und docs/ (Web-App)
-node test/test-logic.js          # Regeln, rein
-node test/e2e7.js                # Browser-Tests der Claude-Seite (Playwright)
-node test/e2e.js; node test/e2e4.js; node test/e2e6.js
+node test/test-logic.js          # Regeln, rein (62)
+node test/e2e-dia.js             # Browser-Tests der Claude-Seite mit Attrappe (69), Bildschirmfotos nach shots/
 node tools/rules.js CODE1 [CODE2 …] --out Zieldatei    # Regeln aus der Vorlage, ein Block je Familiencode (--out ist Pflicht für eine Datei)
 node tools/rules.js TESTCODE23456789 TESTZWEI23456789 --out build/test.firestore.rules   # für den Emulator (build/ vorher anlegen)
-./node_modules/.bin/firebase emulators:start --only firestore --project demo-diamanten --config firebase.json   # Emulator auf 127.0.0.1:8085 (braucht Java, lädt das Jar beim ersten Start)
-node test/e2e-cloud.js           # Web-App gegen den Emulator: echtes SDK, echte Regeln, zwei Familien, zwei Geräte, offline, falscher Code, iPhone-Statusleiste (Abschnitt K)
+./node_modules/.bin/firebase emulators:start --only firestore --project demo-diamanten --config firebase.json   # Emulator auf 127.0.0.1:8085 (braucht Java 21; am Mac ohne Java: JRE von Adoptium in den Scratchpad laden, JAVA_HOME setzen)
+node test/e2e-cloud.js           # Web-App gegen den Emulator: echtes SDK, echte Regeln, zwei Familien, zwei Geräte, Graben über Firestore, offline, falscher Code, iPhone-Statusleiste (Abschnitt K)
 node test/subpath.js             # docs/ unter dem Pages-Unterpfad /diamanten-reich/: Manifest, Symbole, Service Worker, Schriften, Start ohne Netz, fremde Zwischenspeicher bleiben
 node tools/icons.js              # Symbole neu zeichnen (assets/)
 node tools/familiencode.js       # neuen Familiencode würfeln
@@ -64,18 +64,20 @@ Vor jedem Push auf `main` müssen **alle** Suiten grün sein: Push = live für d
 
 Beide Apps liegen auf `a-heuberger.github.io`. Cache Storage, `localStorage` und IndexedDB gehören der **ganzen Herkunft**, nicht dem Unterpfad. Darum hier: Zwischenspeicher `diamanten-<Version>` (der Service Worker löscht nur Zwischenspeicher mit diesem Präfix), `localStorage`-Schlüssel mit Präfix `dia-`, eigener Name der Firebase-Instanz (`initializeApp(…, 'diamanten')`, sonst teilen sich beide App den IndexedDB-Speicher von Firestore) und eigenes PIN-Salz. Die Torjäger-App nutzt `torjaeger-`/`torj-` und löscht fremde Zwischenspeicher seit `53b8f5e` nicht mehr; ältere installierte Fassungen taten das noch (kein Problem, solange die App des Bruders vor dem Start dieser App einmal online geöffnet wurde und sich aktualisiert hat). Neue Schlüssel und Zwischenspeicher immer mit dem eigenen Präfix anlegen.
 
-## Konzept (vom Nutzer entschieden)
+## Konzept (vom Nutzer entschieden) und wie es umgesetzt ist
 
-Einzelheiten, Wortlaut und Plan in `UEBERGABE.md`. Kurz:
+Einzelheiten und Wortlaut in `UEBERGABE.md`. Kurz:
 
-- **Hauptbild: Diamantenschatz.** Eine Schatztruhe füllt sich Diamant für Diamant und glitzert immer mehr; Einhorn und Prinzessin begleiten als Figuren. Stimmung **Türkis-Gold „Schatzreich“** (Meerjungfrau/Schatzinsel), Diamanten in Weiß, Gold und Rosa. Verspielt, rund, groß antippbar, wenig Text (das Kind kann noch nicht lesen).
-- **Abhaken:** Das Kind tippt „Geschafft!“, der Diamant funkelt und wartet, bis ein Elternteil ihn mit einem Tipp freigibt (Eltern-Modus mit PIN).
-- **Graben statt Schießen:** Jeder freigegebene Diamant wartet in der Erde. Das Kind tippt, eine **Schatzgräberin** (Mädchen mit Schaufel) gräbt und holt den Diamanten heraus, er fliegt in die Truhe und zählt erst dann in der Anzeige. Jeder Tipp ist ein Spatenstich; Vorschlag 3 Tipps je Diamant (einstellbar 1 bis 5). Das Kind kann jederzeit tippen; ohne wartende Diamanten findet die Gräberin nur Kleinigkeiten (Wurm, Blume, Stern), die nicht zählen.
-- **Abzüge wie bei der Torjäger-App**, nur als **Wolken** verpackt: gelbe Wolke = Verwarnung (−1), Gewitterwolke = rot (−3), zwei offene gelbe oder eine rote Wolke wirken wie dort (rot höchstens einmal pro Tag, verfallen nie, Eltern können zurücknehmen). Übersicht zeigt alle Diamanten, Belohnungen rechnen netto.
-- **Belohnungen:** die erste nach 2 bis 3 Tagen (etwa 10 Diamanten), danach größere Abstände; Texte legen die Eltern fest.
-- **Extras (alle vier gewünscht):** Sammelalbum (Einhörner, Prinzessinnen, Edelsteine, etwa 40 Sticker, Seltenheiten, Bonus-Diamant), Mini-Spiel (= das Graben), Vorlesen per Tipp (deutsche Stimme des iPhones, `speechSynthesis`), Wochenrückblick (Regenbogen).
-- **Bilder:** selbst gezeichnete Vektorgrafiken, **zusätzlich KI-Bilder (Magnific)** für einzelne große Motive (Einhorn, Prinzessin). Vor jeder Erzeugung Preis nennen (`simulate_cost`) und den Nutzer fragen.
-- Entfällt gegenüber Ben: Gegner/Spielstand 0:0, Angeln und Fang, Konto/Noten-Geld, Fußball-Texte.
+- **Hauptbild: Diamantenschatz.** Heute zeigt eine Szene: Schatzgräberin (Aussehen aus `cfg.look`: Haarfarbe, Frisur, Kleid) am Erdhügel, Truhe mit Füllstand (`chestLevel`, Wurzel aus Truhe/letzter Schatz, damit die ersten Diamanten sichtbar sind), Einhorn auf der Truhe. Stimmung Türkis-Gold, runde Schriften, große Knöpfe, wenig Text.
+- **Abhaken:** Kind tippt „Geschafft!“ → `m[id] = 'c'` (nur heute, nur gesperrt). Eltern-Modus: „Diamant/Freigeben“ → `'y'`, „Heute nicht“ → `'n'` (neutral, kein Minus). Gleicher Knopf noch einmal = zurück auf offen. Das Schloss im Kopf zeigt die Zahl der getippten Aufgaben.
+- **Graben:** `evalDay` liefert `gain`, `dug = min(dg, gain)`, `waiting`. Jeder Tipp ist ein Stich (`cfg.digTaps`, 1–5, Vorgabe 3); danach `dg + 1` am ältesten Tag mit Wartenden. Gedrückt halten gräbt alle. Ohne Wartende Spaß-Funde (`FUN_FINDS`, zählen nicht, `cfg.digFun`). `cfg.digMode = false`: alles gilt sofort als gegraben.
+- **Zählen:** Schätze und Zauberbeutel rechnen mit **allen freigegebenen** Diamanten (plus Bonus der Sticker, minus Wolken); Kopf und Truhe zeigen die **gegrabenen**. Gefeiert wird erst, wenn nichts mehr wartet.
+- **Feiern sind aus den Daten abgeleitet** (`checkCelebs` nach jedem Rendern): erreichter Schatz ohne `prog.shown[id]`, perfekter Tag ohne `prog.cel['p:'+ds]`, mehr Beutel als `prog.packN`. So kommen sie genau einmal, auch wenn die Eltern auf einem anderen Gerät freigeben. Nur ansehen und ohne Zugriff: keine Feiern.
+- **Wolken** = Karten der Torjäger-App (`buildLedger`, Ereignisse `y`/`r`, zwei offene gelbe = Gewitter, Gewitter höchstens einmal pro Tag, verfallen nie, Eltern nehmen zurück). Erst nach „Hinweise für Eltern“ freigeschaltet (`cloudsAck`).
+- **Extras:** Sammelalbum (40 Sticker, vier Kategorien, Edelsteine als Zeichnung `gem:<farbe>`, Steckbrief `fact` wird vorgelesen), Mini-Spiel = Graben, Vorlesen (`Say` in `fx.js`, `speechSynthesis` de-DE, Schalter `dia-speak`), Wochenrückblick als Regenbogen.
+- **Schätze:** Vorgabe 10, 25, 50, 75, 100, 150, 200, 300, 500, Belohnung leer = „Überraschung!“. Die Schätze-Seite zeigt oben den nächsten Schatz (nicht den Weg bis 500), die Liste für das Kind gekürzt.
+- **Bilder:** alles selbst gezeichnete Vektorgrafik (`svg.js`). KI-Bilder (Magnific) nur nach Preisangabe und Freigabe des Nutzers; bisher keine erzeugt.
+- Entfallen: Gegner/Spielstand, Angeln, Konto, Fußball.
 
 ## Gotchas (aus der Torjäger-App übernommen, hier ebenso gültig)
 
@@ -87,6 +89,8 @@ Einzelheiten, Wortlaut und Plan in `UEBERGABE.md`. Kurz:
 - Firestore-Regel `{document=**}` trifft auch den Familienknoten selbst; das ist gewollt und unkritisch.
 - Rauchtest mit dem echten Link nur **lesend** fahren (Einlauf erscheint, kein Schreibkanal); die Einrichtung abzuschließen schreibt `cfg/main` in die echte Datenbank.
 - **Sicherheitsabstände (iPhone mit Dynamic Island) sind am Rechner 0 und fallen dort nie auf.** Der Kopf (`.top`) klebt mit `top: env(safe-area-inset-top)` unterhalb der Statusleiste; `.pwa #app { padding-top: env(safe-area-inset-top) }` hält den Inhalt darunter (die Klasse `pwa` setzt `build.js` am `<html>`). Jede feste Höhe unterhalb des Kopfes braucht `env(safe-area-inset-top)` mit (`scroll-margin-top`, klebende Leisten, Banner). Abschnitt K in `test/e2e-cloud.js` stellt Statusleiste (59 px) und Home-Balken (34 px) nach: Der Testserver ersetzt die Abstände bei `?inset=1` nur im `<style>` (im Skript bräche der Hash der Sicherheitsrichtlinie). Nicht per Playwright-`route` lösen, das stört die Anfragen an den Emulator (CORS). **Jede neue Szene, Leiste oder jedes Banner am Rechner mit diesem Test prüfen.**
-- Browser-Tests der Claude-Seite brauchen `test/mock-claude.js` (bildet die db von Claude nach, `window.__nodb`/`__readonly` schalten Zugriffsarten).
+- Browser-Tests der Claude-Seite brauchen `test/mock-claude.js` (bildet die db von Claude nach, `window.__nodb`/`__readonly` schalten Zugriffsarten). Vorlesen wird mit `Object.defineProperty(window, 'speechSynthesis', …)` nachgestellt (einfaches Zuweisen wirkt in Chromium nicht).
+- Der Zauberbeutel wackelt ständig: Playwright hält ihn für „nicht stabil“, dort mit `force: true` klicken, sonst nie (ein erzwungener Klick trifft sonst Banner oder Tab-Leiste).
+- `navigator.vibrate` nur nach einer echten Geste (`Hap.go` prüft `userActivation`), sonst meldet Chromium einen Konsolenfehler.
 - Eine doppelte Setting-`id` oder ein ungültiger Block lässt andere Plattformen Dateien still liegen: lieber testen als annehmen.
 - Werkzeug-Eigenheiten der Sitzung: ein nacktes `sleep` ist gesperrt (Schleife mit Bedingung nehmen); bei `git grep --cached` stehen die Optionen **vor** dem Muster (sonst leere Ausgabe wie „keine Treffer“); `github.io` und die GitHub-API sind aus der Sandbox nicht erreichbar, den Pages-Lauf über `mcp__github__actions_list` prüfen.
