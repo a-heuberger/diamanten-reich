@@ -54,7 +54,7 @@ Der Nutzer war beim Bau nicht erreichbar und hat gebeten, ohne Rückfragen ferti
 
 **Vorschau:** Die Claude-Seite (`build/diamanten.html`) ist als **private** Claude-Seite veröffentlicht (Adresse nur im Chat, nicht im Repo), Speicher = Claude-db der Seite, getrennt von Firestore. Zum Ausprobieren; was dort eingetragen wird, wandert nicht in die Web-App.
 
-**Firebase:** unverändert. Die Regeln enthalten weiter nur den Code der Torjäger-App. Ein neuer Code für diese App ist gewürfelt und liegt mit dem fertigen Regeltext (beide Codes) und dem Familienlink nur im Scratchpad der Sitzung vom 13.11. (nicht im Repo). Geht der Scratchpad verloren: neu würfeln (`node tools/familiencode.js`), der alte wurde nie verwendet.
+**Firebase:** unverändert. Die Regeln enthalten weiter nur den Code der Torjäger-App. Ein neuer Code für diese App ist gewürfelt und liegt mit dem fertigen Regeltext (beide Codes), dem Familienlink und dem Chrome-Auftrag auf dem Mac des Nutzers in `~/Claude/diamanten-privat/` (außerhalb des Repos). Fehlt der Ordner: neu würfeln (`node tools/familiencode.js`), der alte wurde nie verwendet.
 
 **Noch nicht vorhanden:** Repo `diamanten-reich`, Pages, Code in den Regeln, Prüfung auf einem echten iPhone (Vorlesen: deutsche Stimme da? Ton, Graben mit dem Finger, Statusleiste).
 
@@ -73,8 +73,8 @@ Der Nutzer war beim Bau nicht erreichbar und hat gebeten, ohne Rückfragen ferti
 
 ## 8. Private Eingaben (nicht ins Repo, nicht in Commits, nicht in Screenshots)
 
-- Firebase-Konfiguration und Code der Torjäger-App stehen in deren Familienlink. Daraus gelesen und nur im Scratchpad abgelegt (`privat/firebase-config.json`, `privat/code-torjaeger.txt`).
-- Code dieser App, Regeltext mit beiden Codes und Familienlink: ebenfalls nur im Scratchpad (`privat/code-diamanten.txt`, `privat/regeln-beide-codes.txt`, `privat/familienlink-diamanten.txt`).
+- Firebase-Konfiguration und Code der Torjäger-App stehen in deren Familienlink. Daraus gelesen und abgelegt in `~/Claude/diamanten-privat/` (außerhalb des Repos, nur auf dem Mac des Nutzers).
+- Code dieser App, Regeltext mit beiden Codes, Familienlink und Chrome-Auftrag: ebenfalls dort (`code-diamanten.txt`, `regeln-beide-codes.txt`, `familienlink-diamanten.txt`, `chrome-auftrag.txt`).
 
 ## 9. Nächste Schritte
 
