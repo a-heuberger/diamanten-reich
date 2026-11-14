@@ -14,6 +14,14 @@ const GEM_COL = {
   saphir: ['#dbe9ff', '#6fa8ff', '#2f6fe0', '#1c47a0'],
   smaragd: ['#d6ffe7', '#52da8e', '#1ea75c', '#126d3b'],
   amethyst: ['#f0e4ff', '#bb96ff', '#8a5ce6', '#5c37a8'],
+  citrin: ['#fff0d6', '#ffb35c', '#f08a1c', '#b35f08'],
+  granat: ['#f9d0d7', '#d4435d', '#97193a', '#5e0c22'],
+  peridot: ['#f3ffd1', '#bde85a', '#86c21e', '#567e0e'],
+  jade: ['#e2f6ea', '#86d3a8', '#43a171', '#276b4c'],
+  lapis: ['#dbe2fd', '#5577dc', '#2b42a3', '#18246a'],
+  onyx: ['#d3d6de', '#6a6f7c', '#353945', '#16181d'],
+  mondstein: ['#ffffff', '#f1f2ff', '#d4d8f6', '#9aa0d6'],
+  bernstein: ['#ffeabc', '#f7b23b', '#d07e0c', '#8f5306'],
 };
 const GEM_FACETS = [
   ['10,42 30,22 40,42', 1], ['30,22 50,22 40,42', 0], ['40,42 50,22 60,42', 1], ['50,22 70,22 60,42', 0], ['60,42 70,22 90,42', 2],

@@ -163,9 +163,9 @@ function pastDayCard(e, ds) {
 }
 
 function stampHTML(st) {
-  if (st === 'y') return '<div class="stamp y">' + gemMini(30) + '<span>Diamant!</span></div>';
+  if (st === 'y') return '<div class="stamp y">' + gemMini(30) + '<span>Geschafft!</span></div>';
   if (st === 'c') return '<div class="stamp c">' + IC.sparkle + '<span>Wartet</span></div>';
-  if (st === 'n') return '<div class="stamp n">' + IC.moon + '<span>Heute nicht</span></div>';
+  if (st === 'n') return '<div class="stamp n">' + IC.moon + '<span>Nicht geschafft</span></div>';
   return '<div class="stamp o"><span>Offen</span></div>';
 }
 function taskCard(it, ds) {
@@ -174,11 +174,10 @@ function taskCard(it, ds) {
   const pts = t.pts > 1 ? '<span class="tag">' + t.pts + ' ' + gemMini(14) + '</span>' : '';
   let act;
   if (U.unlocked) act = stampHTML(st);
-  else if (!st && isToday && !U.readonly) act = '<button class="claim" data-act="claim" data-task="' + t.id + '" aria-label="' + esc(t.title) + ': Geschafft!">' + IC.hand + '<span>Geschafft!</span></button>';
   else act = '<button class="stamp-btn" data-act="hint" data-task="' + t.id + '" data-st="' + (st || 'o') + '">' + stampHTML(st) + '</button>';
   const seg = U.unlocked ? '<div class="seg two">' +
-    '<button class="b-y" data-act="mark" data-task="' + t.id + '" data-st="y" aria-pressed="' + (st === 'y') + '">' + gemMini(20) + '<span>' + (st === 'c' ? 'Freigeben' : 'Diamant') + '</span></button>' +
-    '<button class="b-n" data-act="mark" data-task="' + t.id + '" data-st="n" aria-pressed="' + (st === 'n') + '">' + IC.moon + '<span>Heute nicht</span></button></div>' : '';
+    '<button class="b-y" data-act="mark" data-task="' + t.id + '" data-st="y" aria-pressed="' + (st === 'y') + '">' + gemMini(20) + '<span>Geschafft</span></button>' +
+    '<button class="b-n" data-act="mark" data-task="' + t.id + '" data-st="n" aria-pressed="' + (st === 'n') + '">' + IC.moon + '<span>Nicht geschafft</span></button></div>' : '';
   return '<li class="task st-' + (st || 'o') + fx + (U.unlocked && st === 'c' ? ' claimed' : '') + '" data-task="' + t.id + '">' +
     '<span class="ico" aria-hidden="true">' + esc(t.icon) + '</span>' +
     '<div class="tx"><h3>' + esc(t.title) + pts + '</h3>' + (U.unlocked && st === 'c' ? '<p class="claimed-note">' + esc(S.cfg.name) + ' sagt: geschafft!</p>' : '') + '</div>' +
@@ -227,8 +226,8 @@ function dayTools(e) {
   if (!U.unlocked) return '';
   const claimed = e.items.filter(it => it.st === 'c').length, open = e.items.filter(it => !it.st || it.st === 'c').length;
   if (!open) return '';
-  return '<div class="day-tools">' + (claimed ? '<button class="btn btn-main btn-sm" data-act="approve-claimed">' + IC.check + 'Getippte freigeben (' + claimed + ')</button>' : '') +
-    '<button class="btn btn-ghost btn-sm" data-act="all-ok">' + gemMini(18) + 'Alle offenen: Diamant</button><button class="btn btn-ghost btn-sm" data-act="rest-no">' + IC.moon + 'Rest: heute nicht</button></div>';
+  return '<div class="day-tools">' + (claimed ? '<button class="btn btn-main btn-sm" data-act="approve-claimed">' + IC.check + 'Getippte: geschafft (' + claimed + ')</button>' : '') +
+    '<button class="btn btn-ghost btn-sm" data-act="all-ok">' + gemMini(18) + 'Alle offenen: geschafft</button><button class="btn btn-ghost btn-sm" data-act="rest-no">' + IC.moon + 'Rest: nicht geschafft</button></div>';
 }
 
 /* Unter den Aufgaben: der nächste Schatz mit Zähler und der nächste Zauberbeutel. Tippen führt zu den Schätzen. */
@@ -475,7 +474,7 @@ function viewCoach(st) {
   h += '<section class="card coach-sec"><h2>So funktioniert es</h2>' +
     '<div class="chips-r jump" role="group" aria-label="Bereiche">' + SECTIONS.map(s => '<button data-act="goto-sec" data-sec="' + s[0] + '">' + s[1] + '</button>').join('') + '</div>' +
     '<ul class="rules">' +
-    '<li>' + IC.hand + '<span><b>' + esc(c.name) + ' tippt „Geschafft!“</b>, ihr gebt im Eltern-Modus mit <b>Diamant</b> frei. „Heute nicht“ ist neutral: Es gibt keinen Diamanten, aber auch kein Minus.</span></li>' +
+    '<li>' + IC.hand + '<span><b>Ihr tragt im Eltern-Modus ein</b>, am besten gemeinsam mit ' + esc(c.name) + ': <b>Geschafft</b> bringt einen Diamanten. <b>Nicht geschafft</b> ist neutral: kein Diamant, aber auch kein Minus. Ohne Eltern-Modus kann ' + esc(c.name) + ' nichts selbst abhaken.</span></li>' +
     '<li>' + IC.shovel + '<span><b>Graben:</b> Jeder freigegebene Diamant wartet in der Erde. ' + esc(c.name) + ' tippt ' + (c.digTaps === 1 ? 'einmal' : c.digTaps + '-mal') + ', dann springt er heraus und fliegt in die Truhe. Er zählt aber schon ab der Freigabe.</span></li>' +
     '<li>' + IC.coin + '<span><b>Konto:</b> Steht bei einem Schatz „2 € aufs Guthabenkonto“, wird der Betrag beim Einlösen gebucht. Gutschreiben, Abbuchen und Auszahlen im Tab Konto.</span></li>' +
     '<li>' + cloudSVG('yellow', 26) + '<span><b>Gelbe Wolke</b> = Verwarnung, minus ' + dia(c.yellowPts) + '. Zwei gelbe Wolken werden zur <b>Gewitterwolke</b> (minus ' + c.redPts + ', höchstens einmal am Tag). Wolken verfallen nicht, ihr könnt sie zurücknehmen.</span></li>' +

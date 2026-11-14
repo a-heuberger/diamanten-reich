@@ -131,21 +131,14 @@ function closeCeleb() {
 }
 ACT['celeb-next'] = () => { closeCeleb(); render(); scheduleCeleb(300); };
 
-/* ---------- Abhaken (Kind) und Freigeben (Eltern) ---------- */
-ACT.claim = el => {
-  if (U.readonly || U.unlocked) return;
-  const ds = U.today, id = el.dataset.task, t = taskById(id); if (!t) return;
-  const day = ensureDay(ds); if (day.m[id]) return;
-  day.m[id] = 'c'; markChanged(); savedDay(ds);
-  Snd.claim(); Hap.go(15);
-  const r = el.getBoundingClientRect(); FX.pop(r.left + r.width / 2, r.top + r.height / 2, ['✨', '💖']);
-  U.fx = { task: id }; render();
-};
+/* ---------- Eintragen (nur im Eltern-Modus) ----------
+   Das Kind hakt nichts selbst ab (Wunsch des Nutzers, 14.11.): Die Eltern tragen gemeinsam mit ihm „Geschafft“ oder „Nicht geschafft“ ein.
+   Ein alter Zustand c (vom Kind getippt, aus früheren Fassungen) wird weiter angezeigt und lässt sich freigeben. */
 ACT.hint = el => {
   if (U.unlocked) return;
   const st = el.dataset.st, t = taskById(el.dataset.task);
   const li = el.closest('.task'); if (li) { li.classList.remove('shake'); void li.offsetWidth; li.classList.add('shake'); }
-  const msg = (t ? t.title + ': ' : '') + (st === 'c' ? 'Wartet auf Mama oder Papa.' : st === 'y' ? 'Diamant! Schon geschafft.' : st === 'n' ? 'Heute nicht. Morgen wieder.' : 'Das tragen Mama oder Papa ein.');
+  const msg = (t ? t.title + ': ' : '') + (st === 'c' ? 'Wartet auf Mama oder Papa.' : st === 'y' ? 'Geschafft! Dafür gibt es einen Diamanten.' : st === 'n' ? 'Nicht geschafft. Morgen wieder!' : 'Das tragen Mama oder Papa mit dir ein.');
   toast(msg);
 };
 function setMark(ds, id, st) {
@@ -187,7 +180,7 @@ ACT['all-ok'] = () => { if (U.unlocked) bulkMark(it => !it.st || it.st === 'c', 
 ACT['rest-no'] = () => {
   if (!U.unlocked) return;
   const n = bulkMark(it => !it.st || it.st === 'c', 'n');
-  if (n) toast(n === 1 ? 'Eine Aufgabe auf „heute nicht“ gesetzt.' : n + ' Aufgaben auf „heute nicht“ gesetzt.');
+  if (n) toast(n === 1 ? 'Eine Aufgabe auf „nicht geschafft“ gesetzt.' : n + ' Aufgaben auf „nicht geschafft“ gesetzt.');
 };
 
 /* ---------- Graben ----------
@@ -518,7 +511,7 @@ ACT['konto-del'] = el => {
 function rulesHTML() {
   const c = S.cfg, nm = esc(c.name);
   return '<h2 class="h-ic">' + gemMini(30) + 'So geht das Diamanten-Reich</h2><p class="sub">Zum Vorlesen für Mama oder Papa.</p>' +
-    '<div class="rb"><h3>' + IC.hand + ' Geschafft!</h3><p>Hast du eine Aufgabe geschafft, tippst du auf <b>Geschafft!</b>. Dann schauen Mama oder Papa und geben dir einen <b>Diamanten</b>.</p>' +
+    '<div class="rb"><h3>' + IC.hand + ' Geschafft!</h3><p>Hast du eine Aufgabe geschafft, trägst du sie mit Mama oder Papa ein. Für jedes <b>Geschafft</b> bekommst du einen <b>Diamanten</b>.</p>' +
     '<h3>' + IC.shovel + ' Graben</h3><p>Jeder Diamant steckt in der Erde. Tipp auf <b>Graben!</b>, dann holt die Schatzgräberin ihn heraus und legt ihn in deine Truhe.</p>' +
     '<h3>' + gemMini(20) + ' Schätze</h3><p>Für viele Diamanten findest du Schätze mit einer Belohnung. Alle ' + c.packEvery + ' Diamanten gibt es einen <b>Zauberbeutel</b> mit einem Sticker.</p>' +
     '<h3>' + IC.coin + ' Konto</h3><p>Manche Schätze bringen Geld auf dein <b>Konto</b>. Das Geld gehört dir. Abgebucht wird nur, wenn du dir etwas wünschst und Ja sagst.</p>' +
@@ -532,7 +525,7 @@ function parentsHTML() {
   const c = S.cfg, nm = esc(c.name);
   return '<h2>Hinweise für Eltern</h2><p class="sub">Mit fünf, sechs Jahren wirkt Lob viel stärker als Abzug. Wolken sind die Ausnahme, nicht der Alltag.</p><ol class="rb-ol">' +
     '<li><b>Gemeinsam anfangen:</b> Zeigt ' + nm + ' die App in Ruhe, lest ihr die Regeln vor (Knopf „Regeln“ bei den Extras) und sucht die Belohnungen zusammen aus.</li>' +
-    '<li><b>Lob zuerst:</b> Freigeben möglichst bald und mit einem Satz dazu („Du hast dich ganz allein angezogen!“). Die App ersetzt kein Lob.</li>' +
+    '<li><b>Lob zuerst:</b> Eintragen möglichst bald und mit einem Satz dazu („Du hast dich ganz allein angezogen!“). Die App ersetzt kein Lob.</li>' +
     '<li><b>Wolken sparsam:</b> Am besten die erste Woche ganz ohne. Nie für Gefühle (Weinen, Wut, Angst), nie für Missgeschicke, nie im Streit oder vor dem Schlafen.</li>' +
     '<li><b>Belohnungen nie zurücknehmen</b> und zeitnah einlösen. Essen, Schlaf, Kuscheln und gemeinsame Zeit sind nie Belohnung und nie Entzug.</li>' +
     '<li><b>Hürde passend halten:</b> Klappt etwas tagelang nicht, ist die Aufgabe zu schwer. Dann kürzen oder teilen, nicht strenger werden.</li>' +

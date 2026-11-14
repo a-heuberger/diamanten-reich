@@ -113,11 +113,14 @@ S.prog.red = { g10: '2026-11-13' };
 ok('Schätze: eingelöster Schatz bleibt erreicht', L.goalList(S, L.computeStats(S, T))[0].reached);
 
 // ---- Sticker und Zauberbeutel ----
-eq('Sticker: 40 Stück', L.STICKERS.length, 40);
-eq('Sticker: 10 je Kategorie', L.CATS.map(c => L.STICKERS.filter(s => s.cat === c).length), [10, 10, 10, 10]);
-ok('Sticker: jeder hat einen Steckbrief zum Vorlesen', L.STICKERS.every(s => s.fact && s.fact.length > 10 && s.fact.length < 90));
-ok('Sticker: Edelsteine gezeichnet (gem:…) gibt es', L.STICKERS.filter(s => /^gem:/.test(s.ico)).length >= 8);
-eq('Sticker: Seltenheiten', ['n', 'r', 'u'].map(r => L.STICKERS.filter(s => s.rar === r).length), [24, 11, 5]);
+eq('Sticker: 100 Stück', L.STICKERS.length, 100);
+eq('Sticker: 20 je Kategorie (5 Kategorien)', L.CATS.map(c => L.STICKERS.filter(s => s.cat === c).length), [20, 20, 20, 20, 20]);
+eq('Sticker: je Kategorie 12 normal, 6 selten, 2 ultraselten', L.CATS.map(c => ['n', 'r', 'u'].map(r => L.STICKERS.filter(s => s.cat === c && s.rar === r).length).join('/')), ['12/6/2', '12/6/2', '12/6/2', '12/6/2', '12/6/2']);
+ok('Sticker: Namen und Nummern eindeutig', new Set(L.STICKERS.map(s => s.name)).size === 100 && new Set(L.STICKERS.map(s => s.id)).size === 100 && L.STICKERS[99].id === 's100');
+eq('Sticker: die ersten 40 bleiben unverändert (s01 Funkel-Einhorn, s40 Glücksfee)', [L.STICKER_BY.s01.name, L.STICKER_BY.s40.name, L.STICKER_BY.s41.name], ['Funkel-Einhorn', 'Glücksfee', 'Fohlen']);
+ok('Sticker: jeder hat einen kurzen Steckbrief', L.STICKERS.every(s => s.fact && s.fact.length > 10 && s.fact.length < 90));
+ok('Sticker: Edelsteine gezeichnet (gem:…) gibt es', L.STICKERS.filter(s => /^gem:/.test(s.ico)).length >= 16);
+eq('Sticker: Seltenheiten', ['n', 'r', 'u'].map(r => L.STICKERS.filter(s => s.rar === r).length), [60, 30, 10]);
 S = mk({}, {}, { album: ['s01', 's02', 's10', 's07', 's08'] });
 eq('Sticker-Punkte 1+1+5+2+2 = 11 → 1 Bonus-Diamant', [L.stickerPoints(S.prog), L.stickerBonus(S.prog)], [11, 1]);
 st = L.computeStats(S, T);

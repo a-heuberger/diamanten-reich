@@ -253,15 +253,11 @@ svg { flex: none; }
 .task.st-n { background: rgba(255, 255, 255, .62); }
 .task.st-n .ico { filter: grayscale(.6); opacity: .7; }
 .task.claimed { box-shadow: 0 0 0 3px var(--pink), var(--sh); }
-.task.fx .stamp, .task.fx .claim { animation: stampIn .5s cubic-bezier(.3, 1.6, .5, 1); }
+.task.fx .stamp { animation: stampIn .5s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes stampIn { 0% { transform: scale(.4) rotate(-12deg) } 100% { transform: none } }
 .task.shake { animation: shake .4s; }
 @keyframes shake { 20%, 60% { transform: translateX(-5px) } 40%, 80% { transform: translateX(5px) } }
 .tact { display: grid; justify-items: end; }
-.claim { display: grid; justify-items: center; gap: 1px; min-width: 104px; padding: 8px 12px 7px; border-radius: 20px; border: 0; background: linear-gradient(180deg, #ff9fcd, var(--pink) 55%, #f0619f); color: #fff; box-shadow: 0 4px 0 #c2427c, 0 8px 16px rgba(217, 79, 141, .3); }
-.claim svg { width: 26px; height: 26px; }
-.claim span { font: 700 17px/1 var(--f-display); }
-.claim:active { transform: translateY(3px); box-shadow: 0 1px 0 #c2427c; }
 .stamp-btn { border: 0; background: none; padding: 0; }
 .stamp { display: grid; justify-items: center; gap: 1px; min-width: 82px; padding: 6px 8px; border-radius: 18px; font: 700 14.5px/1.1 var(--f-display); }
 .stamp svg { width: 28px; height: 28px; }
@@ -675,7 +671,6 @@ button.packline .pl-go { margin-left: auto; }
 @media (max-width: 360px) {
   .task { grid-template-columns: 52px 1fr auto; gap: 9px; }
   .task .ico { width: 52px; height: 52px; font-size: 30px; }
-  .claim { min-width: 92px; }
   .nm { font-size: 21px; }
   .digbtn { min-width: 108px; }
   .stats4 { grid-template-columns: repeat(2, 1fr); }

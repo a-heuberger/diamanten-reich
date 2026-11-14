@@ -30,8 +30,8 @@ Dokumente: `cfg/main` (Einstellungen), `cfg/progress` (Feiern, Eingelöstes, Alb
 npm install                      # in einer frischen Sitzung nötig (firebase, esbuild, Schriften Fredoka/Nunito, firebase-tools für den Emulator)
 # Playwright ist nicht in package.json: in der Cloud global (export NODE_PATH=$(npm root -g)), am Mac: npm install --no-save playwright@<Version passend zum vorhandenen Chromium>
 node build.js                    # baut build/ (Claude-Seite, Testversionen) und docs/ (Web-App)
-node test/test-logic.js          # Regeln, rein (73)
-node test/e2e-dia.js             # Browser-Tests der Claude-Seite mit Attrappe (95, Sternenregen läuft 25 s), Bildschirmfotos nach shots/
+node test/test-logic.js          # Regeln, rein (76)
+node test/e2e-dia.js             # Browser-Tests der Claude-Seite mit Attrappe (93, Sternenregen läuft 25 s), Bildschirmfotos nach shots/
 node tools/rules.js CODE1 [CODE2 …] --out Zieldatei    # Regeln aus der Vorlage, ein Block je Familiencode (--out ist Pflicht für eine Datei)
 node tools/rules.js TESTCODE23456789 TESTZWEI23456789 --out build/test.firestore.rules   # für den Emulator (build/ vorher anlegen)
 ./node_modules/.bin/firebase emulators:start --only firestore --project demo-diamanten --config firebase.json   # Emulator auf 127.0.0.1:8085 (braucht Java 21; am Mac ohne Java: JRE von Adoptium in den Scratchpad laden, JAVA_HOME setzen)
@@ -69,12 +69,12 @@ Beide Apps liegen auf `a-heuberger.github.io`. Cache Storage, `localStorage` und
 Einzelheiten und Wortlaut in `UEBERGABE.md`. Kurz:
 
 - **Hauptbild: Diamantenschatz.** Heute zeigt eine Szene: Schatzgräberin (Aussehen aus `cfg.look`: Haarfarbe, Frisur, Kleid) am Erdhügel, Truhe mit Füllstand (`chestLevel`, Wurzel aus Truhe/letzter Schatz, damit die ersten Diamanten sichtbar sind), Einhorn auf der Truhe. Stimmung Türkis-Gold, runde Schriften, große Knöpfe, wenig Text.
-- **Abhaken:** Kind tippt „Geschafft!“ → `m[id] = 'c'` (nur heute, nur gesperrt). Eltern-Modus: „Diamant/Freigeben“ → `'y'`, „Heute nicht“ → `'n'` (neutral, kein Minus). Gleicher Knopf noch einmal = zurück auf offen. Das Schloss im Kopf zeigt die Zahl der getippten Aufgaben.
+- **Eintragen nur im Eltern-Modus** (Wunsch des Nutzers, 14.11.: Er macht es gemeinsam mit dem Kind): „Geschafft“ → `'y'`, „Nicht geschafft“ → `'n'` (neutral, kein Minus). Gleicher Knopf noch einmal = zurück auf offen. Ohne Eltern-Modus gibt es keine Knöpfe zum Abhaken, nur Stempel und einen Hinweis. Zustand `'c'` (vom Kind getippt) kommt nur noch aus alten Daten und lässt sich weiter freigeben. Keine anderen Wörter für die Knöpfe (nicht „Freigeben“, „Diamant“, „Heute nicht“).
 - **Graben:** `evalDay` liefert `gain`, `dug = min(dg, gain)`, `waiting`. Jeder Tipp ist ein Stich (`cfg.digTaps`, 1–5, Vorgabe 3); danach `dg + 1` am ältesten Tag mit Wartenden. Gedrückt halten gräbt alle. Ohne Wartende Spaß-Funde (`FUN_FINDS`, zählen nicht, `cfg.digFun`). `cfg.digMode = false`: alles gilt sofort als gegraben.
 - **Zählen:** Schätze und Zauberbeutel rechnen mit **allen freigegebenen** Diamanten (plus Bonus der Sticker, minus Wolken); Kopf und Truhe zeigen die **gegrabenen**. Gefeiert wird erst, wenn nichts mehr wartet.
 - **Feiern sind aus den Daten abgeleitet** (`checkCelebs` nach jedem Rendern): erreichter Schatz ohne `prog.shown[id]`, perfekter Tag ohne `prog.cel['p:'+ds]`, mehr Beutel als `prog.packN`. So kommen sie genau einmal, auch wenn die Eltern auf einem anderen Gerät freigeben. Nur ansehen und ohne Zugriff: keine Feiern.
 - **Wolken** = Karten der Torjäger-App (`buildLedger`, Ereignisse `y`/`r`, zwei offene gelbe = Gewitter, Gewitter höchstens einmal pro Tag, verfallen nie, Eltern nehmen zurück). Erst nach „Hinweise für Eltern“ freigeschaltet (`cloudsAck`).
-- **Extras:** Sammelalbum (40 Sticker, vier Kategorien, Edelsteine als Zeichnung `gem:<farbe>`, Steckbrief `fact` als Text), Wochenrückblick als Regenbogen.
+- **Extras:** Sammelalbum (**100 Sticker**, Wunsch des Nutzers: mindestens 100; fünf Kategorien à 20 mit je 12 normal, 6 selten, 2 ultraselten; s01–s40 unverändert, neue nur hinten anhängen; Edelsteine als Zeichnung `gem:<farbe>`, Steckbrief `fact` als Text), Wochenrückblick als Regenbogen.
 - **Mini-Spiele (Nutzer will mehr davon):** Graben (Hauptspiel) und die **Spielwiese** auf „Heute“ (`cfg.games`): Memory, Hütchen, Sternenregen (`games.js`). Nur zum Spaß, nie Diamanten, kein Verlieren; Bestwerte in `prog.games`. Neue Spiele dort ergänzen (Kachel in `gamesCard`, Start in `game-open`).
 - **Kein Vorlesen** (vom Nutzer gestrichen): keine `speechSynthesis`, keine Lautsprecher-Knöpfe. Der Browser-Test meldet jeden Sprachaufruf als Konsolenfehler.
 - **Konto** wie in der Torjäger-App, ohne Noten: Gutschreiben, Abbuchen (nur mit Ja des Kindes), Auszahlen; „X € aufs Guthabenkonto“ in einer Belohnung bucht beim Einlösen (`rewardMoney`, `prog.redK`).

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-dbxRLwUusPk6UKJAYG6Yzm+BzvohrqXU3Zxb8KQeGb4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google.com; font-src 'self'; connect-src 'self' https://firestore.googleapis.com wss://firestore.googleapis.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-/qkqn3rM+3fsKJ2td7yAbQSyfG9hL+ejcQy+sEJu9Vo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google.com; font-src 'self'; connect-src 'self' https://firestore.googleapis.com wss://firestore.googleapis.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <title>Diamanten</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0b5563">
@@ -278,15 +278,11 @@ svg { flex: none; }
 .task.st-n { background: rgba(255, 255, 255, .62); }
 .task.st-n .ico { filter: grayscale(.6); opacity: .7; }
 .task.claimed { box-shadow: 0 0 0 3px var(--pink), var(--sh); }
-.task.fx .stamp, .task.fx .claim { animation: stampIn .5s cubic-bezier(.3, 1.6, .5, 1); }
+.task.fx .stamp { animation: stampIn .5s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes stampIn { 0% { transform: scale(.4) rotate(-12deg) } 100% { transform: none } }
 .task.shake { animation: shake .4s; }
 @keyframes shake { 20%, 60% { transform: translateX(-5px) } 40%, 80% { transform: translateX(5px) } }
 .tact { display: grid; justify-items: end; }
-.claim { display: grid; justify-items: center; gap: 1px; min-width: 104px; padding: 8px 12px 7px; border-radius: 20px; border: 0; background: linear-gradient(180deg, #ff9fcd, var(--pink) 55%, #f0619f); color: #fff; box-shadow: 0 4px 0 #c2427c, 0 8px 16px rgba(217, 79, 141, .3); }
-.claim svg { width: 26px; height: 26px; }
-.claim span { font: 700 17px/1 var(--f-display); }
-.claim:active { transform: translateY(3px); box-shadow: 0 1px 0 #c2427c; }
 .stamp-btn { border: 0; background: none; padding: 0; }
 .stamp { display: grid; justify-items: center; gap: 1px; min-width: 82px; padding: 6px 8px; border-radius: 18px; font: 700 14.5px/1.1 var(--f-display); }
 .stamp svg { width: 28px; height: 28px; }
@@ -700,7 +696,6 @@ button.packline .pl-go { margin-left: auto; }
 @media (max-width: 360px) {
   .task { grid-template-columns: 52px 1fr auto; gap: 9px; }
   .task .ico { width: 52px; height: 52px; font-size: 30px; }
-  .claim { min-width: 92px; }
   .nm { font-size: 21px; }
   .digbtn { min-width: 108px; }
   .stats4 { grid-template-columns: repeat(2, 1fr); }
@@ -727,7 +722,8 @@ window.__PWA__ = true;
 (function () {
 "use strict";
 /* ============ Regeln, Datum, Auswertung (rein, ohne DOM) ============
-   Diamanten-Reich: Aufgaben bringen Diamanten. Das Kind tippt „Geschafft!“ (Zustand c), ein Elternteil gibt frei (y).
+   Diamanten-Reich: Aufgaben bringen Diamanten. Die Eltern tragen im Eltern-Modus „Geschafft“ (y) oder „Nicht geschafft“ (n) ein.
+   Zustand c (vom Kind getippt) gibt es nur noch in alten Daten; das Kind hakt seit 14.11. nichts mehr selbst ab.
    Jeder freigegebene Diamant wartet in der Erde, bis die Schatzgräberin ihn ausgräbt (days/<ds>.dg zählt die gegrabenen).
    Wolken sind die Verwarnungen: gelbe Wolke −1, Gewitterwolke −3 (Regeln wie bei den Karten der Torjäger-App).
    Dazu ein Guthabenkonto in Euro (konto/<id>, je Buchung ein Dokument), wie in der Torjäger-App. */
@@ -878,14 +874,15 @@ function rewardMoney(text) {
 const LADDER = { 1: 'Funkel!', 2: 'Doppel-Funkel!', 3: 'Dreifach-Funkel!', 4: 'Super-Funkel!', 5: 'Mega-Funkel!' };
 const ladderText = n => LADDER[Math.max(1, Math.min(n, 5))];
 
-/* ---------- Sammelsticker: 40 Stück in drei Seltenheiten ----------
+/* ---------- Sammelsticker: 100 Stück in drei Seltenheiten (je Kategorie 20: 12 normal, 6 selten, 2 ultraselten) ----------
    Normal zählt 1 Punkt, selten 2, ultraselten 5. Je 10 Sticker-Punkte gibt es 1 Bonus-Diamant.
-   Bild: ein Emoji oder „gem:<farbe>“ (gezeichneter Edelstein). */
+   Bild: ein Emoji oder „gem:<farbe>“ (gezeichneter Edelstein).
+   Die ersten 40 (s01 bis s40) bleiben, wie sie sind: Wer sie schon hat, behält sie. Neue Sticker immer hinten anhängen. */
 const RARITY = { n: { name: 'Normal', pts: 1 }, r: { name: 'Selten', pts: 2 }, u: { name: 'Ultraselten', pts: 5 } };
 const RAR_ORDER = ['u', 'r', 'n'];
 const RAR_WEIGHT = { n: 12, r: 4, u: 1 };       // Ziehungsgewicht im Zauberbeutel: Seltene kommen seltener
 const PTS_PER_DIAMANT = 10;
-const CATS = ['Einhörner', 'Prinzessinnen', 'Edelsteine', 'Märchenwelt'];
+const CATS = ['Einhörner', 'Prinzessinnen', 'Edelsteine', 'Märchenwelt', 'Tierfreunde'];
 const STICKER_DATA = [
   /* Einhörner */
   ['🦄', 'Funkel-Einhorn', 'Einhörner', 'n', 'Ein Einhorn hat ein Horn auf der Stirn. Wenn es lacht, funkelt es.'],
@@ -931,6 +928,72 @@ const STICKER_DATA = [
   ['🏝️', 'Schatzinsel', 'Märchenwelt', 'r', 'Auf der Schatzinsel ist der Schatz mit einem Kreuz markiert.'],
   ['🧜‍♀️', 'Meerjungfrau', 'Märchenwelt', 'u', 'Die Meerjungfrau hütet die Schätze am Meeresgrund.'],
   ['🧚', 'Glücksfee', 'Märchenwelt', 'u', 'Die Glücksfee streut Glitzer auf alle, die lieb sind.'],
+  /* ab hier s41 bis s100 (seit 14.11.) */
+  /* Einhörner */
+  ['🐴', 'Fohlen', 'Einhörner', 'n', 'Ein Pferdebaby heißt Fohlen. Es kann kurz nach der Geburt schon stehen.'],
+  ['🍭', 'Zuckerwolke', 'Einhörner', 'n', 'Einhörner lieben Zuckerwatte. Sie schmeckt wie eine süße Wolke.'],
+  ['🌼', 'Blumenwiese', 'Einhörner', 'n', 'Auf der Blumenwiese pflückt das Einhorn Gänseblümchen.'],
+  ['🫧', 'Glitzerblasen', 'Einhörner', 'n', 'Seifenblasen schillern in allen Farben des Regenbogens.'],
+  ['✨', 'Funkelglanz', 'Einhörner', 'n', 'Wenn ein Einhorn sich freut, funkelt die Luft um es herum.'],
+  ['🧁', 'Einhorn-Muffin', 'Einhörner', 'n', 'Ein Muffin mit Regenbogen-Streuseln. Lecker!'],
+  ['🏔️', 'Wolkenberg', 'Einhörner', 'r', 'Hoch oben auf dem Berg wohnen die Einhörner über den Wolken.'],
+  ['🎡', 'Riesenrad', 'Einhörner', 'r', 'Vom Riesenrad aus sieht man das ganze Einhornland.'],
+  ['💖', 'Glitzerherz', 'Einhörner', 'r', 'Ein Einhorn hat ein großes Herz für alle Tiere.'],
+  ['🌌', 'Sternen-Einhorn', 'Einhörner', 'u', 'Dieses Einhorn galoppiert nachts über die Milchstraße.'],
+  /* Prinzessinnen */
+  ['🍰', 'Prinzessinnen-Torte', 'Prinzessinnen', 'n', 'Die Torte hat drei Stockwerke und rosa Zuckerguss.'],
+  ['🌷', 'Schlossgarten', 'Prinzessinnen', 'n', 'Im Schlossgarten blühen Tulpen in allen Farben.'],
+  ['💌', 'Einladung', 'Prinzessinnen', 'n', 'Eine Einladung zum Ball. Alle Freunde sind eingeladen!'],
+  ['👒', 'Sonnenhut', 'Prinzessinnen', 'n', 'Mit dem Sonnenhut geht die Prinzessin im Park spazieren.'],
+  ['🎐', 'Windspiel', 'Prinzessinnen', 'n', 'Ein Windspiel klingelt ganz leise, wenn der Wind weht.'],
+  ['🎶', 'Ballmusik', 'Prinzessinnen', 'n', 'Beim Ball spielt Musik, und alle tanzen im Kreis.'],
+  ['🐸', 'Froschkönig', 'Prinzessinnen', 'r', 'Im Märchen wird aus einem Frosch ein Prinz.'],
+  ['🦚', 'Pfau', 'Prinzessinnen', 'r', 'Ein Pfau schlägt ein Rad aus schillernden Federn.'],
+  ['🛏️', 'Erbsenbett', 'Prinzessinnen', 'r', 'Eine echte Prinzessin spürt eine Erbse sogar unter vielen Matratzen.'],
+  ['🤴', 'Prinz', 'Prinzessinnen', 'u', 'Der Prinz ist freundlich und hilft allen im Königreich.'],
+  /* Edelsteine */
+  ['gem:citrin', 'Citrin', 'Edelsteine', 'n', 'Ein Citrin ist orange wie eine Mandarine.'],
+  ['gem:granat', 'Granat', 'Edelsteine', 'n', 'Ein Granat ist dunkelrot wie eine Kirsche.'],
+  ['gem:peridot', 'Peridot', 'Edelsteine', 'n', 'Ein Peridot ist hellgrün wie ein frischer Apfel.'],
+  ['gem:jade', 'Jade', 'Edelsteine', 'n', 'Jade ist grün und fühlt sich ganz glatt und kühl an.'],
+  ['gem:lapis', 'Lapislazuli', 'Edelsteine', 'n', 'Lapislazuli ist tiefblau wie der Himmel in der Nacht.'],
+  ['gem:onyx', 'Onyx', 'Edelsteine', 'n', 'Ein Onyx ist schwarz und glänzt wie die Nacht.'],
+  ['gem:mondstein', 'Mondstein', 'Edelsteine', 'r', 'Ein Mondstein schimmert sanft wie das Mondlicht.'],
+  ['gem:bernstein', 'Bernstein', 'Edelsteine', 'r', 'Bernstein ist uraltes Baumharz. Manchmal steckt ein Insekt darin.'],
+  ['🔮', 'Kristallkugel', 'Edelsteine', 'r', 'In der Kristallkugel glitzert es wie im Sternenhimmel.'],
+  ['💎', 'Funkel-Diamant', 'Edelsteine', 'u', 'Der größte Diamant im ganzen Reich. Er funkelt heller als die Sonne.'],
+  /* Märchenwelt */
+  ['🌻', 'Sonnenblume', 'Märchenwelt', 'n', 'Junge Sonnenblumen drehen ihren Kopf mit der Sonne.'],
+  ['🍓', 'Walderdbeere', 'Märchenwelt', 'n', 'Im Märchenwald wachsen kleine, süße Walderdbeeren.'],
+  ['🏡', 'Wichtelhaus', 'Märchenwelt', 'n', 'Im Wichtelhaus ist alles klein, sogar die Tassen.'],
+  ['🎈', 'Luftballon', 'Märchenwelt', 'n', 'Ein Luftballon fliegt hoch in den Himmel, wenn man ihn loslässt.'],
+  ['⛵', 'Segelboot', 'Märchenwelt', 'n', 'Mit dem Segelboot fährt man zur Schatzinsel.'],
+  ['🗝️', 'Zauberschlüssel', 'Märchenwelt', 'n', 'Dieser Schlüssel öffnet jede Schatztruhe.'],
+  ['🐉', 'Kleiner Drache', 'Märchenwelt', 'r', 'Dieser kleine Drache ist ganz lieb und pustet Seifenblasen.'],
+  ['🪐', 'Ringplanet', 'Märchenwelt', 'r', 'Der Saturn hat Ringe aus Eis und Steinen.'],
+  ['🍀', 'Glücksklee', 'Märchenwelt', 'r', 'Ein Kleeblatt mit vier Blättern bringt Glück.'],
+  ['🌊', 'Meereswelle', 'Märchenwelt', 'r', 'Wellen rauschen am Strand und bringen Muscheln mit.'],
+  /* Tierfreunde */
+  ['🐱', 'Kätzchen', 'Tierfreunde', 'n', 'Katzen schnurren, wenn sie sich wohlfühlen.'],
+  ['🐶', 'Hündchen', 'Tierfreunde', 'n', 'Hunde können viel besser riechen als Menschen.'],
+  ['🐰', 'Häschen', 'Tierfreunde', 'n', 'Hasen haben lange Ohren und hören sehr gut.'],
+  ['🐹', 'Hamster', 'Tierfreunde', 'n', 'Ein Hamster stopft sein Futter in die Backen.'],
+  ['🐥', 'Küken', 'Tierfreunde', 'n', 'Ein Küken schlüpft aus einem Ei.'],
+  ['🐞', 'Marienkäfer', 'Tierfreunde', 'n', 'Marienkäfer haben Punkte und fressen Blattläuse.'],
+  ['🐝', 'Biene', 'Tierfreunde', 'n', 'Bienen sammeln Nektar und machen daraus Honig.'],
+  ['🦔', 'Igel', 'Tierfreunde', 'n', 'Ein Igel rollt sich bei Gefahr zu einer stacheligen Kugel.'],
+  ['🐿️', 'Eichhörnchen', 'Tierfreunde', 'n', 'Eichhörnchen verstecken im Herbst Nüsse für den Winter.'],
+  ['🐢', 'Schildkröte', 'Tierfreunde', 'n', 'Eine Schildkröte trägt ihr Haus auf dem Rücken.'],
+  ['🦆', 'Entchen', 'Tierfreunde', 'n', 'Enten haben Füße wie kleine Paddel.'],
+  ['🐑', 'Schäfchen', 'Tierfreunde', 'n', 'Aus der Wolle der Schafe macht man warme Pullover.'],
+  ['🦊', 'Fuchs', 'Tierfreunde', 'r', 'Ein Fuchs hat einen buschigen Schwanz und spitze Ohren.'],
+  ['🐼', 'Panda', 'Tierfreunde', 'r', 'Pandas fressen fast den ganzen Tag Bambus.'],
+  ['🦒', 'Giraffe', 'Tierfreunde', 'r', 'Die Giraffe ist das größte Tier an Land.'],
+  ['🐨', 'Koala', 'Tierfreunde', 'r', 'Koalas schlafen fast den ganzen Tag in Bäumen.'],
+  ['🦩', 'Flamingo', 'Tierfreunde', 'r', 'Flamingos stehen gern auf einem Bein.'],
+  ['🐧', 'Pinguin', 'Tierfreunde', 'r', 'Pinguine können nicht fliegen, aber toll schwimmen.'],
+  ['🦁', 'Löwe', 'Tierfreunde', 'u', 'Der Löwe brüllt so laut, dass man ihn kilometerweit hört.'],
+  ['🐳', 'Wal', 'Tierfreunde', 'u', 'Der Blauwal ist das größte Tier der Welt.'],
 ];
 const STICKERS = STICKER_DATA.map((s, i) => ({ id: 's' + pad2(i + 1), ico: s[0], name: s[1], cat: s[2], rar: s[3], fact: s[4] }));
 const STICKER_BY = {};
@@ -1012,7 +1075,7 @@ function cloudsNow(S) {
 }
 
 /* ---------- Ein Tag ----------
-   Zustände je Aufgabe: c = vom Kind getippt (wartet auf die Eltern), y = freigegeben (Diamant), n = heute nicht.
+   Zustände je Aufgabe: y = geschafft (Diamant), n = nicht geschafft (neutral), c = vom Kind getippt (nur alte Daten, wartet auf die Eltern).
    gain = Diamanten des Tages (freigegebene Aufgaben und Extra-Diamanten). dug = davon ausgegraben, waiting = noch in der Erde. */
 function evalDay(S, ds) {
   const day = S.days[ds] || {};
@@ -1145,6 +1208,14 @@ const GEM_COL = {
   saphir: ['#dbe9ff', '#6fa8ff', '#2f6fe0', '#1c47a0'],
   smaragd: ['#d6ffe7', '#52da8e', '#1ea75c', '#126d3b'],
   amethyst: ['#f0e4ff', '#bb96ff', '#8a5ce6', '#5c37a8'],
+  citrin: ['#fff0d6', '#ffb35c', '#f08a1c', '#b35f08'],
+  granat: ['#f9d0d7', '#d4435d', '#97193a', '#5e0c22'],
+  peridot: ['#f3ffd1', '#bde85a', '#86c21e', '#567e0e'],
+  jade: ['#e2f6ea', '#86d3a8', '#43a171', '#276b4c'],
+  lapis: ['#dbe2fd', '#5577dc', '#2b42a3', '#18246a'],
+  onyx: ['#d3d6de', '#6a6f7c', '#353945', '#16181d'],
+  mondstein: ['#ffffff', '#f1f2ff', '#d4d8f6', '#9aa0d6'],
+  bernstein: ['#ffeabc', '#f7b23b', '#d07e0c', '#8f5306'],
 };
 const GEM_FACETS = [
   ['10,42 30,22 40,42', 1], ['30,22 50,22 40,42', 0], ['40,42 50,22 60,42', 1], ['50,22 70,22 60,42', 0], ['60,42 70,22 90,42', 2],
@@ -1361,7 +1432,7 @@ const Snd = (function () {
     wake() { ensure(); },
     tap() { run(t => tone(880, t, .07, 'sine', .07, 640)); },
     soft() { run(t => tone(330, t, .22, 'sine', .07, 262)); },                                      // ruhig: noch nicht, Wolke
-    claim() { run(t => { bell(988, t, .35, .09); bell(1319, t + .09, .45, .08); }); },               // Kind tippt „Geschafft!“
+    claim() { run(t => { bell(988, t, .35, .09); bell(1319, t + .09, .45, .08); }); },               // Diamant wartet in der Erde
     dig(n) { run(t => { tone(150 - (n || 0) * 12, t, .12, 'sine', .35, 60); crowd(t, .16, .22, 1800, 600); }); },   // Spatenstich: Plopp und Sand
     gem() { run(t => { [1319, 1661, 1976, 2637].forEach((f, i) => bell(f, t + i * .06, .5, .08)); }); },              // Diamant springt heraus
     find() { run(t => { tone(520, t, .12, 'sine', .12, 780); tone(780, t + .1, .16, 'sine', .1, 620); }); },         // Spaß-Fund
@@ -1881,9 +1952,9 @@ function pastDayCard(e, ds) {
 }
 
 function stampHTML(st) {
-  if (st === 'y') return '<div class="stamp y">' + gemMini(30) + '<span>Diamant!</span></div>';
+  if (st === 'y') return '<div class="stamp y">' + gemMini(30) + '<span>Geschafft!</span></div>';
   if (st === 'c') return '<div class="stamp c">' + IC.sparkle + '<span>Wartet</span></div>';
-  if (st === 'n') return '<div class="stamp n">' + IC.moon + '<span>Heute nicht</span></div>';
+  if (st === 'n') return '<div class="stamp n">' + IC.moon + '<span>Nicht geschafft</span></div>';
   return '<div class="stamp o"><span>Offen</span></div>';
 }
 function taskCard(it, ds) {
@@ -1892,11 +1963,10 @@ function taskCard(it, ds) {
   const pts = t.pts > 1 ? '<span class="tag">' + t.pts + ' ' + gemMini(14) + '</span>' : '';
   let act;
   if (U.unlocked) act = stampHTML(st);
-  else if (!st && isToday && !U.readonly) act = '<button class="claim" data-act="claim" data-task="' + t.id + '" aria-label="' + esc(t.title) + ': Geschafft!">' + IC.hand + '<span>Geschafft!</span></button>';
   else act = '<button class="stamp-btn" data-act="hint" data-task="' + t.id + '" data-st="' + (st || 'o') + '">' + stampHTML(st) + '</button>';
   const seg = U.unlocked ? '<div class="seg two">' +
-    '<button class="b-y" data-act="mark" data-task="' + t.id + '" data-st="y" aria-pressed="' + (st === 'y') + '">' + gemMini(20) + '<span>' + (st === 'c' ? 'Freigeben' : 'Diamant') + '</span></button>' +
-    '<button class="b-n" data-act="mark" data-task="' + t.id + '" data-st="n" aria-pressed="' + (st === 'n') + '">' + IC.moon + '<span>Heute nicht</span></button></div>' : '';
+    '<button class="b-y" data-act="mark" data-task="' + t.id + '" data-st="y" aria-pressed="' + (st === 'y') + '">' + gemMini(20) + '<span>Geschafft</span></button>' +
+    '<button class="b-n" data-act="mark" data-task="' + t.id + '" data-st="n" aria-pressed="' + (st === 'n') + '">' + IC.moon + '<span>Nicht geschafft</span></button></div>' : '';
   return '<li class="task st-' + (st || 'o') + fx + (U.unlocked && st === 'c' ? ' claimed' : '') + '" data-task="' + t.id + '">' +
     '<span class="ico" aria-hidden="true">' + esc(t.icon) + '</span>' +
     '<div class="tx"><h3>' + esc(t.title) + pts + '</h3>' + (U.unlocked && st === 'c' ? '<p class="claimed-note">' + esc(S.cfg.name) + ' sagt: geschafft!</p>' : '') + '</div>' +
@@ -1945,8 +2015,8 @@ function dayTools(e) {
   if (!U.unlocked) return '';
   const claimed = e.items.filter(it => it.st === 'c').length, open = e.items.filter(it => !it.st || it.st === 'c').length;
   if (!open) return '';
-  return '<div class="day-tools">' + (claimed ? '<button class="btn btn-main btn-sm" data-act="approve-claimed">' + IC.check + 'Getippte freigeben (' + claimed + ')</button>' : '') +
-    '<button class="btn btn-ghost btn-sm" data-act="all-ok">' + gemMini(18) + 'Alle offenen: Diamant</button><button class="btn btn-ghost btn-sm" data-act="rest-no">' + IC.moon + 'Rest: heute nicht</button></div>';
+  return '<div class="day-tools">' + (claimed ? '<button class="btn btn-main btn-sm" data-act="approve-claimed">' + IC.check + 'Getippte: geschafft (' + claimed + ')</button>' : '') +
+    '<button class="btn btn-ghost btn-sm" data-act="all-ok">' + gemMini(18) + 'Alle offenen: geschafft</button><button class="btn btn-ghost btn-sm" data-act="rest-no">' + IC.moon + 'Rest: nicht geschafft</button></div>';
 }
 
 /* Unter den Aufgaben: der nächste Schatz mit Zähler und der nächste Zauberbeutel. Tippen führt zu den Schätzen. */
@@ -2193,7 +2263,7 @@ function viewCoach(st) {
   h += '<section class="card coach-sec"><h2>So funktioniert es</h2>' +
     '<div class="chips-r jump" role="group" aria-label="Bereiche">' + SECTIONS.map(s => '<button data-act="goto-sec" data-sec="' + s[0] + '">' + s[1] + '</button>').join('') + '</div>' +
     '<ul class="rules">' +
-    '<li>' + IC.hand + '<span><b>' + esc(c.name) + ' tippt „Geschafft!“</b>, ihr gebt im Eltern-Modus mit <b>Diamant</b> frei. „Heute nicht“ ist neutral: Es gibt keinen Diamanten, aber auch kein Minus.</span></li>' +
+    '<li>' + IC.hand + '<span><b>Ihr tragt im Eltern-Modus ein</b>, am besten gemeinsam mit ' + esc(c.name) + ': <b>Geschafft</b> bringt einen Diamanten. <b>Nicht geschafft</b> ist neutral: kein Diamant, aber auch kein Minus. Ohne Eltern-Modus kann ' + esc(c.name) + ' nichts selbst abhaken.</span></li>' +
     '<li>' + IC.shovel + '<span><b>Graben:</b> Jeder freigegebene Diamant wartet in der Erde. ' + esc(c.name) + ' tippt ' + (c.digTaps === 1 ? 'einmal' : c.digTaps + '-mal') + ', dann springt er heraus und fliegt in die Truhe. Er zählt aber schon ab der Freigabe.</span></li>' +
     '<li>' + IC.coin + '<span><b>Konto:</b> Steht bei einem Schatz „2 € aufs Guthabenkonto“, wird der Betrag beim Einlösen gebucht. Gutschreiben, Abbuchen und Auszahlen im Tab Konto.</span></li>' +
     '<li>' + cloudSVG('yellow', 26) + '<span><b>Gelbe Wolke</b> = Verwarnung, minus ' + dia(c.yellowPts) + '. Zwei gelbe Wolken werden zur <b>Gewitterwolke</b> (minus ' + c.redPts + ', höchstens einmal am Tag). Wolken verfallen nicht, ihr könnt sie zurücknehmen.</span></li>' +
@@ -2395,21 +2465,14 @@ function closeCeleb() {
 }
 ACT['celeb-next'] = () => { closeCeleb(); render(); scheduleCeleb(300); };
 
-/* ---------- Abhaken (Kind) und Freigeben (Eltern) ---------- */
-ACT.claim = el => {
-  if (U.readonly || U.unlocked) return;
-  const ds = U.today, id = el.dataset.task, t = taskById(id); if (!t) return;
-  const day = ensureDay(ds); if (day.m[id]) return;
-  day.m[id] = 'c'; markChanged(); savedDay(ds);
-  Snd.claim(); Hap.go(15);
-  const r = el.getBoundingClientRect(); FX.pop(r.left + r.width / 2, r.top + r.height / 2, ['✨', '💖']);
-  U.fx = { task: id }; render();
-};
+/* ---------- Eintragen (nur im Eltern-Modus) ----------
+   Das Kind hakt nichts selbst ab (Wunsch des Nutzers, 14.11.): Die Eltern tragen gemeinsam mit ihm „Geschafft“ oder „Nicht geschafft“ ein.
+   Ein alter Zustand c (vom Kind getippt, aus früheren Fassungen) wird weiter angezeigt und lässt sich freigeben. */
 ACT.hint = el => {
   if (U.unlocked) return;
   const st = el.dataset.st, t = taskById(el.dataset.task);
   const li = el.closest('.task'); if (li) { li.classList.remove('shake'); void li.offsetWidth; li.classList.add('shake'); }
-  const msg = (t ? t.title + ': ' : '') + (st === 'c' ? 'Wartet auf Mama oder Papa.' : st === 'y' ? 'Diamant! Schon geschafft.' : st === 'n' ? 'Heute nicht. Morgen wieder.' : 'Das tragen Mama oder Papa ein.');
+  const msg = (t ? t.title + ': ' : '') + (st === 'c' ? 'Wartet auf Mama oder Papa.' : st === 'y' ? 'Geschafft! Dafür gibt es einen Diamanten.' : st === 'n' ? 'Nicht geschafft. Morgen wieder!' : 'Das tragen Mama oder Papa mit dir ein.');
   toast(msg);
 };
 function setMark(ds, id, st) {
@@ -2451,7 +2514,7 @@ ACT['all-ok'] = () => { if (U.unlocked) bulkMark(it => !it.st || it.st === 'c', 
 ACT['rest-no'] = () => {
   if (!U.unlocked) return;
   const n = bulkMark(it => !it.st || it.st === 'c', 'n');
-  if (n) toast(n === 1 ? 'Eine Aufgabe auf „heute nicht“ gesetzt.' : n + ' Aufgaben auf „heute nicht“ gesetzt.');
+  if (n) toast(n === 1 ? 'Eine Aufgabe auf „nicht geschafft“ gesetzt.' : n + ' Aufgaben auf „nicht geschafft“ gesetzt.');
 };
 
 /* ---------- Graben ----------
@@ -2782,7 +2845,7 @@ ACT['konto-del'] = el => {
 function rulesHTML() {
   const c = S.cfg, nm = esc(c.name);
   return '<h2 class="h-ic">' + gemMini(30) + 'So geht das Diamanten-Reich</h2><p class="sub">Zum Vorlesen für Mama oder Papa.</p>' +
-    '<div class="rb"><h3>' + IC.hand + ' Geschafft!</h3><p>Hast du eine Aufgabe geschafft, tippst du auf <b>Geschafft!</b>. Dann schauen Mama oder Papa und geben dir einen <b>Diamanten</b>.</p>' +
+    '<div class="rb"><h3>' + IC.hand + ' Geschafft!</h3><p>Hast du eine Aufgabe geschafft, trägst du sie mit Mama oder Papa ein. Für jedes <b>Geschafft</b> bekommst du einen <b>Diamanten</b>.</p>' +
     '<h3>' + IC.shovel + ' Graben</h3><p>Jeder Diamant steckt in der Erde. Tipp auf <b>Graben!</b>, dann holt die Schatzgräberin ihn heraus und legt ihn in deine Truhe.</p>' +
     '<h3>' + gemMini(20) + ' Schätze</h3><p>Für viele Diamanten findest du Schätze mit einer Belohnung. Alle ' + c.packEvery + ' Diamanten gibt es einen <b>Zauberbeutel</b> mit einem Sticker.</p>' +
     '<h3>' + IC.coin + ' Konto</h3><p>Manche Schätze bringen Geld auf dein <b>Konto</b>. Das Geld gehört dir. Abgebucht wird nur, wenn du dir etwas wünschst und Ja sagst.</p>' +
@@ -2796,7 +2859,7 @@ function parentsHTML() {
   const c = S.cfg, nm = esc(c.name);
   return '<h2>Hinweise für Eltern</h2><p class="sub">Mit fünf, sechs Jahren wirkt Lob viel stärker als Abzug. Wolken sind die Ausnahme, nicht der Alltag.</p><ol class="rb-ol">' +
     '<li><b>Gemeinsam anfangen:</b> Zeigt ' + nm + ' die App in Ruhe, lest ihr die Regeln vor (Knopf „Regeln“ bei den Extras) und sucht die Belohnungen zusammen aus.</li>' +
-    '<li><b>Lob zuerst:</b> Freigeben möglichst bald und mit einem Satz dazu („Du hast dich ganz allein angezogen!“). Die App ersetzt kein Lob.</li>' +
+    '<li><b>Lob zuerst:</b> Eintragen möglichst bald und mit einem Satz dazu („Du hast dich ganz allein angezogen!“). Die App ersetzt kein Lob.</li>' +
     '<li><b>Wolken sparsam:</b> Am besten die erste Woche ganz ohne. Nie für Gefühle (Weinen, Wut, Angst), nie für Missgeschicke, nie im Streit oder vor dem Schlafen.</li>' +
     '<li><b>Belohnungen nie zurücknehmen</b> und zeitnah einlösen. Essen, Schlaf, Kuscheln und gemeinsame Zeit sind nie Belohnung und nie Entzug.</li>' +
     '<li><b>Hürde passend halten:</b> Klappt etwas tagelang nicht, ist die Aufgabe zu schwer. Dann kürzen oder teilen, nicht strenger werden.</li>' +

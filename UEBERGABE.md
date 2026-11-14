@@ -21,7 +21,7 @@ Wortlaut des Auftrags (Vornamen ersetzt): „Wir benötigen nun eine weitere Ver
 | Farbstimmung | **Türkis-Gold „Schatzreich“**: glitzerndes Türkis mit Gold, Meerjungfrau- und Schatzinsel-Gefühl; Diamanten in Weiß, Gold und Rosa. |
 | Wie entstehen die Bilder? | **Zusätzlich KI-Bilder** (Magnific) für einzelne große Motive (Einhorn, Prinzessin). Ich nenne vorher den Preis und frage vor jeder Erzeugung. Rest als selbst gezeichnete Vektorgrafik. |
 
-**Änderungswünsche des Nutzers am 14.11. (nach dem ersten fertigen Stand):** „Guthabenkonto wie bei der anderen App“, „die Funktion zum Vorlesen entfernen“, „**mehr** Minispiele“ (zuerst versehentlich „keine Minispiele“ geschrieben und sofort korrigiert: Graben bleibt, es kommen Spiele dazu) und „die Belohnungen sollten mit Beispielen befüllt werden“. Alles umgesetzt (siehe Abschnitt 3).
+**Änderungswünsche des Nutzers am 14.11. (nach dem ersten fertigen Stand):** „Guthabenkonto wie bei der anderen App“, „die Funktion zum Vorlesen entfernen“, „**mehr** Minispiele“ (zuerst versehentlich „keine Minispiele“ geschrieben und sofort korrigiert: Graben bleibt, es kommen Spiele dazu) und „die Belohnungen sollten mit Beispielen befüllt werden“. Danach noch: „beim Zauberbeutel mindestens 100 verschiedene“ (jetzt 100 Sticker in fünf Kategorien) und: Das Kind soll ohne Eltern-Modus **nichts selbst abhaken** können, weil er es ohnehin gemeinsam mit ihr einträgt; im Eltern-Modus heißen die Knöpfe nur noch **„Geschafft“** und **„Nicht geschafft“**. Alles umgesetzt (siehe Abschnitt 3).
 
 **Hinweis des Nutzers zum Mini-Spiel (mitten in der Arbeit, sinngemäß):** Bei Bens App kann er am Ende die Tore schießen, also die Bälle ins Tor. Bei der Tochter soll es so sein: **Ein Mädchen steht da und gräbt mit der Schaufel in die Erde und holt jeweils Diamanten heraus, und das kann die Tochter immer betätigen.** Er fragte: „Wie viel drückt man immer drauf, und dann tut das Mädchen graben“ (also: wie oft muss man tippen). Bens „Schieß!“-Mechanik (`shootMode`, `U.shots`, Schussleiste, Ball halten = alle) wird damit durch **Graben** ersetzt.
 
@@ -54,7 +54,7 @@ Der Nutzer war beim Bau nicht erreichbar und hat gebeten, ohne Rückfragen ferti
 
 **Torjäger-App:** unverändert (Branch `main`, nicht angefasst).
 
-**Diamanten-Reich (Branch `schwester-app`):** fertig gebaut, alle Suiten grün am 14.11. (nach Konto, Spielwiese, ohne Vorlesen): Regeln 73, Claude-Seite 95 (`test/e2e-dia.js`, ersetzt die alten Fußball-Tests e2e/e2e4/e2e6/e2e7), Web-App gegen den Firestore-Emulator alle Prüfungen (einschließlich Graben und Konto-Buchung über zwei Geräte, offline, iPhone-Statusleiste), Unterpfad alle. `docs/` ist eingecheckt (gebaut). Bildschirmfotos in iPhone-Größe erzeugt `test/e2e-dia.js` nach `shots/` (nicht im Repo).
+**Diamanten-Reich (Branch `schwester-app`):** fertig gebaut, alle Suiten grün am 14.11. (nach Konto, Spielwiese, ohne Vorlesen): Regeln 76, Claude-Seite 93 (`test/e2e-dia.js`, ersetzt die alten Fußball-Tests e2e/e2e4/e2e6/e2e7), Web-App gegen den Firestore-Emulator alle Prüfungen (einschließlich Graben und Konto-Buchung über zwei Geräte, offline, iPhone-Statusleiste), Unterpfad alle. `docs/` ist eingecheckt (gebaut). Bildschirmfotos in iPhone-Größe erzeugt `test/e2e-dia.js` nach `shots/` (nicht im Repo).
 
 **Vorschau:** Die Claude-Seite (`build/diamanten.html`) ist als **private** Claude-Seite veröffentlicht (Adresse nur im Chat, nicht im Repo), Speicher = Claude-db der Seite, getrennt von Firestore. Zum Ausprobieren; was dort eingetragen wird, wandert nicht in die Web-App.
 

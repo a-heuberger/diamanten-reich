@@ -1,5 +1,6 @@
 /* ============ Regeln, Datum, Auswertung (rein, ohne DOM) ============
-   Diamanten-Reich: Aufgaben bringen Diamanten. Das Kind tippt „Geschafft!“ (Zustand c), ein Elternteil gibt frei (y).
+   Diamanten-Reich: Aufgaben bringen Diamanten. Die Eltern tragen im Eltern-Modus „Geschafft“ (y) oder „Nicht geschafft“ (n) ein.
+   Zustand c (vom Kind getippt) gibt es nur noch in alten Daten; das Kind hakt seit 14.11. nichts mehr selbst ab.
    Jeder freigegebene Diamant wartet in der Erde, bis die Schatzgräberin ihn ausgräbt (days/<ds>.dg zählt die gegrabenen).
    Wolken sind die Verwarnungen: gelbe Wolke −1, Gewitterwolke −3 (Regeln wie bei den Karten der Torjäger-App).
    Dazu ein Guthabenkonto in Euro (konto/<id>, je Buchung ein Dokument), wie in der Torjäger-App. */
@@ -150,14 +151,15 @@ function rewardMoney(text) {
 const LADDER = { 1: 'Funkel!', 2: 'Doppel-Funkel!', 3: 'Dreifach-Funkel!', 4: 'Super-Funkel!', 5: 'Mega-Funkel!' };
 const ladderText = n => LADDER[Math.max(1, Math.min(n, 5))];
 
-/* ---------- Sammelsticker: 40 Stück in drei Seltenheiten ----------
+/* ---------- Sammelsticker: 100 Stück in drei Seltenheiten (je Kategorie 20: 12 normal, 6 selten, 2 ultraselten) ----------
    Normal zählt 1 Punkt, selten 2, ultraselten 5. Je 10 Sticker-Punkte gibt es 1 Bonus-Diamant.
-   Bild: ein Emoji oder „gem:<farbe>“ (gezeichneter Edelstein). */
+   Bild: ein Emoji oder „gem:<farbe>“ (gezeichneter Edelstein).
+   Die ersten 40 (s01 bis s40) bleiben, wie sie sind: Wer sie schon hat, behält sie. Neue Sticker immer hinten anhängen. */
 const RARITY = { n: { name: 'Normal', pts: 1 }, r: { name: 'Selten', pts: 2 }, u: { name: 'Ultraselten', pts: 5 } };
 const RAR_ORDER = ['u', 'r', 'n'];
 const RAR_WEIGHT = { n: 12, r: 4, u: 1 };       // Ziehungsgewicht im Zauberbeutel: Seltene kommen seltener
 const PTS_PER_DIAMANT = 10;
-const CATS = ['Einhörner', 'Prinzessinnen', 'Edelsteine', 'Märchenwelt'];
+const CATS = ['Einhörner', 'Prinzessinnen', 'Edelsteine', 'Märchenwelt', 'Tierfreunde'];
 const STICKER_DATA = [
   /* Einhörner */
   ['🦄', 'Funkel-Einhorn', 'Einhörner', 'n', 'Ein Einhorn hat ein Horn auf der Stirn. Wenn es lacht, funkelt es.'],
@@ -203,6 +205,72 @@ const STICKER_DATA = [
   ['🏝️', 'Schatzinsel', 'Märchenwelt', 'r', 'Auf der Schatzinsel ist der Schatz mit einem Kreuz markiert.'],
   ['🧜‍♀️', 'Meerjungfrau', 'Märchenwelt', 'u', 'Die Meerjungfrau hütet die Schätze am Meeresgrund.'],
   ['🧚', 'Glücksfee', 'Märchenwelt', 'u', 'Die Glücksfee streut Glitzer auf alle, die lieb sind.'],
+  /* ab hier s41 bis s100 (seit 14.11.) */
+  /* Einhörner */
+  ['🐴', 'Fohlen', 'Einhörner', 'n', 'Ein Pferdebaby heißt Fohlen. Es kann kurz nach der Geburt schon stehen.'],
+  ['🍭', 'Zuckerwolke', 'Einhörner', 'n', 'Einhörner lieben Zuckerwatte. Sie schmeckt wie eine süße Wolke.'],
+  ['🌼', 'Blumenwiese', 'Einhörner', 'n', 'Auf der Blumenwiese pflückt das Einhorn Gänseblümchen.'],
+  ['🫧', 'Glitzerblasen', 'Einhörner', 'n', 'Seifenblasen schillern in allen Farben des Regenbogens.'],
+  ['✨', 'Funkelglanz', 'Einhörner', 'n', 'Wenn ein Einhorn sich freut, funkelt die Luft um es herum.'],
+  ['🧁', 'Einhorn-Muffin', 'Einhörner', 'n', 'Ein Muffin mit Regenbogen-Streuseln. Lecker!'],
+  ['🏔️', 'Wolkenberg', 'Einhörner', 'r', 'Hoch oben auf dem Berg wohnen die Einhörner über den Wolken.'],
+  ['🎡', 'Riesenrad', 'Einhörner', 'r', 'Vom Riesenrad aus sieht man das ganze Einhornland.'],
+  ['💖', 'Glitzerherz', 'Einhörner', 'r', 'Ein Einhorn hat ein großes Herz für alle Tiere.'],
+  ['🌌', 'Sternen-Einhorn', 'Einhörner', 'u', 'Dieses Einhorn galoppiert nachts über die Milchstraße.'],
+  /* Prinzessinnen */
+  ['🍰', 'Prinzessinnen-Torte', 'Prinzessinnen', 'n', 'Die Torte hat drei Stockwerke und rosa Zuckerguss.'],
+  ['🌷', 'Schlossgarten', 'Prinzessinnen', 'n', 'Im Schlossgarten blühen Tulpen in allen Farben.'],
+  ['💌', 'Einladung', 'Prinzessinnen', 'n', 'Eine Einladung zum Ball. Alle Freunde sind eingeladen!'],
+  ['👒', 'Sonnenhut', 'Prinzessinnen', 'n', 'Mit dem Sonnenhut geht die Prinzessin im Park spazieren.'],
+  ['🎐', 'Windspiel', 'Prinzessinnen', 'n', 'Ein Windspiel klingelt ganz leise, wenn der Wind weht.'],
+  ['🎶', 'Ballmusik', 'Prinzessinnen', 'n', 'Beim Ball spielt Musik, und alle tanzen im Kreis.'],
+  ['🐸', 'Froschkönig', 'Prinzessinnen', 'r', 'Im Märchen wird aus einem Frosch ein Prinz.'],
+  ['🦚', 'Pfau', 'Prinzessinnen', 'r', 'Ein Pfau schlägt ein Rad aus schillernden Federn.'],
+  ['🛏️', 'Erbsenbett', 'Prinzessinnen', 'r', 'Eine echte Prinzessin spürt eine Erbse sogar unter vielen Matratzen.'],
+  ['🤴', 'Prinz', 'Prinzessinnen', 'u', 'Der Prinz ist freundlich und hilft allen im Königreich.'],
+  /* Edelsteine */
+  ['gem:citrin', 'Citrin', 'Edelsteine', 'n', 'Ein Citrin ist orange wie eine Mandarine.'],
+  ['gem:granat', 'Granat', 'Edelsteine', 'n', 'Ein Granat ist dunkelrot wie eine Kirsche.'],
+  ['gem:peridot', 'Peridot', 'Edelsteine', 'n', 'Ein Peridot ist hellgrün wie ein frischer Apfel.'],
+  ['gem:jade', 'Jade', 'Edelsteine', 'n', 'Jade ist grün und fühlt sich ganz glatt und kühl an.'],
+  ['gem:lapis', 'Lapislazuli', 'Edelsteine', 'n', 'Lapislazuli ist tiefblau wie der Himmel in der Nacht.'],
+  ['gem:onyx', 'Onyx', 'Edelsteine', 'n', 'Ein Onyx ist schwarz und glänzt wie die Nacht.'],
+  ['gem:mondstein', 'Mondstein', 'Edelsteine', 'r', 'Ein Mondstein schimmert sanft wie das Mondlicht.'],
+  ['gem:bernstein', 'Bernstein', 'Edelsteine', 'r', 'Bernstein ist uraltes Baumharz. Manchmal steckt ein Insekt darin.'],
+  ['🔮', 'Kristallkugel', 'Edelsteine', 'r', 'In der Kristallkugel glitzert es wie im Sternenhimmel.'],
+  ['💎', 'Funkel-Diamant', 'Edelsteine', 'u', 'Der größte Diamant im ganzen Reich. Er funkelt heller als die Sonne.'],
+  /* Märchenwelt */
+  ['🌻', 'Sonnenblume', 'Märchenwelt', 'n', 'Junge Sonnenblumen drehen ihren Kopf mit der Sonne.'],
+  ['🍓', 'Walderdbeere', 'Märchenwelt', 'n', 'Im Märchenwald wachsen kleine, süße Walderdbeeren.'],
+  ['🏡', 'Wichtelhaus', 'Märchenwelt', 'n', 'Im Wichtelhaus ist alles klein, sogar die Tassen.'],
+  ['🎈', 'Luftballon', 'Märchenwelt', 'n', 'Ein Luftballon fliegt hoch in den Himmel, wenn man ihn loslässt.'],
+  ['⛵', 'Segelboot', 'Märchenwelt', 'n', 'Mit dem Segelboot fährt man zur Schatzinsel.'],
+  ['🗝️', 'Zauberschlüssel', 'Märchenwelt', 'n', 'Dieser Schlüssel öffnet jede Schatztruhe.'],
+  ['🐉', 'Kleiner Drache', 'Märchenwelt', 'r', 'Dieser kleine Drache ist ganz lieb und pustet Seifenblasen.'],
+  ['🪐', 'Ringplanet', 'Märchenwelt', 'r', 'Der Saturn hat Ringe aus Eis und Steinen.'],
+  ['🍀', 'Glücksklee', 'Märchenwelt', 'r', 'Ein Kleeblatt mit vier Blättern bringt Glück.'],
+  ['🌊', 'Meereswelle', 'Märchenwelt', 'r', 'Wellen rauschen am Strand und bringen Muscheln mit.'],
+  /* Tierfreunde */
+  ['🐱', 'Kätzchen', 'Tierfreunde', 'n', 'Katzen schnurren, wenn sie sich wohlfühlen.'],
+  ['🐶', 'Hündchen', 'Tierfreunde', 'n', 'Hunde können viel besser riechen als Menschen.'],
+  ['🐰', 'Häschen', 'Tierfreunde', 'n', 'Hasen haben lange Ohren und hören sehr gut.'],
+  ['🐹', 'Hamster', 'Tierfreunde', 'n', 'Ein Hamster stopft sein Futter in die Backen.'],
+  ['🐥', 'Küken', 'Tierfreunde', 'n', 'Ein Küken schlüpft aus einem Ei.'],
+  ['🐞', 'Marienkäfer', 'Tierfreunde', 'n', 'Marienkäfer haben Punkte und fressen Blattläuse.'],
+  ['🐝', 'Biene', 'Tierfreunde', 'n', 'Bienen sammeln Nektar und machen daraus Honig.'],
+  ['🦔', 'Igel', 'Tierfreunde', 'n', 'Ein Igel rollt sich bei Gefahr zu einer stacheligen Kugel.'],
+  ['🐿️', 'Eichhörnchen', 'Tierfreunde', 'n', 'Eichhörnchen verstecken im Herbst Nüsse für den Winter.'],
+  ['🐢', 'Schildkröte', 'Tierfreunde', 'n', 'Eine Schildkröte trägt ihr Haus auf dem Rücken.'],
+  ['🦆', 'Entchen', 'Tierfreunde', 'n', 'Enten haben Füße wie kleine Paddel.'],
+  ['🐑', 'Schäfchen', 'Tierfreunde', 'n', 'Aus der Wolle der Schafe macht man warme Pullover.'],
+  ['🦊', 'Fuchs', 'Tierfreunde', 'r', 'Ein Fuchs hat einen buschigen Schwanz und spitze Ohren.'],
+  ['🐼', 'Panda', 'Tierfreunde', 'r', 'Pandas fressen fast den ganzen Tag Bambus.'],
+  ['🦒', 'Giraffe', 'Tierfreunde', 'r', 'Die Giraffe ist das größte Tier an Land.'],
+  ['🐨', 'Koala', 'Tierfreunde', 'r', 'Koalas schlafen fast den ganzen Tag in Bäumen.'],
+  ['🦩', 'Flamingo', 'Tierfreunde', 'r', 'Flamingos stehen gern auf einem Bein.'],
+  ['🐧', 'Pinguin', 'Tierfreunde', 'r', 'Pinguine können nicht fliegen, aber toll schwimmen.'],
+  ['🦁', 'Löwe', 'Tierfreunde', 'u', 'Der Löwe brüllt so laut, dass man ihn kilometerweit hört.'],
+  ['🐳', 'Wal', 'Tierfreunde', 'u', 'Der Blauwal ist das größte Tier der Welt.'],
 ];
 const STICKERS = STICKER_DATA.map((s, i) => ({ id: 's' + pad2(i + 1), ico: s[0], name: s[1], cat: s[2], rar: s[3], fact: s[4] }));
 const STICKER_BY = {};
@@ -284,7 +352,7 @@ function cloudsNow(S) {
 }
 
 /* ---------- Ein Tag ----------
-   Zustände je Aufgabe: c = vom Kind getippt (wartet auf die Eltern), y = freigegeben (Diamant), n = heute nicht.
+   Zustände je Aufgabe: y = geschafft (Diamant), n = nicht geschafft (neutral), c = vom Kind getippt (nur alte Daten, wartet auf die Eltern).
    gain = Diamanten des Tages (freigegebene Aufgaben und Extra-Diamanten). dug = davon ausgegraben, waiting = noch in der Erde. */
 function evalDay(S, ds) {
   const day = S.days[ds] || {};

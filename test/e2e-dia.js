@@ -68,32 +68,29 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
   ok('A Tab Schätze zeigt einen wartenden Beutel', (await h.txt('.tab[data-tab="achieve"] .dot-badge')) === '1');
   await page.close();
 
-  // ---- B) Kind tippt „Geschafft!“ ----
+  // ---- B) Kind ohne Eltern-Modus: sieht alles, hakt nichts selbst ab ----
   page = await open(b, BASE({ 'cfg/main': { v: 1, name: 'Lia', cloudsAck: true, pin: '' } })); h = H(page);
   ok('B Morgens und Abends getrennt (3 + 4)', JSON.stringify(await h.all('.slot-h h2')) === JSON.stringify(['Morgens', 'Abends']) && await h.cnt('.tasks') === 2 && await h.cnt('.task') === 7);
-  ok('B jede Aufgabe hat „Geschafft!“, keine Eltern-Knöpfe', await h.cnt('.claim') === 7 && await h.cnt('.task .seg') === 0);
+  ok('B ohne Eltern-Modus: keine Knöpfe zum Abhaken, jede Aufgabe zeigt „Offen“', await h.cnt('.claim, [data-act="claim"]') === 0 && await h.cnt('.task .seg') === 0 && await h.cnt('.task .stamp.o') === 7);
   ok('B Szene: Schatzgräberin, Truhe, Einhorn, Graben-Knopf', await h.cnt('.scene .girl') === 1 && await h.cnt('.scene .chest') === 1 && await h.cnt('.scene .unicorn') === 1 && await h.cnt('.digbtn') === 1);
   await h.shot('02-heute');
-  await tap(page, '.claim[data-task="t_zaehne_m"]', 400);
-  ok('B getippt: wartet auf die Eltern (c), ohne Diamant', (await h.store('days/' + T)).m.t_zaehne_m === 'c' && /Wartet/.test(await h.txt('.task[data-task="t_zaehne_m"] .stamp')) && (await h.txt('#chestN')) === '0');
-  ok('B Eltern-Schloss zeigt die Zahl der getippten Aufgaben', (await h.txt('.lockbtn .dot-badge')) === '1');
   await tap(page, '.task[data-task="t_zaehne_m"] .stamp-btn', 300);
-  ok('B nochmal tippen: Hinweis, kein Zurücksetzen', /Wartet auf Mama oder Papa/.test(await h.txt('#toast')) && (await h.store('days/' + T)).m.t_zaehne_m === 'c');
+  ok('B Antippen zeigt nur einen Hinweis und trägt nichts ein', /tragen Mama oder Papa mit dir ein/.test(await h.txt('#toast')) && !(await h.store('days/' + T)));
   ok('B keine Vorlese-Knöpfe, Bild ist kein Knopf', await h.cnt('.saybtn') === 0 && await h.cnt('button.ico') === 0 && await h.cnt('[data-act="say"]') === 0);
-  await tap(page, '.claim[data-task="t_anziehen"]', 400);
 
-  // ---- C) Eltern geben frei ----
+  // ---- C) Eltern tragen ein: Geschafft / Nicht geschafft ----
   await tap(page, '[data-act="lock"]', 300);
-  ok('C Eltern sehen Getipptes hervorgehoben', await h.cnt('.task.claimed') === 2 && /Lia sagt: geschafft!/.test(await h.txt('.task.claimed')));
-  ok('C Knopf „Getippte freigeben (2)“', /Getippte freigeben \(2\)/.test(await h.txt('[data-act="approve-claimed"]')));
+  ok('C Eltern-Knöpfe heißen nur „Geschafft“ und „Nicht geschafft“', JSON.stringify(await h.all('.task[data-task="t_zaehne_m"] .seg button')) === JSON.stringify(['Geschafft', 'Nicht geschafft']) && !/Freigeben|Heute nicht|Diamant$/.test(await h.txt('#main .tasks')), JSON.stringify(await h.all('.task[data-task="t_zaehne_m"] .seg button')));
+  ok('C Sammelknöpfe: „Alle offenen: geschafft“, „Rest: nicht geschafft“', /Alle offenen: geschafft/.test(await h.txt('[data-act="all-ok"]')) && /Rest: nicht geschafft/.test(await h.txt('[data-act="rest-no"]')));
   await h.shot('03-eltern-freigabe');
-  await tap(page, '[data-act="approve-claimed"]', 500);
+  await tap(page, '.task[data-task="t_zaehne_m"] [data-st="y"]', 400);
+  await tap(page, '.task[data-task="t_anziehen"] [data-st="y"]', 500);
   const d1 = await h.store('days/' + T);
-  ok('C freigegeben: beide y', d1.m.t_zaehne_m === 'y' && d1.m.t_anziehen === 'y');
+  ok('C geschafft: beide y, Stempel „Geschafft!“', d1.m.t_zaehne_m === 'y' && d1.m.t_anziehen === 'y' && /Geschafft!/.test(await h.txt('.task[data-task="t_zaehne_m"] .stamp')));
   ok('C zwei Diamanten warten in der Erde (Blase, Tab, Hinweis)', (await h.txt('.wait-bubble')) === '2' && (await h.txt('.tab[data-tab="today"] .dot-badge')) === '2' && /2 Diamanten warten in der Erde/.test(await h.txt('#banner')));
   ok('C Truhe noch leer, Schätze zählen schon', (await h.txt('#chestN')) === '0');
   await tap(page, '.task[data-task="t_bett"] [data-st="n"]', 300);
-  ok('C „Heute nicht“ ist neutral', (await h.store('days/' + T)).m.t_bett === 'n' && /Heute nicht/.test(await h.txt('.task[data-task="t_bett"] .stamp')));
+  ok('C „Nicht geschafft“ ist neutral', (await h.store('days/' + T)).m.t_bett === 'n' && /Nicht geschafft/.test(await h.txt('.task[data-task="t_bett"] .stamp')));
   await tap(page, '.task[data-task="t_bett"] [data-st="n"]', 300);
   ok('C nochmal tippen nimmt es zurück', !(await h.store('days/' + T)).m.t_bett);
   await tap(page, '[data-act="lock"]', 300);
@@ -221,7 +218,7 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
 
   // ---- J) nur ansehen, ohne Zugriff ----
   page = await open(b, BASE({ ['days/' + T]: { m: { t_zaehne_m: 'y' } } }), { readonly: true }); h = H(page);
-  ok('J nur ansehen: kein Geschafft, kein Graben, kein Eltern-Tab, Hinweis', await h.cnt('.claim') === 0 && await h.cnt('.digbtn') === 0 && await h.cnt('.tab[data-tab="coach"]') === 0 && /Nur ansehen/.test(await h.txt('.mode-note')));
+  ok('J nur ansehen: kein Abhaken, kein Graben, kein Eltern-Tab, Hinweis', await h.cnt('[data-act="mark"]') === 0 && await h.cnt('.digbtn') === 0 && await h.cnt('.tab[data-tab="coach"]') === 0 && /Nur ansehen/.test(await h.txt('.mode-note')));
   await page.close();
   page = await open(b, null, { nodb: true }); h = H(page);
   ok('J ohne Zugriff: Sperrseite statt neuem Spiel', (await page.getAttribute('.gate', 'data-gate')) === 'noaccess' && await h.cnt('.sheet') === 0);
@@ -231,7 +228,7 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
   page = await open(b, BASE({ ['days/' + T]: { m: { t_zaehne_m: 'c' } } })); h = H(page);
   await page.evaluate(async () => { const db = await window.claude.use('db'); await db.doc('days/2026-11-13').set({ m: { t_zaehne_m: 'y' }, ev: [] }); });
   await h.wait(600);
-  ok('K Freigabe vom anderen Gerät kommt an: ein Diamant wartet', (await h.txt('.wait-bubble')) === '1' && /Diamant!/.test(await h.txt('.task[data-task="t_zaehne_m"] .stamp')));
+  ok('K Freigabe vom anderen Gerät kommt an: ein Diamant wartet', (await h.txt('.wait-bubble')) === '1' && /Geschafft!/.test(await h.txt('.task[data-task="t_zaehne_m"] .stamp')));
   await tap(page, '[data-act="lock"]', 200); await tap(page, '.tab[data-tab="coach"]', 300);
   await page.fill('#f-name', 'Li'); await page.locator('#f-name').pressSequentially('a', { delay: 120 }); await h.wait(1500);
   ok('K eigene Eingabe wird nicht vom Echo überschrieben', (await page.inputValue('#f-name')) === 'Lia');

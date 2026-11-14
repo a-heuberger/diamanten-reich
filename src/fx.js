@@ -41,7 +41,7 @@ const Snd = (function () {
     wake() { ensure(); },
     tap() { run(t => tone(880, t, .07, 'sine', .07, 640)); },
     soft() { run(t => tone(330, t, .22, 'sine', .07, 262)); },                                      // ruhig: noch nicht, Wolke
-    claim() { run(t => { bell(988, t, .35, .09); bell(1319, t + .09, .45, .08); }); },               // Kind tippt „Geschafft!“
+    claim() { run(t => { bell(988, t, .35, .09); bell(1319, t + .09, .45, .08); }); },               // Diamant wartet in der Erde
     dig(n) { run(t => { tone(150 - (n || 0) * 12, t, .12, 'sine', .35, 60); crowd(t, .16, .22, 1800, 600); }); },   // Spatenstich: Plopp und Sand
     gem() { run(t => { [1319, 1661, 1976, 2637].forEach((f, i) => bell(f, t + i * .06, .5, .08)); }); },              // Diamant springt heraus
     find() { run(t => { tone(520, t, .12, 'sine', .12, 780); tone(780, t + .1, .16, 'sine', .1, 620); }); },         // Spaß-Fund
