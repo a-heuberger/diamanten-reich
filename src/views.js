@@ -2,9 +2,9 @@
 const U = {
   tab: 'today', today: todayStr(), date: todayStr(), unlocked: false, ready: false, readonly: false, hasCfg: true,
   weekOff: 0, fx: null, pop: false, editTask: null, last: Date.now(), celebQ: [], sheet: null, pin: '',
-  bars: {}, newSticker: null, muted: false, speak: true, ob: null, ex: null, dig: { taps: 0 }, digBusy: false, volley: false,
+  bars: {}, newSticker: null, muted: false, ob: null, ex: null, kx: null, game: null, lastGoal: null, dig: { taps: 0 }, digBusy: false, volley: false,
 };
-let S = { cfg: defaultCfg(), prog: normProg(), days: {} };
+let S = { cfg: defaultCfg(), prog: normProg(), days: {}, konto: {} };
 let _st = null;
 const markChanged = () => { touch(S); _st = null; };
 const ST = () => _st || (_st = computeStats(S, U.today));
@@ -20,7 +20,6 @@ const fmtShort = ds => { const d = parseDate(ds); return WD_SHORT[d.getDay()] + 
 const rewardOf = g => String(g.reward || '').trim();
 const goalText = g => esc(rewardOf(g) || 'Überraschung!');
 const plain = s => String(s).replace(/­/g, '');
-const sayBtn = (text, label) => '<button class="saybtn" data-act="say" data-say="' + esc(text) + '" aria-label="' + esc(label || 'Vorlesen') + '">' + IC.sound + '</button>';
 const stickerIco = (s, size) => (s.ico.indexOf('gem:') === 0 ? gemSVG(s.ico.slice(4), size) : '<span class="emo" style="font-size:' + Math.round(size * .9) + 'px">' + s.ico + '</span>');
 const look = () => S.cfg.look;
 
@@ -32,7 +31,7 @@ function render() {
   if (Store.noAccess && !U.hasCfg) { app.innerHTML = gateView('noaccess'); return; }
   if (U.tab === 'coach' && U.readonly) U.tab = 'today';
   const st = ST();
-  const views = { today: viewToday, week: viewWeek, achieve: viewAchieve, coach: viewCoach };
+  const views = { today: viewToday, week: viewWeek, achieve: viewAchieve, konto: viewKonto, coach: viewCoach };
   app.innerHTML = headerView(st) + '<main class="wrap main" id="main">' + (views[U.tab] || viewToday)(st) + '</main>' + tabsView(st);
   afterRender();
 }
@@ -61,7 +60,7 @@ function headerView(st) {
     '<div class="chip gems" role="img" aria-label="' + dia(st.chest) + ' in der Truhe">' + gemMini(22) + '<b id="chestN">' + st.chest + '</b></div>' + lock + '</div></div></header>';
 }
 function tabsView(st) {
-  const tabs = [['today', 'Heute'], ['week', 'Woche'], ['achieve', 'Schätze']].concat(U.readonly ? [] : [['coach', 'Eltern']]);
+  const tabs = [['today', 'Heute'], ['week', 'Woche'], ['achieve', 'Schätze'], ['konto', 'Konto']].concat(U.readonly ? [] : [['coach', 'Eltern']]);
   return '<nav class="tabs" aria-label="Bereiche"><div class="tabs-in">' + tabs.map(t => {
     const badge = t[0] === 'achieve' && st.packs.left > 0 ? '<i class="dot-badge" aria-label="' + st.packs.left + ' Zauberbeutel warten">' + st.packs.left + '</i>'
       : t[0] === 'today' && st.waiting > 0 && S.cfg.digMode !== false ? '<i class="dot-badge gold" aria-label="' + dia(st.waiting) + ' warten in der Erde">' + st.waiting + '</i>' : '';
@@ -97,13 +96,11 @@ function cloudTop(st) {
   const e = evalDay(S, U.today), c = S.cfg;
   let h = '';
   if (e.red > 0) {
-    const t = 'Gewitterwolke heute. Minus ' + dia(c.redPts) + ' bei den Schätzen.';
-    h += '<section class="cloudtop red" role="status">' + cloudSVG('red', 46) + '<span class="ct-tx"><b>Gewitterwolke heute</b><small>Minus ' + dia(c.redPts) + ' bei den Schätzen. Morgen scheint wieder die Sonne.</small></span>' + sayBtn(t + ' Morgen scheint wieder die Sonne.') + '</section>';
+    h += '<section class="cloudtop red" role="status">' + cloudSVG('red', 46) + '<span class="ct-tx"><b>Gewitterwolke heute</b><small>Minus ' + dia(c.redPts) + ' bei den Schätzen. Morgen scheint wieder die Sonne.</small></span></section>';
   }
   if (st.clouds.count > 0) {
     const d = st.clouds.dates[0];
-    const t = 'Gelbe Wolke. ' + (c.yellowPts ? 'Minus ' + dia(c.yellowPts) + ' bei den Schätzen. ' : '') + 'Eine zweite gelbe Wolke wird zur Gewitterwolke.';
-    h += '<section class="cloudtop yellow" role="status">' + cloudSVG('yellow', 46) + '<span class="ct-tx"><b>Gelbe Wolke</b><small>' + (d === U.today ? 'Heute. ' : d ? 'Seit ' + fmtShort(d) + '. ' : '') + (c.yellowPts ? 'Minus ' + dia(c.yellowPts) + ' bei den Schätzen. ' : '') + 'Eine zweite wird zur Gewitterwolke.</small></span>' + sayBtn(t) + '</section>';
+    h += '<section class="cloudtop yellow" role="status">' + cloudSVG('yellow', 46) + '<span class="ct-tx"><b>Gelbe Wolke</b><small>' + (d === U.today ? 'Heute. ' : d ? 'Seit ' + fmtShort(d) + '. ' : '') + (c.yellowPts ? 'Minus ' + dia(c.yellowPts) + ' bei den Schätzen. ' : '') + 'Eine zweite wird zur Gewitterwolke.</small></span></section>';
   }
   return h;
 }
@@ -183,7 +180,7 @@ function taskCard(it, ds) {
     '<button class="b-y" data-act="mark" data-task="' + t.id + '" data-st="y" aria-pressed="' + (st === 'y') + '">' + gemMini(20) + '<span>' + (st === 'c' ? 'Freigeben' : 'Diamant') + '</span></button>' +
     '<button class="b-n" data-act="mark" data-task="' + t.id + '" data-st="n" aria-pressed="' + (st === 'n') + '">' + IC.moon + '<span>Heute nicht</span></button></div>' : '';
   return '<li class="task st-' + (st || 'o') + fx + (U.unlocked && st === 'c' ? ' claimed' : '') + '" data-task="' + t.id + '">' +
-    '<button class="ico" data-act="say" data-say="' + esc(t.title) + '" aria-label="' + esc(t.title) + ' vorlesen">' + esc(t.icon) + '</button>' +
+    '<span class="ico" aria-hidden="true">' + esc(t.icon) + '</span>' +
     '<div class="tx"><h3>' + esc(t.title) + pts + '</h3>' + (U.unlocked && st === 'c' ? '<p class="claimed-note">' + esc(S.cfg.name) + ' sagt: geschafft!</p>' : '') + '</div>' +
     '<div class="tact">' + act + '</div>' + seg + '</li>';
 }
@@ -259,8 +256,18 @@ function viewToday(st) {
   else h += taskSections(e, ds);
   h += extrasCard(e, ds);
   if (isToday) h += nextTreasureCard(st);
+  if (isToday && S.cfg.games !== false) h += gamesCard();
   h += installHint();
   return h;
+}
+/* Spielwiese: Mini-Spiele nur zum Spaß (zählen nicht für Diamanten). Die Spiele selbst stehen in games.js. */
+function gamesCard() {
+  const tile = (id, art, name, sub) => '<button class="gtile" data-act="game-open" data-game="' + id + '"><span class="gt-art" aria-hidden="true">' + art + '</span><b>' + name + '</b><small>' + sub + '</small></button>';
+  return '<div class="sec-h"><h2>Spielwiese</h2><span class="hint">Nur zum Spaß</span></div><section class="card games" aria-label="Mini-Spiele"><div class="gtiles">' +
+    tile('memory', '<span class="gt-mem">' + gemSVG('rosa', 30) + gemSVG('rosa', 30) + '</span>', 'Memory', 'Paare finden') +
+    tile('cups', '<span class="gt-cups"><i></i><i class="hi">' + gemMini(18) + '</i><i></i></span>', 'Hütchen', 'Wo ist der Diamant?') +
+    tile('catch', '<span class="gt-catch">' + gemSVG('tuerkis', 24) + gemSVG('topas', 20) + gemSVG('weiss', 28) + '</span>', 'Sternen&shy;regen', 'Diamanten fangen') +
+    '</div></section>';
 }
 /* Auf dem iPhone, solange die Seite noch in Safari läuft: wie sie auf den Home-Bildschirm kommt. */
 function installHint() {
@@ -314,8 +321,7 @@ function viewWeek(st) {
   let h = '<div class="wk-nav"><button class="navbtn" data-act="wk" data-d="-1" aria-label="Vorherige Woche"' + (U.weekOff <= -52 ? ' disabled' : '') + '>' + IC.chevL + '</button>' +
     '<div class="mid"><b>' + (U.weekOff === 0 ? 'Diese Woche' : U.weekOff === -1 ? 'Letzte Woche' : 'KW ' + isoWeek(mon)) + '</b><span class="hint">' + range + '</span></div>' +
     '<button class="navbtn" data-act="wk" data-d="1" aria-label="Nächste Woche"' + (U.weekOff >= 0 ? ' disabled' : '') + '>' + IC.chevR + '</button></div>';
-  const sayW = 'Diese Woche hast du ' + dia(w.gems) + ' gesammelt.' + (w.perfect ? ' ' + w.perfect + (w.perfect === 1 ? ' Glitzer-Tag.' : ' Glitzer-Tage.') : '');
-  h += '<section class="card rb-card"><div class="sec-h"><h2>Dein Regenbogen</h2>' + sayBtn(sayW) + '</div>' + rainbowSVG(w) +
+  h += '<section class="card rb-card"><div class="sec-h"><h2>Dein Regenbogen</h2></div>' + rainbowSVG(w) +
     '<p class="hint">Jeder Tag ist ein Streifen. Je mehr Diamanten, desto voller wird er.' + (w.perfect ? ' Ein Stern heißt: Glitzer-Tag, alles geschafft.' : '') + '</p></section>';
   if (w.yellow || w.red) h += '<section class="card pad weekclouds"><div class="wc">' + (w.yellow ? '<span class="cflag">' + cloudSVG('yellow', 30) + '<b>' + w.yellow + '× gelb</b></span>' : '') + (w.red ? '<span class="cflag">' + cloudSVG('red', 30) + '<b>' + w.red + '× Gewitter</b></span>' : '') + (w.minus ? '<span class="cflag minus"><b>Minus ' + w.minus + '</b></span>' : '') + '</div></section>';
   h += '<div class="sec-h"><h2>Die Tage</h2></div><div class="wk-days">' + w.days.map(dayRow).join('') + '</div>';
@@ -338,9 +344,8 @@ function goalRow(g, st, isNext) {
   const state = done ? 'Eingelöst am ' + fmtShort(done) : g.reached ? 'Gefunden!' + (g.on ? ' Am ' + fmtShort(g.on) + '.' : '') + ' Sag Mama oder Papa Bescheid.' : 'Noch ' + dia(g.need);
   const bar = isNext ? '<div class="gbar" aria-hidden="true"><i style="width:' + clamp(Math.round((st.score - g.prev) / Math.max(1, g.at - g.prev) * 100), 0, 100) + '%"></i></div>' : '';
   const btn = U.unlocked && g.reached ? '<button class="btn btn-ghost btn-sm" data-act="redeem" data-key="' + esc(g.id) + '">' + (done ? 'Rückgängig' : 'Als eingelöst markieren') + '</button>' : '';
-  const sayT = dia(g.at) + (g.last ? '. Der große Schatz' : '') + '. ' + (r || 'Eine Überraschung') + '. ' + state.replace(/\d+\.\d+\./, '');
   return '<div class="tier goal' + (g.reached ? ' got' : '') + (done ? ' done' : '') + (isNext ? ' next' : '') + '" data-goal="' + esc(g.id) + '"><span class="tier-ico">' + (g.last ? crownSVG(46) : gemSVG(g.gem, 44)) + '</span>' +
-    '<div><h3>' + dia(g.at) + (g.last ? '<span class="tn-s"> · der große Schatz</span>' : '') + '</h3><p' + (r ? '' : ' class="tbd"') + '>' + (r ? esc(r) : IC.gift + ' Überraschung!') + '</p><div class="state">' + state + '</div>' + bar + btn + '</div>' + sayBtn(sayT) + '</div>';
+    '<div><h3>' + dia(g.at) + (g.last ? '<span class="tn-s"> · der große Schatz</span>' : '') + '</h3><p' + (r ? '' : ' class="tbd"') + '>' + (r ? esc(r) : IC.gift + ' Überraschung!') + '</p><div class="state">' + state + '</div>' + bar + btn + '</div>' + (g.money ? '<span class="tier-coin" role="img" aria-label="Geld fürs Konto">' + coinSVG(30) + '</span>' : '') + '</div>';
 }
 function stickerCell(s, own, foilL) {
   const got = own.indexOf(s.id) >= 0, foil = foilL.indexOf(s.id) >= 0, R = RARITY[s.rar];
@@ -372,7 +377,7 @@ function viewAchieve(st) {
     '<div class="top-line"><div><span class="eyebrow">' + dia(st.chest) + ' in deiner Truhe</span><h2>' + head + '</h2></div>' + (nx ? '<span class="tl-gem">' + (nx.last ? crownSVG(48) : gemSVG(nx.gem, 46)) + '</span>' : '') + '</div>' +
     (nx ? '<div class="bar"><div class="fill gold" data-key="next" data-to="' + (p * 100) + '" style="width:' + (U.bars.next != null ? U.bars.next : 0) + '%"></div></div>' +
       '<p class="hint big"><b>Noch ' + dia(nx.need) + '</b> bis ' + dia(nx.at) + '.</p>' +
-      '<div class="reward-box"><span class="gift" aria-hidden="true">' + IC.gift + '</span><div><b>Dann bekommst du</b><span>' + goalText(nx) + '</span></div>' + sayBtn('Noch ' + dia(nx.need) + '. Dann bekommst du: ' + (rewardOf(nx) || 'eine Überraschung') + '.') + '</div>' : '<p class="hint big">Mama und Papa verstecken bald neue Schätze.</p>') +
+      '<div class="reward-box"><span class="gift" aria-hidden="true">' + IC.gift + '</span><div><b>Dann bekommst du</b><span>' + goalText(nx) + '</span></div></div>' : '<p class="hint big">Mama und Papa verstecken bald neue Schätze.</p>') +
     (nx && !nx.last && last ? '<p class="hint">Bis zu „' + esc(S.cfg.chest.title) + '“: noch ' + dia(left) + '.</p>' : '') +
     packLine(st) + '</div></section>';
   h += tally(st);
@@ -391,11 +396,54 @@ function viewAchieve(st) {
   return h;
 }
 
+/* ---------- Konto (Guthaben in Euro, wie in der Torjäger-App) ---------- */
+function kontoTitle(en) {
+  const t = String(en.t || '').trim();
+  if (en.k === 'pay') return t || 'Ausgezahlt';
+  if (en.k === 'minus') return t || 'Abbuchung';
+  return t || 'Gutschrift';
+}
+function kontoRow(en) {
+  const c = Math.round(+en.c) || 0, out = c < 0;
+  const ico = en.k === 'pay' ? IC.coin : out ? IC.minus : IC.plus;
+  const when = /^\d{4}-\d{2}-\d{2}$/.test(en.ds || '') ? fmtShort(en.ds) : '';
+  const kind = { plus: 'Gutschrift', minus: 'Abbuchung', pay: 'Ausgezahlt' }[en.k] || 'Buchung';
+  return '<li class="ev kb ' + (out ? (en.k === 'pay' ? 'pay' : 'out') : 'good') + '"><span class="evi">' + ico + '</span><span class="evt">' + esc(kontoTitle(en)) + '<small>' + (when ? when + ' · ' : '') + kind + '</small></span>' +
+    '<b class="evv">' + (out ? '−' : '+') + fmtEUR(Math.abs(c)) + '</b>' +
+    (U.unlocked && !U.readonly ? '<button class="evx" data-act="konto-del" data-id="' + esc(en.id) + '" aria-label="Buchung löschen">' + IC.cross + '</button>' : '<span></span>') + '</li>';
+}
+/* Münzen als Bild: eine je Euro (höchstens 20), damit auch ein Kind ohne Zahlen sieht, wie viel es ist. */
+function coinPile(cents) {
+  const n = Math.min(20, Math.floor(Math.max(0, cents) / 100)), rest = cents > 0 && cents % 100 ? 1 : 0;
+  if (!n && !rest) return '';
+  let h = '<div class="kh-pile" aria-hidden="true">';
+  for (let i = 0; i < n; i++) h += coinSVG(30);
+  if (rest) h += '<span class="small-coin">' + coinSVG(20) + '</span>';
+  return h + (cents >= 2100 ? '<em>…</em>' : '') + '</div>';
+}
+function viewKonto() {
+  const bal = kontoBalance(S), list = kontoList(S), nm = S.cfg.name;
+  const gl = goalList(S, ST()), nextMoney = gl.find(g => !g.reached && g.money);
+  let h = '<section class="card konto-hero"><div class="kh-ico">' + coinSVG(76) + '</div><div class="kh-tx"><span class="eyebrow">' + esc(genitive(nm)) + ' Konto</span>' +
+    '<b class="kh-sum' + (bal > 0 ? '' : ' zero') + '" id="kontoSum">' + fmtEUR(bal) + '</b>' +
+    '<small>' + (bal > 0 ? 'Dieses Geld gehört dir. Mama und Papa heben es für dich auf.' : 'Noch nichts auf dem Konto. Manche Schätze bringen Geld!') + '</small></div>' + coinPile(bal) + '</section>';
+  if (nextMoney) h += '<button class="card pad konto-next" data-act="tab" data-tab="achieve"><span class="kn-ico">' + coinSVG(34) + '</span><span class="kn-tx"><b>Noch ' + dia(nextMoney.need) + '</b><small>Dann gibt es ' + fmtEUR(nextMoney.money) + ' aufs Konto.</small></span>' + IC.chevR + '</button>';
+  if (U.unlocked && !U.readonly) {
+    h += '<div class="xbtns kbtns">' +
+      '<button class="xbtn" data-act="konto-open" data-k="plus">' + IC.plus + '<span>Gutschreiben</span></button>' +
+      '<button class="xbtn" data-act="konto-open" data-k="minus">' + IC.minus + '<span>Abbuchen</span></button>' +
+      '<button class="xbtn" data-act="konto-open" data-k="pay">' + IC.coin + '<span>Auszahlen</span></button></div>';
+  }
+  h += '<div class="sec-h"><h2>Buchungen</h2>' + (list.length ? '<span class="hint">' + list.length + '</span>' : '') + '</div>';
+  h += list.length ? '<ul class="evs kl">' + list.map(kontoRow).join('') + '</ul>' : '<div class="card pad"><p class="hint">Noch keine Buchungen. Hier steht, was gutgeschrieben, abgebucht oder ausgezahlt wurde.</p></div>';
+  return h;
+}
+
 /* ---------- Eltern ---------- */
 const EMOJI_PRESETS = ['🦷', '🪥', '👗', '🧦', '👟', '🛏️', '🧸', '🍽️', '🌙', '🛁', '🧼', '💧', '📚', '🎨', '🧩', '🐶', '🌱', '🧹', '🎒', '💖', '⭐', '🌈'];
 const TASK_IDEAS = [['🧼', 'Hände waschen'], ['🛁', 'Baden'], ['🧦', 'Socken anziehen'], ['👟', 'Schuhe anziehen'], ['📚', 'Buch anschauen'], ['🌱', 'Blumen gießen'], ['🐶', 'Tier füttern'], ['🎒', 'Tasche packen']];
-const REWARD_IDEAS = ['Einhorn-Sticker', 'Extra Gute-Nacht-Geschichte', 'Eis essen gehen', 'Spielplatz mit Mama oder Papa', 'Glitzer-Tattoo', 'Kleines Spielzeug', 'Kino-Abend zu Hause', 'Ausflug in den Zoo'];
-const SECTIONS = [['aufgaben', 'Aufgaben'], ['schaetze', 'Schätze'], ['graben', 'Graben'], ['wolken', 'Wolken'], ['kind', 'Aussehen'], ['ton', 'Ton und Vorlesen']];
+const REWARD_IDEAS = ['1 € aufs Guthabenkonto', '2 € aufs Guthabenkonto', '5 € aufs Guthabenkonto', 'Einhorn-Sticker', 'Glitzer-Tattoo aussuchen', 'Haarspange aussuchen', 'Malbuch aussuchen', 'Kleines Spielzeug aussuchen', 'Extra Gute-Nacht-Geschichte', 'Filmnachmittag mit Popcorn', 'Eis essen gehen', 'Ausflug in den Zoo', 'Ausflug ins Schwimmbad', 'Ausflug in den Freizeitpark'];
+const SECTIONS = [['aufgaben', 'Aufgaben'], ['schaetze', 'Schätze'], ['graben', 'Graben und Spiele'], ['wolken', 'Wolken'], ['kind', 'Aussehen'], ['ton', 'Ton und Code']];
 const stepper = (obj, key, val, min, max, step, unit) => '<div class="stepper"><button data-act="step" data-obj="' + obj + '" data-key="' + key + '" data-d="' + (-step) + '" data-min="' + min + '" data-max="' + max + '" aria-label="weniger">−</button><output>' + val + (unit || '') + '</output><button data-act="step" data-obj="' + obj + '" data-key="' + key + '" data-d="' + step + '" data-min="' + min + '" data-max="' + max + '" aria-label="mehr">+</button></div>';
 const switchRow = (act, on, title, small, extra) => '<button class="switch" role="switch" aria-checked="' + on + '" data-act="' + act + '" ' + (extra || '') + '><span><b>' + title + '</b>' + (small ? '<small>' + small + '</small>' : '') + '</span><i class="sw"></i></button>';
 function lookPickers(cur, act) {
@@ -420,7 +468,7 @@ function adviceBox() {
 
 function viewCoach(st) {
   if (!U.unlocked) {
-    return '<section class="card gate"><div class="gate-art">' + crownSVG(90) + '</div><h2>Nur für Mama und Papa</h2><p class="hint">Hier stellt ihr Aufgaben, Schätze und Wolken ein.</p><button class="btn btn-main" data-act="lock">Eltern-Code eingeben</button></section>';
+    return '<section class="card gate"><div class="gate-art">' + crownSVG(90) + '</div><h2>Nur für Mama und Papa</h2><p class="hint">Hier stellt ihr Aufgaben, Schätze, Wolken und Spiele ein.</p><button class="btn btn-main" data-act="lock">Eltern-Code eingeben</button></section>';
   }
   const c = S.cfg, gs = c.goals;
   let h = adviceBox();
@@ -429,6 +477,7 @@ function viewCoach(st) {
     '<ul class="rules">' +
     '<li>' + IC.hand + '<span><b>' + esc(c.name) + ' tippt „Geschafft!“</b>, ihr gebt im Eltern-Modus mit <b>Diamant</b> frei. „Heute nicht“ ist neutral: Es gibt keinen Diamanten, aber auch kein Minus.</span></li>' +
     '<li>' + IC.shovel + '<span><b>Graben:</b> Jeder freigegebene Diamant wartet in der Erde. ' + esc(c.name) + ' tippt ' + (c.digTaps === 1 ? 'einmal' : c.digTaps + '-mal') + ', dann springt er heraus und fliegt in die Truhe. Er zählt aber schon ab der Freigabe.</span></li>' +
+    '<li>' + IC.coin + '<span><b>Konto:</b> Steht bei einem Schatz „2 € aufs Guthabenkonto“, wird der Betrag beim Einlösen gebucht. Gutschreiben, Abbuchen und Auszahlen im Tab Konto.</span></li>' +
     '<li>' + cloudSVG('yellow', 26) + '<span><b>Gelbe Wolke</b> = Verwarnung, minus ' + dia(c.yellowPts) + '. Zwei gelbe Wolken werden zur <b>Gewitterwolke</b> (minus ' + c.redPts + ', höchstens einmal am Tag). Wolken verfallen nicht, ihr könnt sie zurücknehmen.</span></li>' +
     '<li>' + gemMini(24) + '<span><b>Schätze:</b> Alle Diamanten zählen zusammen, abzüglich Wolken. Von ' + gs[0].at + ' bis ' + gs[gs.length - 1].at + ' Diamanten.</span></li></ul>' +
     '<div class="row-btns"><button class="btn btn-ghost btn-sm" data-act="parents">Hinweise für Eltern</button><button class="btn btn-ghost btn-sm" data-act="rules">Regeln für ' + esc(c.name) + '</button><button class="btn btn-ghost btn-sm" data-act="lock">' + IC.lock + 'Eltern-Modus beenden</button></div></section>';
@@ -438,22 +487,23 @@ function viewCoach(st) {
     '<button class="btn btn-ghost" data-act="task-add">' + IC.plus + 'Neue Aufgabe</button>' +
     '<div class="field"><span>Ideen zum Antippen</span><div class="chips-r ideas" role="group" aria-label="Aufgaben-Ideen">' + TASK_IDEAS.map((t, i) => '<button data-act="task-idea" data-i="' + i + '">' + t[0] + ' ' + esc(t[1]) + '</button>').join('') + '</div></div></section>';
 
-  h += '<section class="card coach-sec" id="sec-schaetze"><h2>Schätze und Belohnungen</h2><p class="hint">Was ' + esc(c.name) + ' bei welchem Stand bekommt. Es zählen alle Diamanten zusammen, abzüglich Wolken. Ohne Text steht dort „Überraschung!“. Bitte nie Essen, Schlaf, Kuscheln oder gemeinsame Zeit als Belohnung oder Entzug einsetzen.</p>' +
+  h += '<section class="card coach-sec" id="sec-schaetze"><h2>Schätze und Belohnungen</h2><p class="hint">Was ' + esc(c.name) + ' bei welchem Stand bekommt. Es zählen alle Diamanten zusammen, abzüglich Wolken. Die Texte sind Beispiele: Ändert sie am besten gemeinsam mit ' + esc(c.name) + '. Ohne Text steht dort „Überraschung!“. Mit „2 € aufs Guthabenkonto“ bucht die App den Betrag beim Einlösen aufs Konto. Bitte nie Mahlzeiten, Schlaf, Kuscheln oder die gewohnte gemeinsame Zeit als Belohnung oder Entzug einsetzen.</p>' +
     gs.map((g, i) => {
       const min = i > 0 ? gs[i - 1].at + 1 : 1, max = i < gs.length - 1 ? gs[i + 1].at - 1 : 100000;
       return '<div class="field goaled"><div class="row-btns" style="align-items:center;justify-content:space-between">' + stepper('goal:' + g.id, 'at', g.at, min, max, g.at < 30 ? 1 : 5, ' ' + gemMini(16)) +
         (gs.length > 1 ? '<button class="evx" data-act="goal-del" data-id="' + esc(g.id) + '" aria-label="Schatz bei ' + g.at + ' Diamanten entfernen">' + IC.cross + '</button>' : '') + '</div>' +
-        '<input type="text" id="f-goal-' + esc(g.id) + '" data-bind="goal:' + esc(g.id) + ':reward" value="' + esc(g.reward) + '" maxlength="120" placeholder="Belohnung (leer: Überraschung!)" aria-label="Belohnung bei ' + g.at + ' Diamanten"></div>';
+        '<input type="text" id="f-goal-' + esc(g.id) + '" data-bind="goal:' + esc(g.id) + ':reward" data-goal-id="' + esc(g.id) + '" value="' + esc(g.reward) + '" maxlength="120" placeholder="Belohnung (leer: Überraschung!)" aria-label="Belohnung bei ' + g.at + ' Diamanten"></div>';
     }).join('') +
-    '<div class="field"><span>Ideen (füllt den ersten leeren Schatz)</span><div class="chips-r ideas" role="group" aria-label="Belohnungs-Ideen">' + REWARD_IDEAS.map((t, i) => '<button data-act="reward-idea" data-i="' + i + '">' + esc(t) + '</button>').join('') + '</div></div>' +
+    '<div class="field"><span>Ideen (erst in ein Feld tippen, dann auf eine Idee)</span><div class="chips-r ideas" role="group" aria-label="Belohnungs-Ideen">' + REWARD_IDEAS.map((t, i) => '<button data-act="reward-idea" data-i="' + i + '">' + esc(t) + '</button>').join('') + '</div></div>' +
     '<button class="btn btn-ghost" data-act="goal-add">' + IC.plus + 'Schatz hinzufügen</button>' +
     '<div class="field"><span>Name der großen Truhe</span><input type="text" id="f-chest-title" data-bind="chest:title" value="' + esc(c.chest.title) + '" maxlength="40" aria-label="Name der großen Truhe"></div>' +
     '<div class="field"><span>Zauberbeutel</span><div class="row-btns" style="align-items:center">' + stepper('cfg', 'packEvery', c.packEvery, 3, 20, 1, ' ' + gemMini(16)) + '</div><small>So viele Diamanten bis zum nächsten Zauberbeutel. Sticker zählen 1, 2 oder 5 Punkte, je ' + PTS_PER_DIAMANT + ' Punkte gibt es einen Bonus-Diamanten.</small></div></section>';
 
-  h += '<section class="card coach-sec" id="sec-graben"><h2>Graben</h2>' +
+  h += '<section class="card coach-sec" id="sec-graben"><h2>Graben und Spiele</h2>' +
     switchRow('dig-mode', c.digMode !== false, esc(c.name) + ' gräbt jeden Diamanten selbst aus', 'Aus: Diamanten fliegen nach der Freigabe sofort in die Truhe.') +
     '<div class="field"><span>Tipps je Diamant</span>' + stepper('cfg', 'digTaps', c.digTaps, 1, 5, 1, '') + '<small>Vorschlag: 3. Weniger, wenn es zu lange dauert, mehr, wenn es mehr Spiel sein soll.</small></div>' +
-    switchRow('dig-fun', c.digFun !== false, 'Spaß-Funde', 'Ohne wartende Diamanten findet die Gräberin Kleinigkeiten (Wurm, Blume, Stern). Sie zählen nicht.') + '</section>';
+    switchRow('dig-fun', c.digFun !== false, 'Spaß-Funde', 'Ohne wartende Diamanten findet die Gräberin Kleinigkeiten (Wurm, Blume, Stern). Sie zählen nicht.') +
+    switchRow('games', c.games !== false, 'Spielwiese auf „Heute“', 'Memory, Hütchen und Sternenregen. Nur zum Spaß: Dabei gibt es keine Diamanten.') + '</section>';
 
   h += '<section class="card coach-sec" id="sec-wolken"><h2>Wolken</h2><p class="hint">Gelbe Wolke = Verwarnung. Zwei gelbe Wolken werden zur Gewitterwolke. Wolken kosten Diamanten bei den Schätzen; in der Truhe und in der Übersicht bleiben alle Diamanten stehen. Einen Grund müsst ihr nie angeben. Jede Wolke lässt sich zurücknehmen.</p>' +
     '<div class="field"><span>Gelbe Wolke: Abzug</span>' + stepper('cfg', 'yellowPts', c.yellowPts, 0, 5, 1, ' ' + gemMini(16)) + '</div>' +
@@ -466,10 +516,8 @@ function viewCoach(st) {
     '<div class="field"><span>Name des Einhorns</span><input type="text" id="f-unicorn" data-bind="cfg:unicorn" value="' + esc(c.unicorn) + '" maxlength="20"></div></div>' +
     lookPickers(c.look, 'look') + '</section>';
 
-  h += '<section class="card coach-sec" id="sec-ton"><h2>Ton, Vorlesen und Code</h2>' +
-    switchRow('sound', !U.muted, 'Töne auf diesem Gerät', 'Glöckchen, Funkeln, Graben. Auf dem iPhone: Seitenschalter auf laut.') +
-    switchRow('speak', U.speak, 'Vorlesen auf diesem Gerät', 'Antippen eines Bildes oder Lautsprechers liest vor. Nutzt die deutsche Stimme des Geräts.') +
-    '<div class="row-btns"><button class="btn btn-ghost btn-sm" data-act="voice-test">' + IC.sound + 'Stimme testen</button></div>' +
+  h += '<section class="card coach-sec" id="sec-ton"><h2>Ton und Code</h2>' +
+    switchRow('sound', !U.muted, 'Töne auf diesem Gerät', 'Glöckchen, Funkeln, Graben, Spiele. Auf dem iPhone: Seitenschalter auf laut.') +
     (c.pin ? '<div class="row-btns"><button class="btn btn-ghost btn-sm" data-act="pin-set">Code ändern</button><button class="btn btn-ghost btn-sm" data-act="pin-clear">Code entfernen</button></div>'
       : '<div class="warn-box"><span><b>Kein Eltern-Code gesetzt.</b> Dann kann ' + esc(c.name) + ' selbst Diamanten freigeben.</span><button class="btn btn-main btn-sm" data-act="pin-set">Code festlegen</button></div>') + '</section>';
 
@@ -488,7 +536,7 @@ function taskEditor(t) {
   if (!open) return h;
   const same = S.cfg.tasks.filter(x => x.slot === t.slot && !(x.until && x.until <= U.today)), i = same.indexOf(t);
   h += '<div class="tedit"><div class="field"><span>Symbol</span><div class="emojis">' + EMOJI_PRESETS.map(e => '<button data-act="emoji" data-id="' + t.id + '" data-e="' + e + '" aria-pressed="' + (t.icon === e) + '">' + e + '</button>').join('') + '</div></div>' +
-    '<div class="field"><span>Name (wird vorgelesen)</span><input type="text" id="te-title" data-bind="task:' + t.id + ':title" value="' + esc(t.title) + '" maxlength="40"></div>' +
+    '<div class="field"><span>Name</span><input type="text" id="te-title" data-bind="task:' + t.id + ':title" value="' + esc(t.title) + '" maxlength="40"></div>' +
     '<div class="field"><span>Tageszeit</span><div class="chips-r" role="group" aria-label="Tageszeit">' + Object.keys(SLOTS).map(s => '<button data-act="task-slot" data-id="' + t.id + '" data-v="' + s + '" aria-pressed="' + (t.slot === s) + '">' + SLOTS[s] + '</button>').join('') + '</div></div>' +
     '<div class="field"><span>Diamanten</span>' + stepper('task:' + t.id, 'pts', t.pts, 1, 3, 1, '') + '</div>' +
     '<div class="field"><span>Wochentage</span><div class="dchips">' + [1, 2, 3, 4, 5, 6, 0].map(d => '<button data-act="task-day" data-id="' + t.id + '" data-d="' + d + '" aria-pressed="' + (t.days.indexOf(d) >= 0) + '">' + WD_SHORT[d] + '</button>').join('') + '</div></div>' +

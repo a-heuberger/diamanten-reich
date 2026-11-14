@@ -1,7 +1,8 @@
 /* ============ Regeln, Datum, Auswertung (rein, ohne DOM) ============
    Diamanten-Reich: Aufgaben bringen Diamanten. Das Kind tippt „Geschafft!“ (Zustand c), ein Elternteil gibt frei (y).
    Jeder freigegebene Diamant wartet in der Erde, bis die Schatzgräberin ihn ausgräbt (days/<ds>.dg zählt die gegrabenen).
-   Wolken sind die Verwarnungen: gelbe Wolke −1, Gewitterwolke −3 (Regeln wie bei den Karten der Torjäger-App). */
+   Wolken sind die Verwarnungen: gelbe Wolke −1, Gewitterwolke −3 (Regeln wie bei den Karten der Torjäger-App).
+   Dazu ein Guthabenkonto in Euro (konto/<id>, je Buchung ein Dokument), wie in der Torjäger-App. */
 const WD_SHORT = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 const WD_LONG = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
@@ -22,11 +23,22 @@ function isoWeek(s) {
 }
 
 /* ---------- Voreinstellungen ---------- */
-const CFG_V = 1;
+const CFG_V = 2;
 const SLOTS = { morgens: 'Morgens', abends: 'Abends' };
 const HAIR = { braun: { name: 'Braun', fill: '#7a4a2a', dark: '#5a331b' }, blond: { name: 'Blond', fill: '#f2c45a', dark: '#c99a2e' }, schwarz: { name: 'Schwarz', fill: '#2d2433', dark: '#16111a' }, rot: { name: 'Rot', fill: '#d4643a', dark: '#a8461f' }, hellbraun: { name: 'Hellbraun', fill: '#b07a4a', dark: '#83572f' } };
 const DRESS = { tuerkis: { name: 'Türkis', fill: '#2cc6c3', dark: '#14918f' }, rosa: { name: 'Rosa', fill: '#ff8fc1', dark: '#e0609d' }, lila: { name: 'Lila', fill: '#a98bff', dark: '#7c5ce0' }, gold: { name: 'Gold', fill: '#ffc93c', dark: '#d79a12' }, blau: { name: 'Blau', fill: '#5aa8ff', dark: '#2f7fdc' } };
 const STYLE = { zoepfe: 'Zöpfe', offen: 'Offen', dutt: 'Dutt' };
+const DEFAULT_GOALS = [
+  [10, 'Glitzer-Tattoo aussuchen'],
+  [25, '2 € aufs Guthabenkonto'],
+  [50, 'Filmnachmittag mit Popcorn'],
+  [75, 'Kleines Spielzeug aussuchen'],
+  [100, '5 € aufs Guthabenkonto'],
+  [150, 'Ausflug in den Zoo'],
+  [200, 'Neues Buch oder Spiel aussuchen'],
+  [300, '10 € aufs Guthabenkonto'],
+  [500, 'Ausflug in den Freizeitpark'],
+];
 function defaultCfg() {
   const all = [0, 1, 2, 3, 4, 5, 6];
   return {
@@ -39,6 +51,7 @@ function defaultCfg() {
     digMode: true,       // das Kind gräbt jeden freigegebenen Diamanten selbst aus
     digTaps: 3,          // so viele Spatenstiche je Diamant (1 bis 5)
     digFun: true,        // ohne wartende Diamanten findet die Gräberin Kleinigkeiten (zählen nicht)
+    games: true,         // Spielwiese mit Mini-Spielen (zählen nicht für Diamanten)
     yellowPts: 1,        // gelbe Wolke = so viele Diamanten Abzug bei den Schätzen
     redPts: 3,           // Gewitterwolke = so viele Diamanten Abzug, höchstens einmal pro Tag
     extraMax: 3,         // höchstens so viele Extra-Diamanten pro Tag
@@ -54,8 +67,9 @@ function defaultCfg() {
       { id: 't_schlafanzug', icon: '🌙', title: 'Schlafanzug anziehen', slot: 'abends', pts: 1, days: all },
     ],
     /* Schätze: alle Diamanten zusammen (Aufgaben, Extra-Diamanten, Bonus-Diamanten der Sticker), abzüglich Wolken.
-       Der erste nach etwa 2 bis 3 Tagen, danach größere Abstände. Leer = Überraschung (die Eltern legen es fest). */
-    goals: [10, 25, 50, 75, 100, 150, 200, 300, 500].map(at => ({ id: 'g' + at, at, reward: '' })),
+       Der erste nach etwa 2 bis 3 Tagen, danach größere Abstände. Die Belohnungen sind Beispiele, die Eltern ändern sie.
+       „2 € aufs Guthabenkonto“ bucht den Betrag beim Einlösen aufs Konto. Leer = Überraschung. */
+    goals: DEFAULT_GOALS.map(g => ({ id: 'g' + g[0], at: g[0], reward: g[1] })),
     chest: { title: 'Der große Schatz' },
     goodReasons: ['Lieb geteilt', 'Toll geholfen', 'Mutig gewesen', 'Gut zugehört', 'Allein geschafft', 'Lieb getröstet'],
   };
@@ -97,6 +111,8 @@ function migrateCfg(c) {
   });
   out.chest = { title: String((old.chest && old.chest.title) || d.chest.title).slice(0, 40) };
   out.goals = normGoals(old.goals, d.goals);
+  /* Fassung 1 hatte leere Belohnungen: Die Vorgabe-Schätze bekommen die Beispiele, eigene Texte bleiben. */
+  if ((old.v || 0) < 2) out.goals.forEach(g => { const dg = d.goals.find(x => x.id === g.id && x.at === g.at); if (dg && !String(g.reward || '').trim()) g.reward = dg.reward; });
   out.yellowPts = clampInt(out.yellowPts, 0, 5, d.yellowPts);
   out.redPts = clampInt(out.redPts, 1, 9, d.redPts);
   out.extraMax = clampInt(out.extraMax, 1, 10, d.extraMax);
@@ -104,11 +120,31 @@ function migrateCfg(c) {
   out.digTaps = clampInt(out.digTaps, 1, 5, d.digTaps);
   out.digMode = out.digMode !== false;
   out.digFun = out.digFun !== false;
+  out.games = out.games !== false;
   if (!Array.isArray(out.goodReasons)) out.goodReasons = d.goodReasons;
   out.v = CFG_V;
   return out;
 }
-const normProg = p => Object.assign({ cel: {}, red: {}, album: [], foil: [] }, p || {});
+const normProg = p => Object.assign({ cel: {}, red: {}, redK: {}, album: [], foil: [] }, p || {});
+
+/* ---------- Konto (Guthaben): Beträge immer in ganzen Cent ---------- */
+const fmtEUR = c => (c < 0 ? '−' : '') + Math.floor(Math.abs(c) / 100) + ',' + pad2(Math.abs(c) % 100) + ' €';
+const fmtPlain = c => Math.floor(c / 100) + ',' + pad2(c % 100);
+/* „2,5“, „2.50“, „€ 3“ → Cent. Nur Beträge über 0 bis 1000 €, sonst null. */
+function parseMoney(s) {
+  const t = String(s == null ? '' : s).replace(/[€\s\u00a0]/g, '').replace(/^\+/, '');
+  if (!/^\d{1,4}([.,]\d{1,2})?$/.test(t)) return null;
+  const c = Math.round(parseFloat(t.replace(',', '.')) * 100);
+  return c > 0 && c <= 100000 ? c : null;
+}
+const kontoBalance = S => Object.keys(S.konto || {}).reduce((n, id) => n + (Math.round(+S.konto[id].c) || 0), 0);
+const kontoList = S => Object.keys(S.konto || {}).map(id => Object.assign({ id }, S.konto[id])).sort((a, b) => ((b.ts || 0) - (a.ts || 0)) || (a.id < b.id ? 1 : -1));
+const genitive = n => (/[sßxz]$/i.test(n) ? n + '’' : n + 's');
+/* Steht in der Belohnung „2 € aufs Guthabenkonto“, bucht die App den Betrag beim Einlösen (in Cent, sonst 0). */
+function rewardMoney(text) {
+  const m = /(\d{1,4}(?:[.,]\d{1,2})?)\s*(?:€|euro)\s*(?:auf|aufs|auf\s+das|auf\s+dem|ins)\s*(?:guthaben)?\s*konto/i.exec(String(text || ''));
+  return m ? (parseMoney(m[1]) || 0) : 0;
+}
 
 /* ---------- Funkel-Rufe (Diamanten an einem Tag) ---------- */
 const LADDER = { 1: 'Funkel!', 2: 'Doppel-Funkel!', 3: 'Dreifach-Funkel!', 4: 'Super-Funkel!', 5: 'Mega-Funkel!' };
@@ -336,7 +372,7 @@ function goalList(S, st) {
   return gs.map((g, i) => ({
     id: g.id, at: g.at, reward: g.reward, last: i === gs.length - 1, gem: GOAL_GEMS[Math.min(GOAL_GEMS.length - 1, Math.floor(i * GOAL_GEMS.length / Math.max(1, gs.length)))],
     reached: goalReached(S, st.score, g), need: Math.max(0, g.at - st.score), prev: i ? gs[i - 1].at : 0,
-    on: st.reachedOn(g.id), done: red[g.id] || null,
+    on: st.reachedOn(g.id), done: red[g.id] || null, money: rewardMoney(g.reward),
   }));
 }
 const nextGoal = (S, st) => goalList(S, st).find(g => !g.reached) || null;
@@ -362,5 +398,5 @@ function parentAdvice(S, today) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { WD_SHORT, WD_LONG, MONTHS_SHORT, fmtDate, parseDate, addDays, dowOf, mondayOf, todayStr, daysBetween, isoWeek, CFG_V, SLOTS, HAIR, DRESS, STYLE, defaultCfg, migrateCfg, normGoals, normProg, goalReached, goalList, nextGoal, GOAL_GEMS, LADDER, ladderText, RARITY, RAR_ORDER, RAR_WEIGHT, PTS_PER_DIAMANT, CATS, STICKERS, STICKER_BY, rarOf, stickerPoints, stickerBonus, pickSticker, packsLeft, FUN_FINDS, tasksOn, buildLedger, ledgerOf, touch, cloudsNow, evalDay, evalWeek, computeStats, milestones, parentAdvice };
+  module.exports = { fmtEUR, fmtPlain, parseMoney, kontoBalance, kontoList, genitive, rewardMoney, DEFAULT_GOALS, WD_SHORT, WD_LONG, MONTHS_SHORT, fmtDate, parseDate, addDays, dowOf, mondayOf, todayStr, daysBetween, isoWeek, CFG_V, SLOTS, HAIR, DRESS, STYLE, defaultCfg, migrateCfg, normGoals, normProg, goalReached, goalList, nextGoal, GOAL_GEMS, LADDER, ladderText, RARITY, RAR_ORDER, RAR_WEIGHT, PTS_PER_DIAMANT, CATS, STICKERS, STICKER_BY, rarOf, stickerPoints, stickerBonus, pickSticker, packsLeft, FUN_FINDS, tasksOn, buildLedger, ledgerOf, touch, cloudsNow, evalDay, evalWeek, computeStats, milestones, parentAdvice };
 }

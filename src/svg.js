@@ -159,14 +159,23 @@ const IC = {
   shovel: svgTag('0 0 24 24', '<path d="M5 4l9.5 9.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M3.5 5.5l3-3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M13 12l5-1.5 3.5 3.5-1.5 5c-2 1.5-5 1-6.5-.5S11.5 14 13 12z" fill="currentColor"/>'),
   gift: svgTag('0 0 24 24', '<rect x="3.5" y="9" width="17" height="11.5" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M3.5 13h17M12 9v11.5" stroke="currentColor" stroke-width="2.2"/><path d="M12 9c-1.5-4-6-4.5-6-2s4 2 6 2c2 0 6 .5 6-2s-4.5-2-6 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'),
   heart: svgTag('0 0 24 24', '<path d="M12 20.5S3.5 15 3.5 9.2A4.6 4.6 0 0 1 12 6.6a4.6 4.6 0 0 1 8.5 2.6C20.5 15 12 20.5 12 20.5z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/>'),
+  coin: svgTag('0 0 24 24', '<circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.4 8.9c-.6-.9-1.7-1.4-3-1.4-1.9 0-3.2 1.4-3.2 4.5s1.3 4.5 3.2 4.5c1.3 0 2.4-.5 3-1.4M7.6 10.8h5.6M7.6 13.2h5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'),
   hand: svgTag('0 0 24 24', '<path d="M8 12V5.5a1.6 1.6 0 0 1 3.2 0V11M11.2 10V4a1.6 1.6 0 0 1 3.2 0v6M14.4 10.5V5.8a1.6 1.6 0 0 1 3.2 0V14c0 4-2.6 7-6.2 7-2.6 0-4.2-1.2-5.6-3.4L3.6 13.5a1.6 1.6 0 0 1 2.7-1.7L8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'),
 };
 const TAB_IC = {
   today: svgTag('0 0 24 24', '<path d="M7.5 4h9l4.5 5.5L12 21 3 9.5z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M3 9.5h18M9.5 4 8 9.5 12 21l4-11.5L14.5 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>'),
   week: svgTag('0 0 24 24', '<path d="M2.5 18.5a9.5 9.5 0 0 1 19 0M6 18.5a6 6 0 0 1 12 0M9.5 18.5a2.5 2.5 0 0 1 5 0" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>'),
   achieve: svgTag('0 0 24 24', '<path d="M3.5 11h17v8a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M3.5 11 5 5.5Q12 3 19 5.5l1.5 5.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><rect x="10" y="11.5" width="4" height="5" rx="1" fill="currentColor"/>'),
+  konto: IC.coin,
   coach: IC.heart,
 };
+
+/* ---- Goldmünze für das Konto ---- */
+const coinSVG = size => '<svg class="coin-svg" viewBox="0 0 64 64" width="' + size + '" height="' + size + '" aria-hidden="true" focusable="false">' +
+  '<circle cx="32" cy="35" r="26" fill="#ad7706"/><circle cx="32" cy="31" r="26" fill="url(#gGold)"/>' +
+  '<circle cx="32" cy="31" r="20.5" fill="none" stroke="#ad7706" stroke-opacity=".5" stroke-width="2.4"/>' +
+  '<path d="M39.8 23.4c-1.6-2.4-4.2-3.7-7.4-3.7-4.9 0-8 3.6-8 11.3s3.1 11.3 8 11.3c3.2 0 5.8-1.3 7.4-3.7M20.6 28.2h15.8M20.6 33.8h15.8" fill="none" stroke="#8a5a06" stroke-width="3.8" stroke-linecap="round"/>' +
+  '<path d="M15.5 23A20 20 0 0 1 30 11" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="3" stroke-linecap="round"/></svg>';
 
 /* ---- gemeinsame Definitionen (Verläufe) – einmal im Dokument ---- */
 const SVG_DEFS = '<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>' +

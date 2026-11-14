@@ -114,38 +114,3 @@ const FX = (function () {
     clear() { parts = []; },
   };
 })();
-
-/* ============ Vorlesen: deutsche Stimme des Geräts (iPhone: nur nach einem Tipp) ============ */
-const Say = (function () {
-  let on = true, voice = null;
-  const ok = () => { try { return 'speechSynthesis' in window && typeof SpeechSynthesisUtterance === 'function'; } catch (e) { return false; } };
-  function pick() {
-    if (voice || !ok()) return voice;
-    try {
-      const vs = speechSynthesis.getVoices() || [];
-      const de = vs.filter(v => /^de(-|_|$)/i.test(v.lang));
-      voice = de.find(v => /anna|helena|marlene|petra|vicki|female|frau/i.test(v.name)) || de.find(v => /de-DE/i.test(v.lang)) || de[0] || null;
-    } catch (e) { voice = null; }
-    return voice;
-  }
-  if (ok()) { try { speechSynthesis.onvoiceschanged = () => { voice = null; pick(); }; } catch (e) { /* egal */ } }
-  return {
-    available: ok,
-    hasGerman: () => !!pick(),
-    setOn(v) { on = !!v; if (!on) this.stop(); },
-    isOn: () => on,
-    stop() { try { if (ok()) speechSynthesis.cancel(); } catch (e) { /* egal */ } },
-    say(text, force) {
-      if ((!on && !force) || !ok() || !text) return false;
-      try {
-        speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(String(text).replace(/­/g, ''));
-        u.lang = 'de-DE'; u.rate = .92; u.pitch = 1.12;
-        const v = pick(); if (v) u.voice = v;
-        speechSynthesis.speak(u);
-        window.__said = (window.__said || []).concat(String(text));
-        return true;
-      } catch (e) { return false; }
-    },
-  };
-})();

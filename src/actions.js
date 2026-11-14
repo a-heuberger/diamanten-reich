@@ -25,14 +25,6 @@ ACT['banner-go'] = el => {
   U.tab = el.dataset.tab; window.scrollTo(0, 0); render();
 };
 
-/* ---------- Vorlesen ---------- */
-ACT.say = el => { const t = el.dataset.say; if (!t) return; if (!Say.say(t)) { if (U.speak && !Say.available()) toast('Vorlesen geht auf diesem Gerät leider nicht.'); } };
-ACT['voice-test'] = () => {
-  if (!Say.available()) { toast('Dieses Gerät kann nicht vorlesen.', 'warn'); return; }
-  Say.say('Hallo ' + plain(S.cfg.name) + '! Ich bin ' + plain(S.cfg.unicorn) + ', dein Einhorn. Wollen wir Diamanten suchen?', true);
-  if (!Say.hasGerman()) toast('Keine deutsche Stimme gefunden. iPhone: Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Deutsch.', 'warn');
-};
-
 /* ---------- Fenster ---------- */
 function openSheet(html, cls) {
   const l = $('#layer'); if (!l) return;
@@ -45,7 +37,8 @@ const setSheet = html => { const s = $('.sheet'); if (s) s.innerHTML = html; };
 function closeSheet() {
   const l = $('#layer'); if (l) l.innerHTML = '';
   const was = U.sheet;
-  U.sheet = null; U.ob = null; U.ex = null; document.body.classList.remove('noscroll');
+  if (was === 'sheet-game') gameStop();
+  U.sheet = null; U.ob = null; U.ex = null; U.kx = null; document.body.classList.remove('noscroll');
   if (was) scheduleCeleb(400);
 }
 ACT['sheet-close'] = () => { if (U.sheet === 'onboard') return; closeSheet(); };
@@ -108,24 +101,21 @@ function showNextCeleb() {
       if (bn0 && bn0.firstElementChild && !bn0.querySelector('.go')) { scheduleCeleb(1400); return; }
       const n = U.packNote; U.packNote = 0;
       banner({ icon: pouchSVG(46), title: n === 1 ? 'Ein neuer Zauberbeutel!' : n + ' neue Zauberbeutel!', sub: n === 1 ? 'Tippe hier, um ihn bei den Schätzen zu öffnen.' : 'Tippe hier, um sie bei den Schätzen zu öffnen.', tone: 'violet', ms: 7000, go: 'achieve' });
-      Snd.sparkle(); Say.say(n === 1 ? 'Ein neuer Zauberbeutel!' : n + ' neue Zauberbeutel!');
+      Snd.sparkle();
     }
     return;
   }
   const name = esc(S.cfg.name), c = $('#celeb'); if (!c) return;
-  let html, spoken;
+  let html;
   if (it.type === 'perfect') {
     html = celCard(crownSVG(150), 'Alle Aufgaben geschafft', 'Glitzer-Tag!', 'Heute hast du alles geschafft, ' + name + '!', '', 'perfect');
-    spoken = 'Glitzer-Tag! Heute hast du alles geschafft, ' + plain(S.cfg.name) + '!';
   } else {
     const g = goalList(S, ST()).find(x => x.id === it.id);
     if (!g || !g.reached) { scheduleCeleb(100); return; }
     if (it.type === 'treasure') {
       html = celCard(chestSVG(1, 230, { cls: 'open' }), dia(g.at), 'Der große Schatz!', 'Du hast ' + esc(S.cfg.chest.title) + ' gefunden, ' + name + '!', rewardBox(g.reward), 'treasure');
-      spoken = 'Der große Schatz! Du hast ' + plain(S.cfg.chest.title) + ' gefunden!';
     } else {
       html = celCard(gemSVG(g.gem, 160), dia(g.at), 'Schatz gefunden!', 'Toll gemacht, ' + name + '!', rewardBox(g.reward));
-      spoken = 'Schatz gefunden! ' + dia(g.at) + '. ' + (rewardOf(g) ? 'Deine Belohnung: ' + rewardOf(g) : 'Eine Überraschung!');
     }
   }
   U.celeb = it;
@@ -133,7 +123,6 @@ function showNextCeleb() {
   c.innerHTML = html;
   document.body.classList.add('noscroll');
   Snd.fanfare(); FX.party(['💎', '✨', '👑']); Hap.go([40, 40, 40, 40, 90]);
-  setTimeout(() => Say.say(spoken), 700);
 }
 function closeCeleb() {
   const c = $('#celeb'); if (c) c.innerHTML = '';
@@ -151,14 +140,13 @@ ACT.claim = el => {
   Snd.claim(); Hap.go(15);
   const r = el.getBoundingClientRect(); FX.pop(r.left + r.width / 2, r.top + r.height / 2, ['✨', '💖']);
   U.fx = { task: id }; render();
-  Say.say('Super! ' + t.title + '. Jetzt schauen Mama oder Papa.');
 };
 ACT.hint = el => {
   if (U.unlocked) return;
   const st = el.dataset.st, t = taskById(el.dataset.task);
   const li = el.closest('.task'); if (li) { li.classList.remove('shake'); void li.offsetWidth; li.classList.add('shake'); }
-  const msg = st === 'c' ? 'Wartet auf Mama oder Papa.' : st === 'y' ? 'Diamant! Schon geschafft.' : st === 'n' ? 'Heute nicht. Morgen wieder.' : 'Das tragen Mama oder Papa ein.';
-  toast(msg); Say.say((t ? t.title + '. ' : '') + msg);
+  const msg = (t ? t.title + ': ' : '') + (st === 'c' ? 'Wartet auf Mama oder Papa.' : st === 'y' ? 'Diamant! Schon geschafft.' : st === 'n' ? 'Heute nicht. Morgen wieder.' : 'Das tragen Mama oder Papa ein.');
+  toast(msg);
 };
 function setMark(ds, id, st) {
   if (!taskById(id)) return;
@@ -259,7 +247,6 @@ async function unearth(quick) {
     if (!quick || !left) {
       const title = ds === U.today && n > 0 ? ladderText(n) : 'Funkel!';
       banner({ icon: gemSVG(col, 40), title: esc(title), sub: left ? (left === 1 ? 'Noch ein Diamant in der Erde.' : 'Noch ' + dia(left) + ' in der Erde.') : 'Alle Diamanten sind in der Truhe!', tone: 'gold', ms: 2400 });
-      if (!quick) Say.say(title + (left ? '' : ' Alle Diamanten sind in der Truhe!'));
     }
   } finally { U.digBusy = false; }
   if (!ST().waiting) scheduleCeleb(quick ? 900 : 1500);
@@ -270,7 +257,6 @@ function funFind() {
   const m = $('#mound');
   if (m && !stillMotion()) { const r = m.getBoundingClientRect(); FX.pop(r.left + r.width / 2, r.top, [f[0]]); }
   banner({ icon: '<span class="bn-emo">' + f[0] + '</span>', title: esc(f[1]) + '!', sub: 'Das ist kein Diamant. Aber lustig!', tone: '', ms: 2200 });
-  Say.say(f[1] + '!');
 }
 function digOnce(quick) {
   const c = S.cfg;
@@ -374,7 +360,22 @@ ACT['cloud-back'] = el => {
 ACT.redeem = el => {
   if (!U.unlocked) return;
   const k = el.dataset.key, g = S.cfg.goals.find(x => x.id === k); if (!g) return;
-  if (S.prog.red[k]) delete S.prog.red[k]; else S.prog.red[k] = U.today;
+  S.prog.redK = S.prog.redK || {};
+  if (S.prog.red[k]) {                                                // zurücknehmen: eine Konto-Gutschrift dazu wird wieder entfernt
+    delete S.prog.red[k];
+    const kid = S.prog.redK[k]; delete S.prog.redK[k];
+    if (kid && S.konto[kid]) { delete S.konto[kid]; persist('konto/' + kid); toast('Zurückgenommen. Die Gutschrift auf dem Konto wurde entfernt.'); }
+  } else {
+    S.prog.red[k] = U.today;
+    const cents = rewardMoney(g.reward);                              // „2 € aufs Guthabenkonto“ wird gleich gebucht, damit es nicht vergessen wird
+    if (cents > 0) {
+      const ts = Date.now(), id = 'k' + ts.toString(36) + rid();
+      S.konto[id] = { ts, ds: U.today, c: cents, k: 'plus', t: ('Schatz: ' + dia(g.at)).slice(0, 40) };
+      S.prog.redK[k] = id; persist('konto/' + id);
+      banner({ icon: coinSVG(42), title: esc('+' + fmtEUR(cents) + ' aufs Konto'), sub: esc('Schatz bei ' + dia(g.at) + ' · Guthaben jetzt ' + fmtEUR(kontoBalance(S))), tone: 'gold', ms: 3600, go: 'konto' });
+      Snd.fanfare(); FX.pop(innerWidth / 2, innerHeight / 3, ['🪙', '✨']);
+    }
+  }
   markChanged(); persist('cfg/progress'); render();
 };
 ACT['goal-add'] = () => {
@@ -389,11 +390,13 @@ ACT['goal-del'] = el => {
     S.cfg.goals = S.cfg.goals.filter(x => x.id !== g.id); markChanged(); persist('cfg/main'); render();
   });
 };
+/* Ideen füllen das zuletzt angetippte Belohnungsfeld, sonst den ersten leeren Schatz. */
 ACT['reward-idea'] = el => {
   if (!U.unlocked) return;
-  const t = REWARD_IDEAS[+el.dataset.i], g = S.cfg.goals.find(x => !rewardOf(x));
+  const t = REWARD_IDEAS[+el.dataset.i];
+  const g = S.cfg.goals.find(x => x.id === U.lastGoal) || S.cfg.goals.find(x => !rewardOf(x));
   if (!t) return;
-  if (!g) { toast('Alle Schätze haben schon eine Belohnung. Ändere den Text direkt im Feld.'); return; }
+  if (!g) { toast('Tippe zuerst in das Feld eines Schatzes, dann auf eine Idee.'); return; }
   g.reward = t; markChanged(); persist('cfg/main'); render();
   toast('„' + t + '“ bei ' + dia(g.at) + ' eingetragen.');
 };
@@ -414,13 +417,12 @@ function paintPack() {
       '<div class="emblem">' + stickerBig(s, true, foilKind, 'pop') + '</div><h2 class="ce-title small">' + esc(s.name) + '</h2>' +
       '<p class="ce-sub fact">' + esc(s.fact) + '</p>' +
       (foilKind ? '<p class="ce-sub">Dein Sticker glänzt jetzt.</p>' : '<p class="ce-sub sp-line">' + (p.bonusNew > 0 ? '<b class="bonus">💎 Bonus-Diamant!</b> ' : '') + 'Sticker ' + S.prog.album.length + ' von ' + STICKERS.length + ' · ' + R.name + '</p>') +
-      '<div class="row-btns">' + (st.packs.left > 0 ? '<button class="btn btn-main" data-act="pack-again">Nächster Beutel (' + st.packs.left + ')</button>' : '') + '<button class="btn ' + (st.packs.left > 0 ? 'btn-ghost' : 'btn-main') + '" data-act="pack-close">Ins Album</button>' + sayBtn(s.name + '. ' + s.fact) + '</div></div></div>';
+      '<div class="row-btns">' + (st.packs.left > 0 ? '<button class="btn btn-main" data-act="pack-again">Nächster Beutel (' + st.packs.left + ')</button>' : '') + '<button class="btn ' + (st.packs.left > 0 ? 'btn-ghost' : 'btn-main') + '" data-act="pack-close">Ins Album</button></div></div></div>';
   }
 }
 ACT['pack-open'] = () => {
   if (U.readonly || ST().packs.left <= 0) return;
   U.pack = { phase: 'closed' }; document.body.classList.add('noscroll'); paintPack(); Snd.tap();
-  Say.say('Ein Zauberbeutel! Tipp drauf.');
 };
 ACT['pack-again'] = () => { if (ST().packs.left > 0) { U.pack = { phase: 'closed' }; paintPack(); } else ACT['pack-close'](); };
 ACT['pack-close'] = () => { closeCeleb(); render(); scheduleCeleb(300); };
@@ -439,7 +441,6 @@ ACT['pack-tear'] = () => {
   setTimeout(() => {
     if (U.pack !== p) return;
     p.phase = 'opened'; p.sticker = s; p.kind = kind; paintPack(); FX.party(['✨', '💎']); Snd.sparkle();
-    Say.say((kind === 'foil' ? 'Glanz! ' : s.rar === 'u' ? 'Ultraselten! ' : s.rar === 'r' ? 'Selten! ' : '') + s.name + '. ' + s.fact + (p.bonusNew > 0 ? ' Und ein Bonus-Diamant!' : ''));
   }, stillMotion() ? 50 : 900);
 };
 ACT.sticker = el => {
@@ -447,18 +448,81 @@ ACT.sticker = el => {
   const got = (S.prog.album || []).indexOf(s.id) >= 0, foil = (S.prog.foil || []).indexOf(s.id) >= 0, R = RARITY[s.rar];
   openSheet('<h2>' + (got ? esc(s.name) : 'Noch nicht gefunden') + '</h2><div class="stbig-wrap">' + stickerBig(s, got, foil) + '</div>' +
     '<p class="sub">' + (got ? s.cat + ' · ' + R.name + ' · ' + punkte(R.pts) + (foil ? ' · Glanz' : '') : R.name + '. Alle ' + S.cfg.packEvery + ' Diamanten gibt es einen Zauberbeutel.') + '</p>' + (got ? '<p class="sub fact">' + esc(s.fact) + '</p>' : '') +
-    '<div class="row-btns">' + (got ? sayBtn(s.name + '. ' + s.fact) : '') + '<button class="btn btn-ghost" data-act="sheet-close">Schließen</button></div>', 'sheet-st');
-  if (got) Say.say(s.name + '. ' + s.fact);
+    '<button class="btn btn-ghost" data-act="sheet-close">Schließen</button>', 'sheet-st');
+};
+
+/* ---------- Konto: Gutschreiben, Abbuchen, Auszahlen (wie in der Torjäger-App) ---------- */
+const KX_TITLE = { plus: 'Gutschreiben', minus: 'Abbuchen', pay: 'Auszahlen' };
+const KX_CHIPS = { plus: ['Taschengeld', 'Geschenk', 'Oma und Opa', 'Extra-Hilfe'], minus: ['Spielzeug', 'Buch', 'Eis', 'Kleinigkeit'], pay: [] };
+const KX_AMOUNTS = [50, 100, 200, 500, 1000];
+function kxAfter() {
+  const x = U.kx; if (!x) return '';
+  const c = parseMoney(x.amt), bal = kontoBalance(S);
+  if (c == null) return 'Bitte einen Betrag eintragen, zum Beispiel 2,50.';
+  const after = x.k === 'plus' ? bal + c : bal - c;
+  return after < 0 ? 'Das Guthaben reicht nicht: Es sind nur ' + fmtEUR(bal) + ' auf dem Konto.' : 'Danach auf dem Konto: ' + fmtEUR(after);
+}
+function kontoSheetHTML() {
+  const x = U.kx, k = x.k, nm = esc(S.cfg.name);
+  const sub = {
+    plus: 'Für Taschengeld, ein Geschenk oder eine vereinbarte Extra-Hilfe.',
+    minus: 'Du hast etwas für ' + nm + ' gekauft. Der Betrag wird vom Konto abgebucht.',
+    pay: 'Du gibst ' + nm + ' Geld in die Hand oder ins Sparschwein. Der Betrag wird vom Konto abgebucht.',
+  }[k];
+  let h = '<h2 class="h-ic">' + coinSVG(34) + KX_TITLE[k] + '</h2><p class="sub">' + sub + '</p>';
+  h += '<div class="field"><span>Betrag in Euro</span><input type="text" inputmode="decimal" id="kx-amt" data-kx="amt" value="' + esc(x.amt) + '" maxlength="8" autocomplete="off" placeholder="z. B. 2,50"></div>';
+  if (k !== 'pay') h += '<div class="chips-r" role="group" aria-label="Schnellauswahl Betrag">' + KX_AMOUNTS.map(v => '<button data-act="kx-amt" data-c="' + v + '">' + fmtEUR(v) + '</button>').join('') + '</div>';
+  h += '<div class="field"><span>' + (k === 'pay' ? 'Notiz (freiwillig)' : 'Wofür?') + '</span><input type="text" id="kx-text" data-kx="t" value="' + esc(x.t) + '" maxlength="40" autocomplete="off"></div>';
+  if (KX_CHIPS[k].length) h += '<div class="chips-r" role="group" aria-label="Schnellauswahl">' + KX_CHIPS[k].map(t => '<button data-act="kx-chip" data-t="' + esc(t) + '" aria-pressed="' + (x.t === t) + '">' + esc(t) + '</button>').join('') + '</div>';
+  if (k === 'minus') h += switchRow('kx-ok', x.ok, nm + ' hat dazu Ja gesagt', 'Abgebucht wird nur, was ' + nm + ' sich selbst wünscht, nie etwas, das ihr ohnehin bezahlt.');
+  h += '<p class="hint" id="kx-after">' + esc(kxAfter()) + '</p>';
+  h += '<div class="row-btns"><button class="btn btn-main" data-act="kx-save">' + KX_TITLE[k] + '</button><button class="btn btn-ghost" data-act="sheet-close">Abbrechen</button></div>';
+  return h;
+}
+ACT['konto-open'] = el => {
+  if (!U.unlocked || U.readonly) return;
+  const k = el.dataset.k, bal = kontoBalance(S);
+  if ((k === 'minus' || k === 'pay') && bal <= 0) { toast('Auf dem Konto ist nichts, das sich abbuchen lässt.'); return; }
+  U.kx = { k, amt: k === 'pay' ? fmtPlain(bal) : '', t: k === 'pay' ? 'Ausgezahlt' : '', ok: false };
+  openSheet(kontoSheetHTML(), 'sheet-konto');
+};
+ACT['kx-amt'] = el => { U.kx.amt = fmtPlain(+el.dataset.c); setSheet(kontoSheetHTML()); };
+ACT['kx-ok'] = () => { U.kx.ok = !U.kx.ok; setSheet(kontoSheetHTML()); };
+ACT['kx-chip'] = el => { U.kx.t = U.kx.t === el.dataset.t ? '' : el.dataset.t; setSheet(kontoSheetHTML()); };
+ACT['kx-save'] = () => {
+  const x = U.kx; if (!x || !U.unlocked || U.readonly) return;
+  const c = parseMoney(x.amt), bal = kontoBalance(S), k = x.k;
+  if (c == null) { toast('Bitte einen Betrag über 0 eintragen, zum Beispiel 2,50.'); return; }
+  if (k === 'minus' && !x.ok) { toast('Bitte bestätigen: ' + S.cfg.name + ' hat dazu Ja gesagt.'); return; }
+  if ((k === 'minus' || k === 'pay') && c > bal) { toast('Das Guthaben reicht nicht: Es sind nur ' + fmtEUR(bal) + ' auf dem Konto.', 'warn'); return; }
+  const ts = Date.now(), id = 'k' + ts.toString(36) + rid(), t = (x.t || '').trim().slice(0, 40), credit = k === 'plus';
+  const en = { ts, ds: U.today, c: credit ? c : -c, k };
+  if (t) en.t = t;
+  S.konto[id] = en; markChanged(); persist('konto/' + id);
+  U.kx = null; closeSheet(); render();
+  const now = kontoBalance(S);
+  if (credit) { Snd.gem(); FX.pop(innerWidth / 2, innerHeight / 2, ['🪙', '✨']); } else Snd.soft();
+  banner({ icon: coinSVG(42), title: esc((credit ? '+' : '−') + fmtEUR(c) + (credit ? ' gutgeschrieben' : k === 'pay' ? ' ausgezahlt' : ' abgebucht')), sub: esc(kontoTitle(en)) + ' · Guthaben jetzt ' + esc(fmtEUR(now)), tone: credit ? 'gold' : '', ms: 3600 });
+};
+ACT['konto-del'] = el => {
+  if (!U.unlocked || U.readonly) return;
+  const id = el.dataset.id, en = S.konto[id]; if (!en) return;
+  confirmSheet({ title: 'Buchung löschen?', text: kontoTitle(en) + ' (' + (en.c < 0 ? '−' : '+') + fmtEUR(Math.abs(en.c)) + '). Das Guthaben ändert sich entsprechend.', ok: 'Löschen', danger: true }, () => {
+    delete S.konto[id];
+    Object.keys(S.prog.redK || {}).forEach(g => { if (S.prog.redK[g] === id) { delete S.prog.redK[g]; persist('cfg/progress'); } });
+    markChanged(); persist('konto/' + id); render(); toast('Buchung gelöscht.');
+  });
 };
 
 /* ---------- Regeln (für das Kind) und Hinweise für Eltern ---------- */
 function rulesHTML() {
   const c = S.cfg, nm = esc(c.name);
-  const spoken = 'So geht das Diamanten-Reich. Wenn du eine Aufgabe geschafft hast, tippst du auf Geschafft. Dann schauen Mama oder Papa und geben dir einen Diamanten. Der Diamant steckt in der Erde. Tipp auf Graben, dann holt die Schatzgräberin ihn heraus und legt ihn in deine Truhe. Für viele Diamanten findest du Schätze und bekommst eine Belohnung. Alle ' + c.packEvery + ' Diamanten gibt es einen Zauberbeutel mit einem Sticker. Eine gelbe Wolke ist eine Warnung. Zwei gelbe Wolken werden zum Gewitter. Dann gehen ein paar Diamanten bei den Schätzen ab. Aber deine Truhe bleibt voll. Wir haben dich lieb, egal was passiert.';
-  return '<h2 class="h-ic">' + gemMini(30) + 'So geht das Diamanten-Reich</h2><div class="row-btns">' + sayBtn(spoken, 'Regeln vorlesen') + '<span class="hint">Zum Vorlesen tippen</span></div>' +
+  return '<h2 class="h-ic">' + gemMini(30) + 'So geht das Diamanten-Reich</h2><p class="sub">Zum Vorlesen für Mama oder Papa.</p>' +
     '<div class="rb"><h3>' + IC.hand + ' Geschafft!</h3><p>Hast du eine Aufgabe geschafft, tippst du auf <b>Geschafft!</b>. Dann schauen Mama oder Papa und geben dir einen <b>Diamanten</b>.</p>' +
     '<h3>' + IC.shovel + ' Graben</h3><p>Jeder Diamant steckt in der Erde. Tipp auf <b>Graben!</b>, dann holt die Schatzgräberin ihn heraus und legt ihn in deine Truhe.</p>' +
     '<h3>' + gemMini(20) + ' Schätze</h3><p>Für viele Diamanten findest du Schätze mit einer Belohnung. Alle ' + c.packEvery + ' Diamanten gibt es einen <b>Zauberbeutel</b> mit einem Sticker.</p>' +
+    '<h3>' + IC.coin + ' Konto</h3><p>Manche Schätze bringen Geld auf dein <b>Konto</b>. Das Geld gehört dir. Abgebucht wird nur, wenn du dir etwas wünschst und Ja sagst.</p>' +
+    '<h3>' + IC.sparkle + ' Spielwiese</h3><p>Auf der <b>Spielwiese</b> kannst du Memory, Hütchen und Sternenregen spielen. Das ist nur zum Spaß.</p>' +
     '<h3>' + cloudSVG('yellow', 26) + ' Wolken</h3><p>Eine <b>gelbe Wolke</b> ist eine Warnung. Zwei gelbe Wolken werden zur <b>Gewitterwolke</b>. Dann gehen ein paar Diamanten bei den Schätzen ab. Deine Truhe bleibt aber voll.</p>' +
     '<p><b>Wir haben dich lieb, ' + nm + ', egal was passiert.</b></p></div>' +
     '<button class="btn btn-ghost btn-block" data-act="sheet-close">Schließen</button>';
@@ -467,7 +531,7 @@ ACT.rules = () => openSheet(rulesHTML(), 'sheet-rules');
 function parentsHTML() {
   const c = S.cfg, nm = esc(c.name);
   return '<h2>Hinweise für Eltern</h2><p class="sub">Mit fünf, sechs Jahren wirkt Lob viel stärker als Abzug. Wolken sind die Ausnahme, nicht der Alltag.</p><ol class="rb-ol">' +
-    '<li><b>Gemeinsam anfangen:</b> Zeigt ' + nm + ' die App in Ruhe, lest die Regeln vor (Lautsprecher-Knopf) und sucht die Belohnungen zusammen aus.</li>' +
+    '<li><b>Gemeinsam anfangen:</b> Zeigt ' + nm + ' die App in Ruhe, lest ihr die Regeln vor (Knopf „Regeln“ bei den Extras) und sucht die Belohnungen zusammen aus.</li>' +
     '<li><b>Lob zuerst:</b> Freigeben möglichst bald und mit einem Satz dazu („Du hast dich ganz allein angezogen!“). Die App ersetzt kein Lob.</li>' +
     '<li><b>Wolken sparsam:</b> Am besten die erste Woche ganz ohne. Nie für Gefühle (Weinen, Wut, Angst), nie für Missgeschicke, nie im Streit oder vor dem Schlafen.</li>' +
     '<li><b>Belohnungen nie zurücknehmen</b> und zeitnah einlösen. Essen, Schlaf, Kuscheln und gemeinsame Zeit sind nie Belohnung und nie Entzug.</li>' +
@@ -557,7 +621,6 @@ ACT['ob-go'] = async () => {
   U.sheet = null; closeSheet(); render();
   Snd.fanfare(); FX.party(['💎', '✨', '🦄']);
   banner({ icon: girlHeadSVG(c.look, 44), title: 'Willkommen, ' + esc(c.name) + '!', sub: 'Ein Zauberbeutel wartet schon. Tippe hier.', tone: 'violet', ms: 7000, go: 'achieve' });
-  Say.say('Willkommen im Diamanten-Reich, ' + c.name + '! Ein Zauberbeutel wartet schon auf dich.');
 };
 
 /* ---------- Einstellungen ---------- */
@@ -587,11 +650,7 @@ ACT.sound = () => {
   if (!U.muted) Snd.sparkle();
   render();
 };
-ACT.speak = () => {
-  U.speak = !U.speak; Say.setOn(U.speak);
-  try { localStorage.setItem('dia-speak', U.speak ? '1' : '0'); } catch (e) { /* nur Komfort */ }
-  render();
-};
+ACT.games = () => { S.cfg.games = S.cfg.games === false; markChanged(); persist('cfg/main'); render(); };
 ACT.look = el => { S.cfg.look[el.dataset.k] = el.dataset.v; markChanged(); persist('cfg/main'); render(); };
 ACT['task-edit'] = el => { U.editTask = U.editTask === el.dataset.id ? null : el.dataset.id; render(); };
 ACT.emoji = el => { const t = taskById(el.dataset.id); if (t) { t.icon = el.dataset.e; markChanged(); persist('cfg/main'); render(); } };
@@ -631,13 +690,14 @@ ACT['task-del'] = el => {
     U.editTask = null; markChanged(); persist('cfg/main'); render();
   });
 };
-ACT['reset-ask'] = () => confirmSheet({ title: 'Alles zurücksetzen?', text: 'Alle Tage, Diamanten, Wolken, Sticker und Einstellungen werden gelöscht. Das lässt sich nicht rückgängig machen.', ok: 'Ja, alles löschen', danger: true }, resetAll);
+ACT['reset-ask'] = () => confirmSheet({ title: 'Alles zurücksetzen?', text: 'Alle Tage, Diamanten, Wolken, Sticker, Buchungen auf dem Konto und Einstellungen werden gelöscht. Das lässt sich nicht rückgängig machen.', ok: 'Ja, alles löschen', danger: true }, resetAll);
 async function resetAll() {
-  const ids = Object.keys(S.days);
-  S.days = {}; S.cfg = defaultCfg(); S.prog = normProg(); markChanged();
+  const ids = Object.keys(S.days), kids = Object.keys(S.konto || {});
+  S.days = {}; S.konto = {}; S.cfg = defaultCfg(); S.prog = normProg(); markChanged();
   U.unlocked = false; U.editTask = null; U.bars = {}; U.celebQ = []; U.dig = { taps: 0 }; U.hasCfg = false;
   render();
   for (const id of ids) await flushKey('days/' + id);
+  for (const id of kids) await flushKey('konto/' + id);
   await flushKey('cfg/main'); await flushKey('cfg/progress');
   openOnboard();
 }
@@ -687,11 +747,13 @@ function bindEvents() {
     const el = ev.target;
     if (el.dataset && el.dataset.bind) bindInput(el);
     else if (el.dataset && el.dataset.ex && U.ex) U.ex.t = el.value;
+    else if (el.dataset && el.dataset.kx && U.kx) { U.kx[el.dataset.kx] = el.value; const a = $('#kx-after'); if (a) a.textContent = kxAfter(); }
     else if (el.dataset && el.dataset.ob && U.ob) {
       const k = el.dataset.ob; U.ob[k] = k === 'pin' ? el.value.replace(/\D/g, '').slice(0, 4) : el.value;
       if (k === 'pin' && el.value !== U.ob.pin) el.value = U.ob.pin;
     }
   });
+  document.addEventListener('focusin', ev => { const g = ev.target.dataset && ev.target.dataset.goalId; if (g) U.lastGoal = g; });
   document.addEventListener('change', ev => { if (ev.target.dataset && ev.target.dataset.bind) persist('cfg/main'); });
   document.addEventListener('contextmenu', ev => { if (ev.target.closest('.digbtn, .stage')) ev.preventDefault(); });
   /* Gedrückt halten (ab 0,6 s) gräbt alle wartenden Diamanten aus. */
@@ -704,7 +766,7 @@ function bindEvents() {
   };
   document.addEventListener('pointerup', endHold); document.addEventListener('pointercancel', endHold);
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { U.hiddenAt = Date.now(); Say.stop(); }
+    if (document.hidden) { U.hiddenAt = Date.now(); if (typeof gamePause === 'function') gamePause(); }
     else { if (U.unlocked && U.hiddenAt && Date.now() - U.hiddenAt > 60000) lockNow(); tick(); }
   });
 }
@@ -739,12 +801,10 @@ function boot() {
   document.body.insertAdjacentHTML('afterbegin', SVG_DEFS);
   try {
     U.muted = localStorage.getItem('dia-muted') === '1';
-    U.speak = localStorage.getItem('dia-speak') !== '0';
   } catch (e) { /* ohne Speicher geht es auch */ }
-  Snd.setMuted(U.muted); Say.setOn(U.speak);
+  Snd.setMuted(U.muted);
   FX.init(); bindEvents(); render();
   setInterval(tick, 20000);
   if (window.__PWA__ && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* ohne Offline-Hülle geht es auch */ });
   initStore();
 }
-boot();

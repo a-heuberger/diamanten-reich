@@ -1,6 +1,6 @@
 // Browser-Tests der Claude-Seite (Attrappe der Claude-db): Einrichtung, Abhaken durch das Kind, Freigabe durch die Eltern,
 // Graben (Tipps, Gedrückthalten, Spaß-Funde), Feiern erst nach dem Graben und nur einmal, Wolken, Schätze, Zauberbeutel,
-// Woche (Regenbogen), Eltern-Einstellungen, Vorlesen, nur ansehen, ohne Zugriff, zweites Gerät. Bildschirmfotos nach shots/.
+// Woche (Regenbogen), Eltern-Einstellungen, nichts wird vorgelesen, nur ansehen, ohne Zugriff, zweites Gerät, Konto, Spielwiese. Bildschirmfotos nach shots/.
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path');
 const URL = 'file://' + path.resolve('build/diamanten.test.html');
@@ -24,9 +24,9 @@ async function open(b, preload, o = {}) {
   if (o.readonly) await page.addInitScript(() => { window.__readonly = true; });
   if (o.nodb) await page.addInitScript(() => { window.__nodb = true; });
   if (o.reduced) await page.emulateMedia({ reducedMotion: 'reduce' });
-  /* Vorlesen nachstellen (Chromium ohne Stimmen): merkt sich, was gesprochen würde. */
+  /* Sprachausgabe nachstellen: Die App liest nichts mehr vor; jeder Aufruf würde hier auffallen. */
   await page.addInitScript(() => {
-    const fake = { speak: u => { (window.__spoken = window.__spoken || []).push(u.text); }, cancel() {}, getVoices: () => [{ name: 'Anna', lang: 'de-DE' }], onvoiceschanged: null };
+    const fake = { speak: u => { (window.__spoken = window.__spoken || []).push(u.text); console.error('VORGELESEN: ' + u.text); }, cancel() {}, getVoices: () => [{ name: 'Anna', lang: 'de-DE' }], onvoiceschanged: null };
     Object.defineProperty(window, 'speechSynthesis', { value: fake, configurable: true, writable: true });
     Object.defineProperty(window, 'SpeechSynthesisUtterance', { value: function (t) { this.text = t; }, configurable: true, writable: true });
   });
@@ -64,7 +64,7 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
   const cm = await h.store('cfg/main');
   ok('A gespeichert: Name, Aussehen, Einhorn, Code als Hash', cm && cm.name === 'Lia' && cm.look.hair === 'blond' && cm.look.dress === 'rosa' && cm.unicorn === 'Glitzerhuf' && /^h:[0-9a-f]{64}$/.test(cm.pin), JSON.stringify(cm && cm.look));
   ok('A Begrüßung führt zum Zauberbeutel', /Willkommen, Lia!/.test(await h.txt('#banner')) && /Zauberbeutel/.test(await h.txt('#banner')));
-  ok('A Begrüßung wird vorgelesen', (await h.spoken()).some(t => /Willkommen im Diamanten-Reich, Lia/.test(t)));
+  ok('A nichts wird vorgelesen', (await h.spoken()).length === 0);
   ok('A Tab Schätze zeigt einen wartenden Beutel', (await h.txt('.tab[data-tab="achieve"] .dot-badge')) === '1');
   await page.close();
 
@@ -76,12 +76,10 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
   await h.shot('02-heute');
   await tap(page, '.claim[data-task="t_zaehne_m"]', 400);
   ok('B getippt: wartet auf die Eltern (c), ohne Diamant', (await h.store('days/' + T)).m.t_zaehne_m === 'c' && /Wartet/.test(await h.txt('.task[data-task="t_zaehne_m"] .stamp')) && (await h.txt('#chestN')) === '0');
-  ok('B Lob wird vorgelesen', (await h.spoken()).some(t => /Super! Zähne putzen/.test(t)));
   ok('B Eltern-Schloss zeigt die Zahl der getippten Aufgaben', (await h.txt('.lockbtn .dot-badge')) === '1');
   await tap(page, '.task[data-task="t_zaehne_m"] .stamp-btn', 300);
   ok('B nochmal tippen: Hinweis, kein Zurücksetzen', /Wartet auf Mama oder Papa/.test(await h.txt('#toast')) && (await h.store('days/' + T)).m.t_zaehne_m === 'c');
-  await tap(page, '.task[data-task="t_bett"] .ico', 200);
-  ok('B Bild antippen liest die Aufgabe vor', (await h.spoken()).slice(-1)[0] === 'Kuscheltiere aufs Bett', JSON.stringify((await h.spoken()).slice(-2)));
+  ok('B keine Vorlese-Knöpfe, Bild ist kein Knopf', await h.cnt('.saybtn') === 0 && await h.cnt('button.ico') === 0 && await h.cnt('[data-act="say"]') === 0);
   await tap(page, '.claim[data-task="t_anziehen"]', 400);
 
   // ---- C) Eltern geben frei ----
@@ -108,7 +106,7 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
   await h.shot('04-graben');
   await tap(page, '.digbtn', 1600);
   ok('D dritter Stich: Diamant in der Truhe, dg = 1', (await h.txt('#chestN')) === '1' && (await h.store('days/' + T)).dg === 1, await h.txt('#chestN'));
-  ok('D Funkel! eingeblendet und vorgelesen, noch einer wartet', /Funkel!/.test(await h.txt('#banner')) && /Noch ein Diamant/.test(await h.txt('#banner')) && (await h.spoken()).indexOf('Funkel!') >= 0);
+  ok('D Funkel! eingeblendet, noch einer wartet', /Funkel!/.test(await h.txt('#banner')) && /Noch ein Diamant/.test(await h.txt('#banner')));
   for (let i = 0; i < 3; i++) await tap(page, '.digbtn', i < 2 ? 150 : 1600);
   ok('D zweiter Diamant: Doppel-Funkel, alle in der Truhe', (await h.txt('#chestN')) === '2' && /Doppel-Funkel/.test(await h.txt('#banner')) && await h.cnt('.wait-bubble') === 0);
   for (let i = 0; i < 3; i++) await tap(page, '.digbtn', i < 2 ? 150 : 500);
@@ -134,7 +132,6 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
   for (let i = 0; i < 3; i++) await tap(page, '.digbtn', i < 2 ? 150 : 2600);
   ok('E nach dem Graben: „Schatz gefunden!“ mit Belohnung', /Schatz gefunden!/.test(await h.txt('#celeb')) && /Eis essen gehen/.test(await h.txt('#celeb .ce-reward')), await h.txt('#celeb'));
   await h.wait(900);
-  ok('E Feier wird vorgelesen', (await h.spoken()).some(t => /Schatz gefunden! 10 Diamanten\. Deine Belohnung: Eis essen gehen/.test(t)));
   await h.shot('05-feier');
   ok('E gemerkt: gezeigt und Datum', (await h.store('cfg/progress')).shown.g10 === 1 && (await h.store('cfg/progress')).cel['g:g10'] === T);
   await tap(page, '[data-act="celeb-next"]', 1500);
@@ -166,7 +163,7 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
   await page.close();
 
   // ---- G) Schätze und Zauberbeutel ----
-  page = await open(b, BASE({ 'cfg/main': { v: 1, name: 'Lia', goals: [{ id: 'g10', at: 10, reward: 'Glitzer-Tattoo' }, { id: 'g25', at: 25, reward: '' }, { id: 'g50', at: 50, reward: '' }, { id: 'g75', at: 75, reward: '' }, { id: 'g100', at: 100, reward: '' }, { id: 'g500', at: 500, reward: 'Freizeitpark' }] }, ['days/' + T]: { m: marks(ALL.slice(0, 4), 'y'), dg: 4 } })); h = H(page);
+  page = await open(b, BASE({ 'cfg/main': { v: 2, name: 'Lia', goals: [{ id: 'g10', at: 10, reward: 'Glitzer-Tattoo' }, { id: 'g25', at: 25, reward: '' }, { id: 'g50', at: 50, reward: '' }, { id: 'g75', at: 75, reward: '' }, { id: 'g100', at: 100, reward: '' }, { id: 'g500', at: 500, reward: 'Freizeitpark' }] }, ['days/' + T]: { m: marks(ALL.slice(0, 4), 'y'), dg: 4 } })); h = H(page);
   await tap(page, '.tab[data-tab="achieve"]', 900);
   ok('G oben der nächste Schatz: noch 6 bis 10, Belohnung', /Nächster Schatz/.test(await h.txt('.big-chest h2')) && /Noch 6 Diamanten/.test(await h.txt('.big-chest')) && /Glitzer-Tattoo/.test(await h.txt('.big-chest .reward-box')));
   ok('G Liste gekürzt für das Kind (gefundene, nächster, zwei weitere, großer Schatz), Knopf für alle', await h.cnt('.tier') === 4 && /2 mehr/.test(await h.txt('[data-act="all-goals"]')), await h.cnt('.tier'));
@@ -176,7 +173,7 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
   ok('G Zauberbeutel öffnet sich', /Aufmachen!/.test(await h.txt('#celeb')));
   await tap(page, '[data-act="pack-tear"]', 1400, true);   // der Beutel wackelt ständig: für Playwright „nicht stabil“
   const al = (await h.store('cfg/progress')).album;
-  ok('G neuer Sticker im Album, Steckbrief wird gezeigt und vorgelesen', al.length === 1 && (await h.txt('#celeb .fact')).length > 10 && (await h.spoken()).some(t => t.indexOf((t.split('. ')[1] || 'x')) >= 0));
+  ok('G neuer Sticker im Album, Steckbrief wird gezeigt', al.length === 1 && (await h.txt('#celeb .fact')).length > 10);
   await h.shot('08-sticker');
   await tap(page, '[data-act="pack-close"]', 500);
   ok('G Sticker im Album sichtbar', await h.cnt('.sticker.got') === 1);
@@ -198,10 +195,11 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
   page = await open(b, BASE({ ['days/' + T]: { m: { t_zaehne_m: 'y' } } })); h = H(page);
   await tap(page, '[data-act="lock"]', 300); await tap(page, '.tab[data-tab="coach"]', 400);
   ok('I Eltern: Bereiche Aufgaben, Schätze, Graben, Wolken, Aussehen, Ton', await h.cnt('#sec-aufgaben') + await h.cnt('#sec-schaetze') + await h.cnt('#sec-graben') + await h.cnt('#sec-wolken') + await h.cnt('#sec-kind') + await h.cnt('#sec-ton') === 6);
-  ok('I Hinweis: Belohnungen fehlen', /fehlt noch die Belohnung/.test(await h.txt('.warn-box')));
+  ok('I Schätze haben Beispiel-Belohnungen (alte Fassung ergänzt)', (await page.inputValue('#f-goal-g10')) === 'Glitzer-Tattoo aussuchen' && (await page.inputValue('#f-goal-g25')) === '2 € aufs Guthabenkonto' && !/fehlt noch die Belohnung/.test(await h.txt('#main')));
   await h.shot('11-eltern');
-  await tap(page, '[data-act="reward-idea"][data-i="1"]', 300);
-  ok('I Idee füllt den ersten leeren Schatz', (await h.store('cfg/main')).goals[0].reward === 'Extra Gute-Nacht-Geschichte');
+  await page.focus('#f-goal-g50'); await tap(page, '[data-act="reward-idea"][data-i="3"]', 300);
+  ok('I Idee füllt das angetippte Feld', (await h.store('cfg/main')).goals.find(g => g.id === 'g50').reward === 'Einhorn-Sticker');
+  ok('I kein Vorlesen in den Einstellungen, Schalter für die Spielwiese', await h.cnt('[data-act="voice-test"]') === 0 && await h.cnt('[data-act="speak"]') === 0 && await h.cnt('[data-act="games"]') === 1);
   await tap(page, '[data-act="step"][data-obj="cfg"][data-key="digTaps"][data-d="-1"]', 200);
   await tap(page, '[data-act="step"][data-obj="cfg"][data-key="digTaps"][data-d="-1"]', 600);
   ok('I Tipps je Diamant auf 1', (await h.store('cfg/main')).digTaps === 1);
@@ -212,13 +210,7 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
   ok('I Tageszeit umstellen', (await h.store('cfg/main')).tasks.find(t => t.id === nid).slot === 'morgens');
   await page.fill('#f-name', 'Lia Sophie'); await h.wait(900);
   ok('I Name ändern wird gespeichert', (await h.store('cfg/main')).name === 'Lia Sophie');
-  await tap(page, '[data-act="voice-test"]', 300);
-  ok('I Stimme testen spricht mit Einhorn-Namen', (await h.spoken()).some(t => /Ich bin Funkelstern/.test(t)));
-  await tap(page, '[data-act="speak"]', 300);
   await tap(page, '.tab[data-tab="today"]', 300); await tap(page, '[data-act="lock"]', 300);
-  const before = (await h.spoken()).length;
-  await tap(page, '.task[data-task="t_bett"] .ico', 200);
-  ok('I Vorlesen aus: Antippen bleibt stumm', (await h.spoken()).length === before);
   await tap(page, '.digbtn', 1600);
   ok('I mit 1 Tipp gräbt ein Stich einen Diamanten aus', (await h.txt('#chestN')) === '1');
   await tap(page, '[data-act="lock"]', 300); await tap(page, '.tab[data-tab="coach"]', 300);
@@ -255,11 +247,113 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
   // ---- M) schmales Gerät (iPhone SE) ----
   const ctx = await b.newContext({ viewport: { width: 320, height: 568 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
   page = await open(b, BASE({ ['days/' + T]: { m: { t_zaehne_m: 'y', t_anziehen: 'c' } } }), { ctx }); h = H(page);
-  ok('M 320 px: nichts ragt seitlich heraus', await page.evaluate(() => document.documentElement.scrollWidth <= 320), await page.evaluate(() => document.documentElement.scrollWidth));
+  const wide = () => page.evaluate(() => Array.from(document.querySelectorAll('body *')).filter(e => e.getBoundingClientRect().right > 320.5).slice(0, 4).map(e => e.tagName + '.' + e.className + ' ' + Math.round(e.getBoundingClientRect().right)).join(', '));
+  ok('M 320 px: nichts ragt seitlich heraus', await page.evaluate(() => document.documentElement.scrollWidth <= 320), await page.evaluate(() => document.documentElement.scrollWidth) + ' ' + await wide());
   await h.shot('12-schmal');
+  await tap(page, '.tab[data-tab="konto"]', 300);
+  ok('M 320 px: Konto passt', await page.evaluate(() => document.documentElement.scrollWidth <= 320), await wide());
   await page.close();
 
-  ok('Keine Fehler in der Konsole', errs.length === 0, errs.slice(0, 5).join(' | '));
+  // ---- N) Konto ----
+  const full = { 'days/2026-11-10': { m: marks(ALL, 'y'), dg: 7 }, 'days/2026-11-11': { m: marks(ALL, 'y'), dg: 7 }, 'days/2026-11-12': { m: marks(ALL, 'y'), dg: 7 }, ['days/' + T]: { m: marks(ALL.slice(0, 4), 'y'), dg: 4 } };
+  page = await open(b, BASE(Object.assign({}, full, { 'cfg/progress': { cel: {}, red: {}, album: [], foil: [], packN: 6, shown: { g10: 1, g25: 1 } } }))); h = H(page);
+  const konto = () => page.evaluate(() => Array.from(window.__mock.store.entries()).filter(e => e[0].indexOf('konto/') === 0).map(e => e[1]));
+  await tap(page, '.tab[data-tab="konto"]', 400);
+  ok('N Tab Konto: Guthaben 0,00 €, für das Kind ohne Knöpfe', (await h.txt('#kontoSum')) === '0,00 €' && await h.cnt('[data-act="konto-open"]') === 0 && /Lias Konto/.test(await h.txt('.konto-hero')));
+  await tap(page, '[data-act="lock"]', 300);
+  await tap(page, '[data-act="konto-open"][data-k="plus"]', 300);
+  await page.fill('#kx-amt', '2,5'); await tap(page, '[data-act="kx-chip"][data-t="Taschengeld"]', 200);
+  ok('N Vorschau: danach 2,50 €', /Danach auf dem Konto: 2,50 €/.test(await h.txt('#kx-after')));
+  await tap(page, '[data-act="kx-save"]', 600);
+  let ks = await konto();
+  ok('N gutgeschrieben: eine Buchung +250 Cent mit Grund', ks.length === 1 && ks[0].c === 250 && ks[0].k === 'plus' && ks[0].t === 'Taschengeld' && (await h.txt('#kontoSum')) === '2,50 €');
+  ok('N Münzen als Bild: 2 große und eine kleine', await h.cnt('.kh-pile > .coin-svg') === 2 && await h.cnt('.kh-pile .small-coin') === 1);
+  await tap(page, '[data-act="konto-open"][data-k="minus"]', 300);
+  await page.fill('#kx-amt', '1'); await tap(page, '[data-act="kx-save"]', 300);
+  ok('N Abbuchen nur mit Ja des Kindes', (await konto()).length === 1 && /Ja gesagt/.test(await h.txt('#toast')));
+  await tap(page, '[data-act="kx-ok"]', 200); await tap(page, '[data-act="kx-save"]', 600);
+  ok('N abgebucht: Guthaben 1,50 €', (await h.txt('#kontoSum')) === '1,50 €');
+  await tap(page, '[data-act="konto-open"][data-k="pay"]', 300);
+  ok('N Auszahlen schlägt das ganze Guthaben vor', (await page.inputValue('#kx-amt')) === '1,50');
+  await page.fill('#kx-amt', '9'); await tap(page, '[data-act="kx-save"]', 300);
+  ok('N mehr als das Guthaben geht nicht', /reicht nicht/.test(await h.txt('#toast')));
+  await tap(page, '.sheet [data-act="sheet-close"]', 300);
+  await tap(page, '.tab[data-tab="achieve"]', 500);
+  ok('N Schätze mit Geld zeigen eine Münze', await h.cnt('.tier[data-goal="g25"] .tier-coin') === 1);
+  await tap(page, '[data-act="redeem"][data-key="g25"]', 700);
+  ks = await konto();
+  const pr = await h.store('cfg/progress');
+  ok('N Schatz „2 € aufs Guthabenkonto“ einlösen bucht 2 € aufs Konto', ks.length === 3 && ks.some(k => k.c === 200 && /Schatz: 25 Diamanten/.test(k.t)) && pr.red.g25 === T && !!pr.redK.g25 && /2,00 € aufs Konto/.test(await h.txt('#banner')));
+  await tap(page, '.tab[data-tab="konto"]', 400);
+  ok('N Guthaben jetzt 3,50 €, drei Buchungen', (await h.txt('#kontoSum')) === '3,50 €' && await h.cnt('.ev.kb') === 3);
+  await h.shot('13-konto');
+  await tap(page, '.tab[data-tab="achieve"]', 400); await tap(page, '[data-act="redeem"][data-key="g25"]', 500);
+  ok('N Einlösen zurücknehmen entfernt die Gutschrift', (await konto()).length === 2 && !(await h.store('cfg/progress')).red.g25);
+  const kstore = await page.evaluate(() => Object.fromEntries(window.__mock.store));
+  await page.close();
+  page = await open(b, kstore); h = H(page);
+  await tap(page, '.tab[data-tab="konto"]', 400);
+  ok('N nach dem Neuladen: Guthaben 1,50 €', (await h.txt('#kontoSum')) === '1,50 €');
+  await tap(page, '[data-act="lock"]', 300); await tap(page, '.ev.kb [data-act="konto-del"]', 300); await tap(page, '[data-act="confirm-yes"]', 500);
+  ok('N Buchung löschen', (await konto()).length === 1);
+  await page.close();
+
+  // ---- O) Spielwiese ----
+  page = await open(b, BASE({ ['days/' + T]: { m: { t_zaehne_m: 'y' }, dg: 1 } })); h = H(page);
+  ok('O Spielwiese mit drei Spielen auf Heute', await h.cnt('.gtile') === 3);
+  await page.evaluate(() => document.querySelector('.games').scrollIntoView()); await h.wait(200);
+  await h.shot('14-spielwiese');
+  // Memory
+  await tap(page, '[data-game="memory"]', 400);
+  ok('O Memory: 12 verdeckte Karten', await h.cnt('.mcard') === 12 && await h.cnt('.mcard.open') === 0);
+  const cards = await page.evaluate(() => window.__game.cards.map(c => c.v));
+  const wrongB = cards.findIndex((v, i) => i > 0 && v !== cards[0]);
+  await tap(page, '.mcard[data-i="0"]', 100); await tap(page, '.mcard[data-i="' + wrongB + '"]', 1200);
+  ok('O Memory: falsches Paar dreht sich wieder um', await h.cnt('.mcard.open') === 0);
+  const seen = {};
+  for (let i = 0; i < cards.length; i++) { (seen[cards[i]] = seen[cards[i]] || []).push(i); }
+  let pi = 0;
+  for (const v of Object.keys(seen)) { await tap(page, '.mcard[data-i="' + seen[v][0] + '"]', 80); await tap(page, '.mcard[data-i="' + seen[v][1] + '"]', pi === 2 ? 300 : 400); if (pi === 2) await h.shot('15-memory'); pi++; }
+  await h.wait(500);
+  ok('O Memory: alle Paare gefunden, 7 Züge, Bestwert gespeichert', await h.cnt('.mcard.done') === 12 && /Alle Paare gefunden/.test(await h.txt('#gfoot')) && /7 Züge/.test(await h.txt('#gfoot')) && (await h.store('cfg/progress')).games.memory === 7);
+  ok('O Memory zählt nicht für Diamanten', (await h.txt('#chestN')) === '1');
+  await tap(page, '[data-act="mem-again"]', 300);
+  ok('O Memory: Nochmal mischt neu', await h.cnt('.mcard.done') === 0 && await h.cnt('.mcard') === 12);
+  await tap(page, '.g-x', 300);
+  // Hütchen
+  await tap(page, '[data-game="cups"]', 500);
+  ok('O Hütchen: Diamant wird gezeigt', await h.cnt('.cup.up') === 3 && await h.cnt('.cup-gem') === 1);
+  await h.wait(1600);
+  await h.shot('16-huetchen');
+  await page.waitForFunction(() => window.__game && window.__game.phase === 'pick', null, { timeout: 8000 });
+  const gemCup = await page.evaluate(() => window.__game.gem);
+  await tap(page, '.cup[data-cup="' + gemCup + '"]', 500, true);   // Hütchen wackeln: für Playwright „nicht stabil“
+  ok('O Hütchen: richtig geraten, Rekord 1', /Gefunden!/.test(await h.txt('#gfoot')) && (await h.store('cfg/progress')).games.cups === 1);
+  await tap(page, '[data-act="cups-again"]', 300);
+  await page.waitForFunction(() => window.__game && window.__game.phase === 'pick', null, { timeout: 9000 });
+  const wrongCup = await page.evaluate(() => (window.__game.gem + 1) % 3);
+  await tap(page, '.cup[data-cup="' + wrongCup + '"]', 900, true);
+  ok('O Hütchen: daneben ist kein Drama („Fast!“), richtiges Hütchen hebt sich', /Fast!/.test(await h.txt('#gfoot')) && await h.cnt('.cup.up') === 2);
+  await tap(page, '[data-act="cups-again"]', 300); await tap(page, '.g-x', 2500);
+  ok('O Hütchen schließen mitten im Mischen: keine Fehler', await h.cnt('.sheet') === 0);
+  // Sternenregen
+  await tap(page, '[data-game="catch"]', 400);
+  await tap(page, '[data-act="catch-go"]', 2200);
+  ok('O Sternenregen: Diamanten fallen', await h.cnt('.fall') > 0);
+  await h.shot('17-sternenregen');
+  const caught = await page.evaluate(() => { const f = document.querySelector('.fall:not(.hit)'); if (!f) return 0; f.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true })); return 1; });
+  await h.wait(200);
+  ok('O Sternenregen: Antippen fängt', caught === 1 && +(await h.txt('#ctScore')) >= 1);
+  await page.waitForFunction(() => window.__game && window.__game.phase === 'over', null, { timeout: 30000 });
+  await h.wait(300);
+  ok('O Sternenregen: nach 25 s Ende mit Ergebnis und Bestwert', /gefangen/.test(await h.txt('#gfoot')) && ((await h.store('cfg/progress')).games || {}).catch >= 1 && await h.cnt('.fall') === 0, await h.txt('#gfoot') + ' ' + JSON.stringify((await h.store('cfg/progress')).games) + ' ' + await h.cnt('.fall'));
+  await tap(page, '#gfoot [data-act="sheet-close"]', 300);
+  await tap(page, '[data-act="lock"]', 300); await tap(page, '.tab[data-tab="coach"]', 300); await tap(page, '[data-act="games"]', 400);
+  await tap(page, '.tab[data-tab="today"]', 300);
+  ok('O Eltern schalten die Spielwiese aus', (await h.store('cfg/main')).games === false && await h.cnt('.gtile') === 0);
+  await page.close();
+
+  ok('Keine Fehler in der Konsole, nie etwas vorgelesen', errs.length === 0, errs.slice(0, 5).join(' | '));
   console.log('\n' + (n - bad) + ' von ' + n + ' Prüfungen bestanden' + (bad ? ', ' + bad + ' FEHLER' : ''));
   await b.close();
   process.exit(bad ? 1 : 0);

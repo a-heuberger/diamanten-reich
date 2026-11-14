@@ -4,7 +4,7 @@
    Der Link wird einmal pro Gerät geöffnet oder eingefügt; danach liegt er im lokalen Speicher dieses Geräts.
    Die Daten liegen unter families/<Familiencode>/… in Firestore. Die Sicherheitsregeln lassen nur diesen einen Pfad zu,
    wer den Code nicht kennt, kommt an nichts heran. Der Code steht nie im Quelltext und nie im Repo.
-   Dokumente und Schnittstelle sind dieselben wie bei der Claude-Fassung (cfg/main, cfg/progress, days/<Datum>);
+   Dokumente und Schnittstelle sind dieselben wie bei der Claude-Fassung (cfg/main, cfg/progress, days/<Datum>, konto/<id>);
    der Adapter unten bildet die db-Schnittstelle von Claude auf Firestore ab, der Rest der App merkt den Unterschied nicht. */
 const CLOUD_KEY = 'dia-cloud-v1';
 const CODE_RE = /^[A-Z2-9]{16}$/;
@@ -110,9 +110,9 @@ async function initCloud() {
   } catch (e) { return cloudGate('sdk'); }
   Store.fs = fs;
   const db = Store.db = fsAdapter(FB, fs, cred.k); Store.mode = 'db';
-  const got = { cfg: false, prog: false, days: false };
+  const got = { cfg: false, prog: false, days: false, konto: false };
   const step = () => {
-    if (!(got.cfg && got.prog && got.days)) return;
+    if (!(got.cfg && got.prog && got.days && got.konto)) return;
     if (Store.gate) { Store.gate = null; if (U.ready) { render(); return; } }
     ready();
   };
@@ -121,5 +121,6 @@ async function initCloud() {
   Store.subs.push(db.doc('cfg/main').onSnapshot(s => { if (s.fromCache && !s.exists) return; U.hasCfg = !!s.exists; redraw(remoteDoc('cfg/main', s)); got.cfg = true; step(); }, cloudFail, { meta: true }));
   Store.subs.push(db.doc('cfg/progress').onSnapshot(s => { redraw(remoteDoc('cfg/progress', s)); got.prog = true; step(); }, cloudFail));
   Store.subs.push(db.collection('days').onSnapshot(s => { redraw(remoteDays(s)); got.days = true; step(); }, cloudFail));
+  Store.subs.push(db.collection('konto').onSnapshot(s => { redraw(remoteKonto(s)); got.konto = true; step(); }, cloudFail));
   Store.readyTimer = setTimeout(() => { if (!got.cfg && !Store.gate) cloudGate('offline'); }, 9000);
 }

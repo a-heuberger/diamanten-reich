@@ -13,7 +13,12 @@ const d = L.defaultCfg();
 eq('Vorgabe: Name ist der Platzhalter Lia', d.name, 'Lia');
 eq('Vorgabe: 3 Tipps je Diamant, Graben an, Spaß-Funde an', [d.digTaps, d.digMode, d.digFun], [3, true, true]);
 eq('Vorgabe: Schätze 10 bis 500', d.goals.map(g => g.at), [10, 25, 50, 75, 100, 150, 200, 300, 500]);
-ok('Vorgabe: alle Belohnungen leer (Überraschung)', d.goals.every(g => g.reward === ''));
+ok('Vorgabe: alle Schätze mit Beispiel-Belohnung', d.goals.every(g => g.reward.length > 3));
+eq('Vorgabe: drei Schätze bringen Geld aufs Konto', d.goals.filter(g => L.rewardMoney(g.reward) > 0).map(g => [g.at, L.rewardMoney(g.reward)]), [[25, 200], [100, 500], [300, 1000]]);
+const m0 = L.migrateCfg({ v: 1, goals: [{ id: 'g10', at: 10, reward: '' }, { id: 'g25', at: 25, reward: 'Eis' }, { id: 'g40', at: 40, reward: '' }] });
+eq('migrate v1: leere Vorgabe-Schätze bekommen Beispiele, eigene bleiben', m0.goals.map(g => g.reward), ['Glitzer-Tattoo aussuchen', 'Eis', '']);
+eq('migrate v2: leere Belohnung bleibt leer (Überraschung)', L.migrateCfg({ v: 2, goals: [{ id: 'g10', at: 10, reward: '' }] }).goals[0].reward, '');
+ok('Vorgabe: Spielwiese an', d.games === true && L.migrateCfg({ games: false }).games === false);
 eq('Vorgabe: Wolken 1 und 3, Zauberbeutel alle 5', [d.yellowPts, d.redPts, d.packEvery], [1, 3, 5]);
 eq('Vorgabe: 3 Aufgaben morgens, 4 abends', [d.tasks.filter(t => t.slot === 'morgens').length, d.tasks.filter(t => t.slot === 'abends').length], [3, 4]);
 ok('Vorgabe: Aufgaben-IDs eindeutig', new Set(d.tasks.map(t => t.id)).size === d.tasks.length);
@@ -128,7 +133,18 @@ S = mk({ '2026-11-09': { m: marks(ALL, 'y') }, [T]: { m: { t_bett: 'y' }, ev: [Y
 const w = L.evalWeek(S, '2026-11-09');
 eq('Woche: Diamanten, Glitzer-Tage, Funkel-Tage, Wolken', [w.gems, w.perfect, w.sparkle, w.yellow], [8, 1, 2, 1]);
 const adv = L.parentAdvice(mk({}), T).map(a => a.kind);
-ok('Hinweis: Belohnungen fehlen noch', adv.indexOf('rewards') >= 0);
+ok('Hinweis: Vorgaben haben Belohnungen, kein Hinweis', adv.indexOf('rewards') < 0);
+const Sr = mk({}); Sr.cfg.goals[0].reward = '';
+ok('Hinweis: leere Belohnung bei den ersten Schätzen', L.parentAdvice(Sr, T).some(a => a.kind === 'rewards'));
+
+// ---- Konto ----
+eq('Konto: Beträge lesen', ['2,5', '2.50', '€ 3', '0', '1001', 'abc', '12,345'].map(L.parseMoney), [250, 250, 300, null, null, null, null]);
+eq('Konto: Anzeige', [L.fmtEUR(250), L.fmtEUR(-1005), L.fmtEUR(0), L.fmtPlain(705)], ['2,50 €', '−10,05 €', '0,00 €', '7,05']);
+eq('Konto: Geld in Belohnungen erkennen', ['2 € aufs Guthabenkonto', '1,50 Euro aufs Konto', '5 € ins Konto', 'Eis für 2 €', ''].map(L.rewardMoney), [200, 150, 500, 0, 0]);
+const Sk = { konto: { a: { ts: 1, c: 500, k: 'plus' }, b: { ts: 3, c: -150, k: 'minus' }, c: { ts: 2, c: -100, k: 'pay' } } };
+eq('Konto: Guthaben und Reihenfolge (neueste zuerst)', [L.kontoBalance(Sk), L.kontoList(Sk).map(e => e.id)], [250, ['b', 'c', 'a']]);
+eq('Konto: Genitiv', [L.genitive('Lia'), L.genitive('Max')], ['Lias', 'Max’']);
+eq('Schätze: Geld je Schatz in goalList', L.goalList(mk({}), L.computeStats(mk({}), T)).filter(g => g.money).map(g => g.at), [25, 100, 300]);
 eq('Funkel-Rufe', [L.ladderText(1), L.ladderText(2), L.ladderText(9)], ['Funkel!', 'Doppel-Funkel!', 'Mega-Funkel!']);
 
 console.log('\n' + (n - bad) + ' von ' + n + ' Prüfungen bestanden' + (bad ? ', ' + bad + ' FEHLER' : ''));

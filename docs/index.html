@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-YDLmknMU6myZ3bFKDyFJs8u88PUAvQ+vczIL6gb8KSw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google.com; font-src 'self'; connect-src 'self' https://firestore.googleapis.com wss://firestore.googleapis.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-dbxRLwUusPk6UKJAYG6Yzm+BzvohrqXU3Zxb8KQeGb4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google.com; font-src 'self'; connect-src 'self' https://firestore.googleapis.com wss://firestore.googleapis.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <title>Diamanten</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0b5563">
@@ -147,9 +147,6 @@ svg { flex: none; }
 .btn[disabled] { opacity: .45; }
 .linkbtn { border: 0; background: none; color: var(--sea); font-weight: 800; text-decoration: underline; padding: 0; }
 .row-btns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.saybtn { flex: none; display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--line-2); background: #fff; color: var(--sea); }
-.saybtn svg { width: 21px; height: 21px; }
-.saybtn:active { background: var(--aqua); }
 
 /* ---------- Sperrseiten und Hinweise ---------- */
 .gate { padding: 26px 20px; display: grid; gap: 12px; justify-items: center; text-align: center; }
@@ -417,7 +414,6 @@ button.packline .pl-go { margin-left: auto; }
 .pl-go svg { width: 16px; height: 16px; }
 .tl-gem { flex: none; }
 .hint.big { font-size: 17px; color: var(--ink); }
-.reward-box .saybtn { margin-left: auto; }
 .tiers-gap { text-align: center; color: var(--ink-3); font-weight: 900; letter-spacing: .3em; }
 .more-goals { justify-self: center; }
 .pl-tx b { font: 700 17px var(--f-display); color: #4b2a96; }
@@ -602,6 +598,99 @@ button.packline .pl-go { margin-left: auto; }
 .toast.warn { background: var(--pink-deep); }
 #fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 92; pointer-events: none; }
 
+/* ---------- Konto ---------- */
+.konto-hero { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 16px; align-items: center; padding: 18px; border-color: #ffe08a; background: linear-gradient(135deg, #fff6d6, #fffaf2 70%); }
+.kh-ico { display: grid; place-items: center; filter: drop-shadow(0 6px 10px rgba(201, 138, 12, .35)); }
+.kh-tx { display: grid; gap: 4px; min-width: 0; }
+.kh-sum { font: 700 46px/1 var(--f-display); color: var(--gold-deep); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.kh-sum.zero { color: var(--ink-3); }
+.kh-tx small { color: var(--ink-2); font-size: 14px; line-height: 1.3; }
+.kh-pile { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 2px; padding-top: 10px; border-top: 2px dashed #ffe08a; }
+.kh-pile .coin-svg { width: 30px; height: 30px; margin-right: -6px; }
+.kh-pile .small-coin { display: inline-grid; margin-left: 8px; }
+.kh-pile .small-coin .coin-svg { width: 20px; height: 20px; }
+.kh-pile em { font: 700 18px var(--f-display); color: var(--gold-deep); margin-left: 10px; }
+.konto-next { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; text-align: left; width: 100%; font: inherit; color: inherit; }
+.konto-next > svg { width: 20px; height: 20px; color: var(--ink-3); }
+.kn-tx { display: grid; gap: 2px; }
+.kn-tx b { font: 700 17px var(--f-display); color: var(--deep); }
+.kn-tx small { color: var(--ink-2); font-size: 14px; }
+.kbtns { grid-template-columns: repeat(3, 1fr); }
+.kbtns .xbtn svg { width: 26px; height: 26px; color: var(--gold-deep); }
+.ev.kb .evv { color: var(--ink); white-space: nowrap; font: 700 17px var(--f-display); }
+.ev.kb.good .evv { color: #1e8a54; }
+.ev.kb.out { background: #fff; }
+.ev.kb.pay { background: #fffbe9; border-color: #ffe08a; }
+.ev.kb .evi { display: grid; place-items: center; }
+.ev.kb .evi svg { width: 24px; height: 24px; color: var(--gold-deep); }
+.tier-coin { align-self: center; filter: drop-shadow(0 3px 5px rgba(201, 138, 12, .3)); }
+.sheet-konto .h-ic .coin-svg { width: 34px; height: 34px; }
+
+/* ---------- Spielwiese ---------- */
+.games { padding: 12px; }
+.gtiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.gtile { min-width: 0; display: grid; justify-items: center; align-content: start; gap: 4px; padding: 12px 6px; border-radius: 20px; border: 2px solid var(--line); background: linear-gradient(180deg, #fff, var(--aqua)); color: var(--ink); text-align: center; box-shadow: var(--sh-2); }
+.gtile:active { transform: translateY(2px); box-shadow: none; }
+.gtile b { font: 700 17px/1.1 var(--f-display); color: var(--deep); overflow-wrap: anywhere; }
+.gtile small { overflow-wrap: anywhere; }
+@media (max-width: 380px) { .gtile b { font-size: 15.5px; } .gtiles { gap: 6px; } .gtile { padding: 10px 4px; } }
+.gtile small { font: 600 12.5px/1.2 var(--f-body); color: var(--ink-2); }
+.gt-art { height: 46px; display: grid; place-items: center; }
+.gt-mem { display: flex; gap: 2px; }
+.gt-mem svg { width: 30px; height: auto; padding: 4px; border-radius: 8px; background: #fff; box-shadow: 0 0 0 2px var(--pink); }
+.gt-cups { display: flex; align-items: flex-end; gap: 4px; }
+.gt-cups i { width: 20px; height: 26px; border-radius: 10px 10px 3px 3px; background: var(--pink); box-shadow: inset 0 -5px 0 var(--pink-deep); display: grid; place-items: center; }
+.gt-cups i.hi { transform: translateY(-10px); background: none; box-shadow: none; }
+.gt-catch { position: relative; width: 70px; height: 46px; }
+.gt-catch svg { position: absolute; height: auto; }
+.gt-catch svg:nth-child(1) { left: 0; top: 0; width: 24px; }
+.gt-catch svg:nth-child(2) { left: 28px; top: 20px; width: 20px; }
+.gt-catch svg:nth-child(3) { right: 0; top: 4px; width: 28px; }
+.sheet-game { max-height: calc(96vh - env(safe-area-inset-top, 0px)); gap: 10px; background: linear-gradient(180deg, #fffaf2, #eafcfa); }
+.g-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.g-head h2 { margin: 0; }
+.g-x { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--line-2); background: #fff; color: var(--ink-2); }
+.g-x svg { width: 18px; height: 18px; }
+.g-foot { display: grid; gap: 10px; min-height: 52px; }
+.g-msg { margin: 0; text-align: center; font: 600 16px/1.35 var(--f-body); color: var(--ink-2); }
+.g-msg b { font: 700 18px var(--f-display); color: var(--deep); }
+.g-foot .row-btns { justify-content: center; }
+/* Memory */
+.mem-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.mcard { aspect-ratio: 3 / 4; padding: 0; border: 0; background: none; perspective: 600px; }
+.mc-in { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .35s; }
+.mcard.open .mc-in { transform: rotateY(180deg); }
+.mc-back, .mc-front { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 16px; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.mc-back { background: linear-gradient(135deg, var(--sea-2), var(--deep)); box-shadow: inset 0 0 0 3px rgba(255, 255, 255, .5), var(--sh-2); }
+.mc-front { transform: rotateY(180deg); background: #fff; box-shadow: inset 0 0 0 3px var(--gold-2), var(--sh-2); }
+.mc-front .gem { width: 70%; height: auto; }
+.mc-front .emo { font-size: clamp(38px, 12vw, 62px); line-height: 1; }
+.mcard.done .mc-front { box-shadow: inset 0 0 0 3px var(--mint), 0 0 14px rgba(90, 212, 140, .55); }
+@media (max-width: 400px) { .mem-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .mcard { aspect-ratio: 1; } }
+/* Hütchen */
+.cups-stage { --sw: 420ms; position: relative; height: 190px; margin: 6px 0; border-radius: 22px; background: linear-gradient(180deg, #c5f6f2, #fff6dc); overflow: hidden; }
+.cupw { position: absolute; bottom: 14px; width: 33.333%; height: 150px; transition: left var(--sw) cubic-bezier(.45, .05, .35, 1); }
+.cup-gem { position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); filter: drop-shadow(0 0 8px rgba(255, 255, 255, .9)); }
+.cup { position: absolute; left: 50%; bottom: 0; width: 96px; margin-left: -48px; padding: 0; border: 0; background: none; transition: transform .35s cubic-bezier(.3, 1.4, .5, 1); }
+.cup svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 6px 6px rgba(181, 68, 122, .3)); }
+.cup.up { transform: translateY(-72px); }
+.cup:not([disabled]) { animation: wiggle 1.6s ease-in-out infinite; }
+@keyframes wiggle { 0%, 100% { transform: rotate(0) } 25% { transform: rotate(-3deg) } 75% { transform: rotate(3deg) } }
+/* Sternenregen */
+.catch-top { display: flex; align-items: center; gap: 12px; }
+.ct-score { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; background: #fff; box-shadow: var(--sh-2); font: 700 22px var(--f-display); color: var(--deep); min-width: 74px; }
+.ct-time { flex: 1; height: 12px; border-radius: 999px; background: rgba(16, 110, 120, .14); overflow: hidden; }
+.ct-time i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--pink), var(--gold)); }
+.catch-area { position: relative; height: min(58vh, 420px); border-radius: 22px; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; background: linear-gradient(180deg, #073d48 0%, #13a3a6 70%, #8fe8f0 100%); }
+.catch-area::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle, #fff 0 1.5px, transparent 2.5px); background-size: 46px 46px; opacity: .35; }
+.catch-start { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; padding: 20px; text-align: center; color: #fff; font: 700 18px/1.35 var(--f-display); }
+.catch-start p { margin: 0; }
+.catch-start .hint { color: var(--aqua); }
+.fall { position: absolute; top: 0; padding: 6px; border: 0; background: none; touch-action: none; will-change: transform; filter: drop-shadow(0 0 8px rgba(255, 255, 255, .8)); }
+.fall svg { display: block; pointer-events: none; }
+.fall.rb { filter: drop-shadow(0 0 14px rgba(255, 224, 102, 1)); }
+.fall.hit { opacity: 0; transition: opacity .25s; }
+
 @media (max-width: 380px) {
   .girl-wrap { width: 98px; left: 2%; }
   .mound { left: calc(2% + 70px); width: 70px; }
@@ -640,7 +729,8 @@ window.__PWA__ = true;
 /* ============ Regeln, Datum, Auswertung (rein, ohne DOM) ============
    Diamanten-Reich: Aufgaben bringen Diamanten. Das Kind tippt „Geschafft!“ (Zustand c), ein Elternteil gibt frei (y).
    Jeder freigegebene Diamant wartet in der Erde, bis die Schatzgräberin ihn ausgräbt (days/<ds>.dg zählt die gegrabenen).
-   Wolken sind die Verwarnungen: gelbe Wolke −1, Gewitterwolke −3 (Regeln wie bei den Karten der Torjäger-App). */
+   Wolken sind die Verwarnungen: gelbe Wolke −1, Gewitterwolke −3 (Regeln wie bei den Karten der Torjäger-App).
+   Dazu ein Guthabenkonto in Euro (konto/<id>, je Buchung ein Dokument), wie in der Torjäger-App. */
 const WD_SHORT = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 const WD_LONG = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
@@ -661,11 +751,22 @@ function isoWeek(s) {
 }
 
 /* ---------- Voreinstellungen ---------- */
-const CFG_V = 1;
+const CFG_V = 2;
 const SLOTS = { morgens: 'Morgens', abends: 'Abends' };
 const HAIR = { braun: { name: 'Braun', fill: '#7a4a2a', dark: '#5a331b' }, blond: { name: 'Blond', fill: '#f2c45a', dark: '#c99a2e' }, schwarz: { name: 'Schwarz', fill: '#2d2433', dark: '#16111a' }, rot: { name: 'Rot', fill: '#d4643a', dark: '#a8461f' }, hellbraun: { name: 'Hellbraun', fill: '#b07a4a', dark: '#83572f' } };
 const DRESS = { tuerkis: { name: 'Türkis', fill: '#2cc6c3', dark: '#14918f' }, rosa: { name: 'Rosa', fill: '#ff8fc1', dark: '#e0609d' }, lila: { name: 'Lila', fill: '#a98bff', dark: '#7c5ce0' }, gold: { name: 'Gold', fill: '#ffc93c', dark: '#d79a12' }, blau: { name: 'Blau', fill: '#5aa8ff', dark: '#2f7fdc' } };
 const STYLE = { zoepfe: 'Zöpfe', offen: 'Offen', dutt: 'Dutt' };
+const DEFAULT_GOALS = [
+  [10, 'Glitzer-Tattoo aussuchen'],
+  [25, '2 € aufs Guthabenkonto'],
+  [50, 'Filmnachmittag mit Popcorn'],
+  [75, 'Kleines Spielzeug aussuchen'],
+  [100, '5 € aufs Guthabenkonto'],
+  [150, 'Ausflug in den Zoo'],
+  [200, 'Neues Buch oder Spiel aussuchen'],
+  [300, '10 € aufs Guthabenkonto'],
+  [500, 'Ausflug in den Freizeitpark'],
+];
 function defaultCfg() {
   const all = [0, 1, 2, 3, 4, 5, 6];
   return {
@@ -678,6 +779,7 @@ function defaultCfg() {
     digMode: true,       // das Kind gräbt jeden freigegebenen Diamanten selbst aus
     digTaps: 3,          // so viele Spatenstiche je Diamant (1 bis 5)
     digFun: true,        // ohne wartende Diamanten findet die Gräberin Kleinigkeiten (zählen nicht)
+    games: true,         // Spielwiese mit Mini-Spielen (zählen nicht für Diamanten)
     yellowPts: 1,        // gelbe Wolke = so viele Diamanten Abzug bei den Schätzen
     redPts: 3,           // Gewitterwolke = so viele Diamanten Abzug, höchstens einmal pro Tag
     extraMax: 3,         // höchstens so viele Extra-Diamanten pro Tag
@@ -693,8 +795,9 @@ function defaultCfg() {
       { id: 't_schlafanzug', icon: '🌙', title: 'Schlafanzug anziehen', slot: 'abends', pts: 1, days: all },
     ],
     /* Schätze: alle Diamanten zusammen (Aufgaben, Extra-Diamanten, Bonus-Diamanten der Sticker), abzüglich Wolken.
-       Der erste nach etwa 2 bis 3 Tagen, danach größere Abstände. Leer = Überraschung (die Eltern legen es fest). */
-    goals: [10, 25, 50, 75, 100, 150, 200, 300, 500].map(at => ({ id: 'g' + at, at, reward: '' })),
+       Der erste nach etwa 2 bis 3 Tagen, danach größere Abstände. Die Belohnungen sind Beispiele, die Eltern ändern sie.
+       „2 € aufs Guthabenkonto“ bucht den Betrag beim Einlösen aufs Konto. Leer = Überraschung. */
+    goals: DEFAULT_GOALS.map(g => ({ id: 'g' + g[0], at: g[0], reward: g[1] })),
     chest: { title: 'Der große Schatz' },
     goodReasons: ['Lieb geteilt', 'Toll geholfen', 'Mutig gewesen', 'Gut zugehört', 'Allein geschafft', 'Lieb getröstet'],
   };
@@ -736,6 +839,8 @@ function migrateCfg(c) {
   });
   out.chest = { title: String((old.chest && old.chest.title) || d.chest.title).slice(0, 40) };
   out.goals = normGoals(old.goals, d.goals);
+  /* Fassung 1 hatte leere Belohnungen: Die Vorgabe-Schätze bekommen die Beispiele, eigene Texte bleiben. */
+  if ((old.v || 0) < 2) out.goals.forEach(g => { const dg = d.goals.find(x => x.id === g.id && x.at === g.at); if (dg && !String(g.reward || '').trim()) g.reward = dg.reward; });
   out.yellowPts = clampInt(out.yellowPts, 0, 5, d.yellowPts);
   out.redPts = clampInt(out.redPts, 1, 9, d.redPts);
   out.extraMax = clampInt(out.extraMax, 1, 10, d.extraMax);
@@ -743,11 +848,31 @@ function migrateCfg(c) {
   out.digTaps = clampInt(out.digTaps, 1, 5, d.digTaps);
   out.digMode = out.digMode !== false;
   out.digFun = out.digFun !== false;
+  out.games = out.games !== false;
   if (!Array.isArray(out.goodReasons)) out.goodReasons = d.goodReasons;
   out.v = CFG_V;
   return out;
 }
-const normProg = p => Object.assign({ cel: {}, red: {}, album: [], foil: [] }, p || {});
+const normProg = p => Object.assign({ cel: {}, red: {}, redK: {}, album: [], foil: [] }, p || {});
+
+/* ---------- Konto (Guthaben): Beträge immer in ganzen Cent ---------- */
+const fmtEUR = c => (c < 0 ? '−' : '') + Math.floor(Math.abs(c) / 100) + ',' + pad2(Math.abs(c) % 100) + ' €';
+const fmtPlain = c => Math.floor(c / 100) + ',' + pad2(c % 100);
+/* „2,5“, „2.50“, „€ 3“ → Cent. Nur Beträge über 0 bis 1000 €, sonst null. */
+function parseMoney(s) {
+  const t = String(s == null ? '' : s).replace(/[€\s\u00a0]/g, '').replace(/^\+/, '');
+  if (!/^\d{1,4}([.,]\d{1,2})?$/.test(t)) return null;
+  const c = Math.round(parseFloat(t.replace(',', '.')) * 100);
+  return c > 0 && c <= 100000 ? c : null;
+}
+const kontoBalance = S => Object.keys(S.konto || {}).reduce((n, id) => n + (Math.round(+S.konto[id].c) || 0), 0);
+const kontoList = S => Object.keys(S.konto || {}).map(id => Object.assign({ id }, S.konto[id])).sort((a, b) => ((b.ts || 0) - (a.ts || 0)) || (a.id < b.id ? 1 : -1));
+const genitive = n => (/[sßxz]$/i.test(n) ? n + '’' : n + 's');
+/* Steht in der Belohnung „2 € aufs Guthabenkonto“, bucht die App den Betrag beim Einlösen (in Cent, sonst 0). */
+function rewardMoney(text) {
+  const m = /(\d{1,4}(?:[.,]\d{1,2})?)\s*(?:€|euro)\s*(?:auf|aufs|auf\s+das|auf\s+dem|ins)\s*(?:guthaben)?\s*konto/i.exec(String(text || ''));
+  return m ? (parseMoney(m[1]) || 0) : 0;
+}
 
 /* ---------- Funkel-Rufe (Diamanten an einem Tag) ---------- */
 const LADDER = { 1: 'Funkel!', 2: 'Doppel-Funkel!', 3: 'Dreifach-Funkel!', 4: 'Super-Funkel!', 5: 'Mega-Funkel!' };
@@ -975,7 +1100,7 @@ function goalList(S, st) {
   return gs.map((g, i) => ({
     id: g.id, at: g.at, reward: g.reward, last: i === gs.length - 1, gem: GOAL_GEMS[Math.min(GOAL_GEMS.length - 1, Math.floor(i * GOAL_GEMS.length / Math.max(1, gs.length)))],
     reached: goalReached(S, st.score, g), need: Math.max(0, g.at - st.score), prev: i ? gs[i - 1].at : 0,
-    on: st.reachedOn(g.id), done: red[g.id] || null,
+    on: st.reachedOn(g.id), done: red[g.id] || null, money: rewardMoney(g.reward),
   }));
 }
 const nextGoal = (S, st) => goalList(S, st).find(g => !g.reached) || null;
@@ -1001,7 +1126,7 @@ function parentAdvice(S, today) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { WD_SHORT, WD_LONG, MONTHS_SHORT, fmtDate, parseDate, addDays, dowOf, mondayOf, todayStr, daysBetween, isoWeek, CFG_V, SLOTS, HAIR, DRESS, STYLE, defaultCfg, migrateCfg, normGoals, normProg, goalReached, goalList, nextGoal, GOAL_GEMS, LADDER, ladderText, RARITY, RAR_ORDER, RAR_WEIGHT, PTS_PER_DIAMANT, CATS, STICKERS, STICKER_BY, rarOf, stickerPoints, stickerBonus, pickSticker, packsLeft, FUN_FINDS, tasksOn, buildLedger, ledgerOf, touch, cloudsNow, evalDay, evalWeek, computeStats, milestones, parentAdvice };
+  module.exports = { fmtEUR, fmtPlain, parseMoney, kontoBalance, kontoList, genitive, rewardMoney, DEFAULT_GOALS, WD_SHORT, WD_LONG, MONTHS_SHORT, fmtDate, parseDate, addDays, dowOf, mondayOf, todayStr, daysBetween, isoWeek, CFG_V, SLOTS, HAIR, DRESS, STYLE, defaultCfg, migrateCfg, normGoals, normProg, goalReached, goalList, nextGoal, GOAL_GEMS, LADDER, ladderText, RARITY, RAR_ORDER, RAR_WEIGHT, PTS_PER_DIAMANT, CATS, STICKERS, STICKER_BY, rarOf, stickerPoints, stickerBonus, pickSticker, packsLeft, FUN_FINDS, tasksOn, buildLedger, ledgerOf, touch, cloudsNow, evalDay, evalWeek, computeStats, milestones, parentAdvice };
 }
 
 /* ============ Grafik: Diamanten, Schatzgräberin, Truhe, Einhorn, Wolken, Zauberbeutel, Krone, Symbole ============
@@ -1165,14 +1290,23 @@ const IC = {
   shovel: svgTag('0 0 24 24', '<path d="M5 4l9.5 9.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M3.5 5.5l3-3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M13 12l5-1.5 3.5 3.5-1.5 5c-2 1.5-5 1-6.5-.5S11.5 14 13 12z" fill="currentColor"/>'),
   gift: svgTag('0 0 24 24', '<rect x="3.5" y="9" width="17" height="11.5" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M3.5 13h17M12 9v11.5" stroke="currentColor" stroke-width="2.2"/><path d="M12 9c-1.5-4-6-4.5-6-2s4 2 6 2c2 0 6 .5 6-2s-4.5-2-6 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'),
   heart: svgTag('0 0 24 24', '<path d="M12 20.5S3.5 15 3.5 9.2A4.6 4.6 0 0 1 12 6.6a4.6 4.6 0 0 1 8.5 2.6C20.5 15 12 20.5 12 20.5z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/>'),
+  coin: svgTag('0 0 24 24', '<circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.4 8.9c-.6-.9-1.7-1.4-3-1.4-1.9 0-3.2 1.4-3.2 4.5s1.3 4.5 3.2 4.5c1.3 0 2.4-.5 3-1.4M7.6 10.8h5.6M7.6 13.2h5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'),
   hand: svgTag('0 0 24 24', '<path d="M8 12V5.5a1.6 1.6 0 0 1 3.2 0V11M11.2 10V4a1.6 1.6 0 0 1 3.2 0v6M14.4 10.5V5.8a1.6 1.6 0 0 1 3.2 0V14c0 4-2.6 7-6.2 7-2.6 0-4.2-1.2-5.6-3.4L3.6 13.5a1.6 1.6 0 0 1 2.7-1.7L8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'),
 };
 const TAB_IC = {
   today: svgTag('0 0 24 24', '<path d="M7.5 4h9l4.5 5.5L12 21 3 9.5z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M3 9.5h18M9.5 4 8 9.5 12 21l4-11.5L14.5 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>'),
   week: svgTag('0 0 24 24', '<path d="M2.5 18.5a9.5 9.5 0 0 1 19 0M6 18.5a6 6 0 0 1 12 0M9.5 18.5a2.5 2.5 0 0 1 5 0" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>'),
   achieve: svgTag('0 0 24 24', '<path d="M3.5 11h17v8a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M3.5 11 5 5.5Q12 3 19 5.5l1.5 5.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><rect x="10" y="11.5" width="4" height="5" rx="1" fill="currentColor"/>'),
+  konto: IC.coin,
   coach: IC.heart,
 };
+
+/* ---- Goldmünze für das Konto ---- */
+const coinSVG = size => '<svg class="coin-svg" viewBox="0 0 64 64" width="' + size + '" height="' + size + '" aria-hidden="true" focusable="false">' +
+  '<circle cx="32" cy="35" r="26" fill="#ad7706"/><circle cx="32" cy="31" r="26" fill="url(#gGold)"/>' +
+  '<circle cx="32" cy="31" r="20.5" fill="none" stroke="#ad7706" stroke-opacity=".5" stroke-width="2.4"/>' +
+  '<path d="M39.8 23.4c-1.6-2.4-4.2-3.7-7.4-3.7-4.9 0-8 3.6-8 11.3s3.1 11.3 8 11.3c3.2 0 5.8-1.3 7.4-3.7M20.6 28.2h15.8M20.6 33.8h15.8" fill="none" stroke="#8a5a06" stroke-width="3.8" stroke-linecap="round"/>' +
+  '<path d="M15.5 23A20 20 0 0 1 30 11" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="3" stroke-linecap="round"/></svg>';
 
 /* ---- gemeinsame Definitionen (Verläufe) – einmal im Dokument ---- */
 const SVG_DEFS = '<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>' +
@@ -1301,43 +1435,9 @@ const FX = (function () {
   };
 })();
 
-/* ============ Vorlesen: deutsche Stimme des Geräts (iPhone: nur nach einem Tipp) ============ */
-const Say = (function () {
-  let on = true, voice = null;
-  const ok = () => { try { return 'speechSynthesis' in window && typeof SpeechSynthesisUtterance === 'function'; } catch (e) { return false; } };
-  function pick() {
-    if (voice || !ok()) return voice;
-    try {
-      const vs = speechSynthesis.getVoices() || [];
-      const de = vs.filter(v => /^de(-|_|$)/i.test(v.lang));
-      voice = de.find(v => /anna|helena|marlene|petra|vicki|female|frau/i.test(v.name)) || de.find(v => /de-DE/i.test(v.lang)) || de[0] || null;
-    } catch (e) { voice = null; }
-    return voice;
-  }
-  if (ok()) { try { speechSynthesis.onvoiceschanged = () => { voice = null; pick(); }; } catch (e) { /* egal */ } }
-  return {
-    available: ok,
-    hasGerman: () => !!pick(),
-    setOn(v) { on = !!v; if (!on) this.stop(); },
-    isOn: () => on,
-    stop() { try { if (ok()) speechSynthesis.cancel(); } catch (e) { /* egal */ } },
-    say(text, force) {
-      if ((!on && !force) || !ok() || !text) return false;
-      try {
-        speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(String(text).replace(/­/g, ''));
-        u.lang = 'de-DE'; u.rate = .92; u.pitch = 1.12;
-        const v = pick(); if (v) u.voice = v;
-        speechSynthesis.speak(u);
-        window.__said = (window.__said || []).concat(String(text));
-        return true;
-      } catch (e) { return false; }
-    },
-  };
-})();
-
 /* ============ Speicher: geteilte Datenbank der Seite (db) oder lokal (localStorage) ============
-   Dokumente: cfg/main (Einstellungen) · cfg/progress (Feiern, Eingelöstes, Album) · days/<JJJJ-MM-TT> (ein Tag: m = Aufgaben, ev = Extras und Wolken, dg = ausgegrabene Diamanten).
+   Dokumente: cfg/main (Einstellungen) · cfg/progress (Feiern, Eingelöstes, Album) · days/<JJJJ-MM-TT> (ein Tag: m = Aufgaben, ev = Extras und Wolken)
+   · konto/<id> (eine Buchung auf dem Guthabenkonto; je Buchung ein Dokument, damit zwei Geräte sich nie überschreiben).
    Eigene Änderungen gehen sofort in den Speicher S und werden gebündelt, eines nach dem anderen, geschrieben.
    Das Echo der eigenen Schreibvorgänge wird erkannt und ignoriert, damit es keine Eingaben überschreibt. */
 const LS_KEY = 'dia-local-v1';
@@ -1351,12 +1451,14 @@ const isEmptyDay = d => !d || (!d.off && (!d.m || !Object.keys(d.m).length) && (
 function docBody(key) {
   if (key === 'cfg/main') return jclone(S.cfg);
   if (key === 'cfg/progress') return jclone(S.prog);
+  if (key.indexOf('konto/') === 0) { const e = S.konto[key.slice(6)]; return e ? jclone(e) : null; }
   const d = S.days[key.slice(5)];
   return d && !isEmptyDay(d) ? jclone(d) : null;
 }
 function assignDoc(key, data) {
   if (key === 'cfg/main') { Store.migrated = !!(data && (data.v || 0) < CFG_V); S.cfg = migrateCfg(data); }
   else if (key === 'cfg/progress') S.prog = normProg(data);
+  else if (key.indexOf('konto/') === 0) { const id = key.slice(6); if (data) S.konto[id] = data; else delete S.konto[id]; }
   else { const ds = key.slice(5); if (data) S.days[ds] = data; else delete S.days[ds]; }
   markChanged();
 }
@@ -1366,7 +1468,7 @@ const isEcho = (key, json) => (Store.recent[key] || []).indexOf(json) >= 0;
 /* ---- lokal ---- */
 function lsLoad() { try { const j = localStorage.getItem(LS_KEY); return j ? JSON.parse(j) : null; } catch (e) { return null; } }
 function lsSave() {
-  try { localStorage.setItem(LS_KEY, JSON.stringify({ cfg: S.cfg, prog: S.prog, days: S.days })); return true; } catch (e) { return false; }
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ cfg: S.cfg, prog: S.prog, days: S.days, konto: S.konto })); return true; } catch (e) { return false; }
 }
 
 /* ---- schreiben ---- */
@@ -1429,7 +1531,19 @@ function remoteDays(snap) {
   });
   return changed;
 }
-
+function remoteKonto(snap) {
+  let changed = false;
+  snap.docChanges().forEach(c => {
+    const id = c.doc.id, key = 'konto/' + id;
+    if (busy(key)) return;
+    const data = c.type === 'removed' ? null : jclone(c.doc.data()), json = JSON.stringify(data);
+    if (isEcho(key, json)) return;
+    if (JSON.stringify(docBody(key)) === json) return;
+    if (!data && !S.konto[id]) return;
+    assignDoc(key, data); changed = true;
+  });
+  return changed;
+}
 
 /* ---- Start ---- */
 function ready() {
@@ -1441,7 +1555,7 @@ function initLocal(note) {
   Store.subs.forEach(u => { try { u(); } catch (e) { /* schon beendet */ } }); Store.subs = [];
   Store.mode = 'local';
   const d = lsLoad();
-  if (d) { Store.migrated = !!(d.cfg && (d.cfg.v || 0) < CFG_V); S.cfg = migrateCfg(d.cfg); S.prog = normProg(d.prog); S.days = d.days || {}; U.hasCfg = !!d.cfg; markChanged(); }
+  if (d) { Store.migrated = !!(d.cfg && (d.cfg.v || 0) < CFG_V); S.cfg = migrateCfg(d.cfg); S.prog = normProg(d.prog); S.days = d.days || {}; S.konto = d.konto || {}; U.hasCfg = !!d.cfg; markChanged(); }
   else U.hasCfg = false;
   Store.lsOk = Store.noAccess && !U.hasCfg ? false : lsSave();         // ohne Zugriff und ohne eigenen Stand nichts anlegen: sonst käme beim nächsten Öffnen ein leeres Spiel statt der Erklärung
   if (note) toast(note, 'warn');
@@ -1459,8 +1573,8 @@ async function initStore() {
     const user = await window.claude.use('user');
     if (user && (await user.can('data.write')) === false) U.readonly = true;
   } catch (e) { /* unbekannt: ein abgelehnter Schreibversuch entscheidet */ }
-  const got = { cfg: false, prog: false, days: false };
-  const step = () => { if (got.cfg && got.prog && got.days) ready(); };
+  const got = { cfg: false, prog: false, days: false, konto: false };
+  const step = () => { if (got.cfg && got.prog && got.days && got.konto) ready(); };
   const redraw = ch => { if (ch && U.ready) render(); };
   const fail = e => {
     if (e && e.code === 'revoked') { U.readonly = true; U.unlocked = false; render(); return; }
@@ -1470,6 +1584,7 @@ async function initStore() {
     Store.subs.push(db.doc('cfg/main').onSnapshot(s => { U.hasCfg = !!s.exists; redraw(remoteDoc('cfg/main', s)); got.cfg = true; step(); }, fail));
     Store.subs.push(db.doc('cfg/progress').onSnapshot(s => { redraw(remoteDoc('cfg/progress', s)); got.prog = true; step(); }, fail));
     Store.subs.push(db.collection('days').onSnapshot(s => { redraw(remoteDays(s)); got.days = true; step(); }, fail));
+    Store.subs.push(db.collection('konto').onSnapshot(s => { redraw(remoteKonto(s)); got.konto = true; step(); }, fail));
   } catch (e) { return initLocal('Die Verbindung zum Speicher klappt gerade nicht. Der Stand liegt vorerst nur auf diesem Gerät.'); }
   Store.readyTimer = setTimeout(() => { if (!U.ready) ready(); }, 7000);
 }
@@ -1480,7 +1595,7 @@ async function initStore() {
    Der Link wird einmal pro Gerät geöffnet oder eingefügt; danach liegt er im lokalen Speicher dieses Geräts.
    Die Daten liegen unter families/<Familiencode>/… in Firestore. Die Sicherheitsregeln lassen nur diesen einen Pfad zu,
    wer den Code nicht kennt, kommt an nichts heran. Der Code steht nie im Quelltext und nie im Repo.
-   Dokumente und Schnittstelle sind dieselben wie bei der Claude-Fassung (cfg/main, cfg/progress, days/<Datum>);
+   Dokumente und Schnittstelle sind dieselben wie bei der Claude-Fassung (cfg/main, cfg/progress, days/<Datum>, konto/<id>);
    der Adapter unten bildet die db-Schnittstelle von Claude auf Firestore ab, der Rest der App merkt den Unterschied nicht. */
 const CLOUD_KEY = 'dia-cloud-v1';
 const CODE_RE = /^[A-Z2-9]{16}$/;
@@ -1586,9 +1701,9 @@ async function initCloud() {
   } catch (e) { return cloudGate('sdk'); }
   Store.fs = fs;
   const db = Store.db = fsAdapter(FB, fs, cred.k); Store.mode = 'db';
-  const got = { cfg: false, prog: false, days: false };
+  const got = { cfg: false, prog: false, days: false, konto: false };
   const step = () => {
-    if (!(got.cfg && got.prog && got.days)) return;
+    if (!(got.cfg && got.prog && got.days && got.konto)) return;
     if (Store.gate) { Store.gate = null; if (U.ready) { render(); return; } }
     ready();
   };
@@ -1597,6 +1712,7 @@ async function initCloud() {
   Store.subs.push(db.doc('cfg/main').onSnapshot(s => { if (s.fromCache && !s.exists) return; U.hasCfg = !!s.exists; redraw(remoteDoc('cfg/main', s)); got.cfg = true; step(); }, cloudFail, { meta: true }));
   Store.subs.push(db.doc('cfg/progress').onSnapshot(s => { redraw(remoteDoc('cfg/progress', s)); got.prog = true; step(); }, cloudFail));
   Store.subs.push(db.collection('days').onSnapshot(s => { redraw(remoteDays(s)); got.days = true; step(); }, cloudFail));
+  Store.subs.push(db.collection('konto').onSnapshot(s => { redraw(remoteKonto(s)); got.konto = true; step(); }, cloudFail));
   Store.readyTimer = setTimeout(() => { if (!got.cfg && !Store.gate) cloudGate('offline'); }, 9000);
 }
 
@@ -1604,9 +1720,9 @@ async function initCloud() {
 const U = {
   tab: 'today', today: todayStr(), date: todayStr(), unlocked: false, ready: false, readonly: false, hasCfg: true,
   weekOff: 0, fx: null, pop: false, editTask: null, last: Date.now(), celebQ: [], sheet: null, pin: '',
-  bars: {}, newSticker: null, muted: false, speak: true, ob: null, ex: null, dig: { taps: 0 }, digBusy: false, volley: false,
+  bars: {}, newSticker: null, muted: false, ob: null, ex: null, kx: null, game: null, lastGoal: null, dig: { taps: 0 }, digBusy: false, volley: false,
 };
-let S = { cfg: defaultCfg(), prog: normProg(), days: {} };
+let S = { cfg: defaultCfg(), prog: normProg(), days: {}, konto: {} };
 let _st = null;
 const markChanged = () => { touch(S); _st = null; };
 const ST = () => _st || (_st = computeStats(S, U.today));
@@ -1622,7 +1738,6 @@ const fmtShort = ds => { const d = parseDate(ds); return WD_SHORT[d.getDay()] + 
 const rewardOf = g => String(g.reward || '').trim();
 const goalText = g => esc(rewardOf(g) || 'Überraschung!');
 const plain = s => String(s).replace(/­/g, '');
-const sayBtn = (text, label) => '<button class="saybtn" data-act="say" data-say="' + esc(text) + '" aria-label="' + esc(label || 'Vorlesen') + '">' + IC.sound + '</button>';
 const stickerIco = (s, size) => (s.ico.indexOf('gem:') === 0 ? gemSVG(s.ico.slice(4), size) : '<span class="emo" style="font-size:' + Math.round(size * .9) + 'px">' + s.ico + '</span>');
 const look = () => S.cfg.look;
 
@@ -1634,7 +1749,7 @@ function render() {
   if (Store.noAccess && !U.hasCfg) { app.innerHTML = gateView('noaccess'); return; }
   if (U.tab === 'coach' && U.readonly) U.tab = 'today';
   const st = ST();
-  const views = { today: viewToday, week: viewWeek, achieve: viewAchieve, coach: viewCoach };
+  const views = { today: viewToday, week: viewWeek, achieve: viewAchieve, konto: viewKonto, coach: viewCoach };
   app.innerHTML = headerView(st) + '<main class="wrap main" id="main">' + (views[U.tab] || viewToday)(st) + '</main>' + tabsView(st);
   afterRender();
 }
@@ -1663,7 +1778,7 @@ function headerView(st) {
     '<div class="chip gems" role="img" aria-label="' + dia(st.chest) + ' in der Truhe">' + gemMini(22) + '<b id="chestN">' + st.chest + '</b></div>' + lock + '</div></div></header>';
 }
 function tabsView(st) {
-  const tabs = [['today', 'Heute'], ['week', 'Woche'], ['achieve', 'Schätze']].concat(U.readonly ? [] : [['coach', 'Eltern']]);
+  const tabs = [['today', 'Heute'], ['week', 'Woche'], ['achieve', 'Schätze'], ['konto', 'Konto']].concat(U.readonly ? [] : [['coach', 'Eltern']]);
   return '<nav class="tabs" aria-label="Bereiche"><div class="tabs-in">' + tabs.map(t => {
     const badge = t[0] === 'achieve' && st.packs.left > 0 ? '<i class="dot-badge" aria-label="' + st.packs.left + ' Zauberbeutel warten">' + st.packs.left + '</i>'
       : t[0] === 'today' && st.waiting > 0 && S.cfg.digMode !== false ? '<i class="dot-badge gold" aria-label="' + dia(st.waiting) + ' warten in der Erde">' + st.waiting + '</i>' : '';
@@ -1699,13 +1814,11 @@ function cloudTop(st) {
   const e = evalDay(S, U.today), c = S.cfg;
   let h = '';
   if (e.red > 0) {
-    const t = 'Gewitterwolke heute. Minus ' + dia(c.redPts) + ' bei den Schätzen.';
-    h += '<section class="cloudtop red" role="status">' + cloudSVG('red', 46) + '<span class="ct-tx"><b>Gewitterwolke heute</b><small>Minus ' + dia(c.redPts) + ' bei den Schätzen. Morgen scheint wieder die Sonne.</small></span>' + sayBtn(t + ' Morgen scheint wieder die Sonne.') + '</section>';
+    h += '<section class="cloudtop red" role="status">' + cloudSVG('red', 46) + '<span class="ct-tx"><b>Gewitterwolke heute</b><small>Minus ' + dia(c.redPts) + ' bei den Schätzen. Morgen scheint wieder die Sonne.</small></span></section>';
   }
   if (st.clouds.count > 0) {
     const d = st.clouds.dates[0];
-    const t = 'Gelbe Wolke. ' + (c.yellowPts ? 'Minus ' + dia(c.yellowPts) + ' bei den Schätzen. ' : '') + 'Eine zweite gelbe Wolke wird zur Gewitterwolke.';
-    h += '<section class="cloudtop yellow" role="status">' + cloudSVG('yellow', 46) + '<span class="ct-tx"><b>Gelbe Wolke</b><small>' + (d === U.today ? 'Heute. ' : d ? 'Seit ' + fmtShort(d) + '. ' : '') + (c.yellowPts ? 'Minus ' + dia(c.yellowPts) + ' bei den Schätzen. ' : '') + 'Eine zweite wird zur Gewitterwolke.</small></span>' + sayBtn(t) + '</section>';
+    h += '<section class="cloudtop yellow" role="status">' + cloudSVG('yellow', 46) + '<span class="ct-tx"><b>Gelbe Wolke</b><small>' + (d === U.today ? 'Heute. ' : d ? 'Seit ' + fmtShort(d) + '. ' : '') + (c.yellowPts ? 'Minus ' + dia(c.yellowPts) + ' bei den Schätzen. ' : '') + 'Eine zweite wird zur Gewitterwolke.</small></span></section>';
   }
   return h;
 }
@@ -1785,7 +1898,7 @@ function taskCard(it, ds) {
     '<button class="b-y" data-act="mark" data-task="' + t.id + '" data-st="y" aria-pressed="' + (st === 'y') + '">' + gemMini(20) + '<span>' + (st === 'c' ? 'Freigeben' : 'Diamant') + '</span></button>' +
     '<button class="b-n" data-act="mark" data-task="' + t.id + '" data-st="n" aria-pressed="' + (st === 'n') + '">' + IC.moon + '<span>Heute nicht</span></button></div>' : '';
   return '<li class="task st-' + (st || 'o') + fx + (U.unlocked && st === 'c' ? ' claimed' : '') + '" data-task="' + t.id + '">' +
-    '<button class="ico" data-act="say" data-say="' + esc(t.title) + '" aria-label="' + esc(t.title) + ' vorlesen">' + esc(t.icon) + '</button>' +
+    '<span class="ico" aria-hidden="true">' + esc(t.icon) + '</span>' +
     '<div class="tx"><h3>' + esc(t.title) + pts + '</h3>' + (U.unlocked && st === 'c' ? '<p class="claimed-note">' + esc(S.cfg.name) + ' sagt: geschafft!</p>' : '') + '</div>' +
     '<div class="tact">' + act + '</div>' + seg + '</li>';
 }
@@ -1861,8 +1974,18 @@ function viewToday(st) {
   else h += taskSections(e, ds);
   h += extrasCard(e, ds);
   if (isToday) h += nextTreasureCard(st);
+  if (isToday && S.cfg.games !== false) h += gamesCard();
   h += installHint();
   return h;
+}
+/* Spielwiese: Mini-Spiele nur zum Spaß (zählen nicht für Diamanten). Die Spiele selbst stehen in games.js. */
+function gamesCard() {
+  const tile = (id, art, name, sub) => '<button class="gtile" data-act="game-open" data-game="' + id + '"><span class="gt-art" aria-hidden="true">' + art + '</span><b>' + name + '</b><small>' + sub + '</small></button>';
+  return '<div class="sec-h"><h2>Spielwiese</h2><span class="hint">Nur zum Spaß</span></div><section class="card games" aria-label="Mini-Spiele"><div class="gtiles">' +
+    tile('memory', '<span class="gt-mem">' + gemSVG('rosa', 30) + gemSVG('rosa', 30) + '</span>', 'Memory', 'Paare finden') +
+    tile('cups', '<span class="gt-cups"><i></i><i class="hi">' + gemMini(18) + '</i><i></i></span>', 'Hütchen', 'Wo ist der Diamant?') +
+    tile('catch', '<span class="gt-catch">' + gemSVG('tuerkis', 24) + gemSVG('topas', 20) + gemSVG('weiss', 28) + '</span>', 'Sternen&shy;regen', 'Diamanten fangen') +
+    '</div></section>';
 }
 /* Auf dem iPhone, solange die Seite noch in Safari läuft: wie sie auf den Home-Bildschirm kommt. */
 function installHint() {
@@ -1916,8 +2039,7 @@ function viewWeek(st) {
   let h = '<div class="wk-nav"><button class="navbtn" data-act="wk" data-d="-1" aria-label="Vorherige Woche"' + (U.weekOff <= -52 ? ' disabled' : '') + '>' + IC.chevL + '</button>' +
     '<div class="mid"><b>' + (U.weekOff === 0 ? 'Diese Woche' : U.weekOff === -1 ? 'Letzte Woche' : 'KW ' + isoWeek(mon)) + '</b><span class="hint">' + range + '</span></div>' +
     '<button class="navbtn" data-act="wk" data-d="1" aria-label="Nächste Woche"' + (U.weekOff >= 0 ? ' disabled' : '') + '>' + IC.chevR + '</button></div>';
-  const sayW = 'Diese Woche hast du ' + dia(w.gems) + ' gesammelt.' + (w.perfect ? ' ' + w.perfect + (w.perfect === 1 ? ' Glitzer-Tag.' : ' Glitzer-Tage.') : '');
-  h += '<section class="card rb-card"><div class="sec-h"><h2>Dein Regenbogen</h2>' + sayBtn(sayW) + '</div>' + rainbowSVG(w) +
+  h += '<section class="card rb-card"><div class="sec-h"><h2>Dein Regenbogen</h2></div>' + rainbowSVG(w) +
     '<p class="hint">Jeder Tag ist ein Streifen. Je mehr Diamanten, desto voller wird er.' + (w.perfect ? ' Ein Stern heißt: Glitzer-Tag, alles geschafft.' : '') + '</p></section>';
   if (w.yellow || w.red) h += '<section class="card pad weekclouds"><div class="wc">' + (w.yellow ? '<span class="cflag">' + cloudSVG('yellow', 30) + '<b>' + w.yellow + '× gelb</b></span>' : '') + (w.red ? '<span class="cflag">' + cloudSVG('red', 30) + '<b>' + w.red + '× Gewitter</b></span>' : '') + (w.minus ? '<span class="cflag minus"><b>Minus ' + w.minus + '</b></span>' : '') + '</div></section>';
   h += '<div class="sec-h"><h2>Die Tage</h2></div><div class="wk-days">' + w.days.map(dayRow).join('') + '</div>';
@@ -1940,9 +2062,8 @@ function goalRow(g, st, isNext) {
   const state = done ? 'Eingelöst am ' + fmtShort(done) : g.reached ? 'Gefunden!' + (g.on ? ' Am ' + fmtShort(g.on) + '.' : '') + ' Sag Mama oder Papa Bescheid.' : 'Noch ' + dia(g.need);
   const bar = isNext ? '<div class="gbar" aria-hidden="true"><i style="width:' + clamp(Math.round((st.score - g.prev) / Math.max(1, g.at - g.prev) * 100), 0, 100) + '%"></i></div>' : '';
   const btn = U.unlocked && g.reached ? '<button class="btn btn-ghost btn-sm" data-act="redeem" data-key="' + esc(g.id) + '">' + (done ? 'Rückgängig' : 'Als eingelöst markieren') + '</button>' : '';
-  const sayT = dia(g.at) + (g.last ? '. Der große Schatz' : '') + '. ' + (r || 'Eine Überraschung') + '. ' + state.replace(/\d+\.\d+\./, '');
   return '<div class="tier goal' + (g.reached ? ' got' : '') + (done ? ' done' : '') + (isNext ? ' next' : '') + '" data-goal="' + esc(g.id) + '"><span class="tier-ico">' + (g.last ? crownSVG(46) : gemSVG(g.gem, 44)) + '</span>' +
-    '<div><h3>' + dia(g.at) + (g.last ? '<span class="tn-s"> · der große Schatz</span>' : '') + '</h3><p' + (r ? '' : ' class="tbd"') + '>' + (r ? esc(r) : IC.gift + ' Überraschung!') + '</p><div class="state">' + state + '</div>' + bar + btn + '</div>' + sayBtn(sayT) + '</div>';
+    '<div><h3>' + dia(g.at) + (g.last ? '<span class="tn-s"> · der große Schatz</span>' : '') + '</h3><p' + (r ? '' : ' class="tbd"') + '>' + (r ? esc(r) : IC.gift + ' Überraschung!') + '</p><div class="state">' + state + '</div>' + bar + btn + '</div>' + (g.money ? '<span class="tier-coin" role="img" aria-label="Geld fürs Konto">' + coinSVG(30) + '</span>' : '') + '</div>';
 }
 function stickerCell(s, own, foilL) {
   const got = own.indexOf(s.id) >= 0, foil = foilL.indexOf(s.id) >= 0, R = RARITY[s.rar];
@@ -1974,7 +2095,7 @@ function viewAchieve(st) {
     '<div class="top-line"><div><span class="eyebrow">' + dia(st.chest) + ' in deiner Truhe</span><h2>' + head + '</h2></div>' + (nx ? '<span class="tl-gem">' + (nx.last ? crownSVG(48) : gemSVG(nx.gem, 46)) + '</span>' : '') + '</div>' +
     (nx ? '<div class="bar"><div class="fill gold" data-key="next" data-to="' + (p * 100) + '" style="width:' + (U.bars.next != null ? U.bars.next : 0) + '%"></div></div>' +
       '<p class="hint big"><b>Noch ' + dia(nx.need) + '</b> bis ' + dia(nx.at) + '.</p>' +
-      '<div class="reward-box"><span class="gift" aria-hidden="true">' + IC.gift + '</span><div><b>Dann bekommst du</b><span>' + goalText(nx) + '</span></div>' + sayBtn('Noch ' + dia(nx.need) + '. Dann bekommst du: ' + (rewardOf(nx) || 'eine Überraschung') + '.') + '</div>' : '<p class="hint big">Mama und Papa verstecken bald neue Schätze.</p>') +
+      '<div class="reward-box"><span class="gift" aria-hidden="true">' + IC.gift + '</span><div><b>Dann bekommst du</b><span>' + goalText(nx) + '</span></div></div>' : '<p class="hint big">Mama und Papa verstecken bald neue Schätze.</p>') +
     (nx && !nx.last && last ? '<p class="hint">Bis zu „' + esc(S.cfg.chest.title) + '“: noch ' + dia(left) + '.</p>' : '') +
     packLine(st) + '</div></section>';
   h += tally(st);
@@ -1993,11 +2114,54 @@ function viewAchieve(st) {
   return h;
 }
 
+/* ---------- Konto (Guthaben in Euro, wie in der Torjäger-App) ---------- */
+function kontoTitle(en) {
+  const t = String(en.t || '').trim();
+  if (en.k === 'pay') return t || 'Ausgezahlt';
+  if (en.k === 'minus') return t || 'Abbuchung';
+  return t || 'Gutschrift';
+}
+function kontoRow(en) {
+  const c = Math.round(+en.c) || 0, out = c < 0;
+  const ico = en.k === 'pay' ? IC.coin : out ? IC.minus : IC.plus;
+  const when = /^\d{4}-\d{2}-\d{2}$/.test(en.ds || '') ? fmtShort(en.ds) : '';
+  const kind = { plus: 'Gutschrift', minus: 'Abbuchung', pay: 'Ausgezahlt' }[en.k] || 'Buchung';
+  return '<li class="ev kb ' + (out ? (en.k === 'pay' ? 'pay' : 'out') : 'good') + '"><span class="evi">' + ico + '</span><span class="evt">' + esc(kontoTitle(en)) + '<small>' + (when ? when + ' · ' : '') + kind + '</small></span>' +
+    '<b class="evv">' + (out ? '−' : '+') + fmtEUR(Math.abs(c)) + '</b>' +
+    (U.unlocked && !U.readonly ? '<button class="evx" data-act="konto-del" data-id="' + esc(en.id) + '" aria-label="Buchung löschen">' + IC.cross + '</button>' : '<span></span>') + '</li>';
+}
+/* Münzen als Bild: eine je Euro (höchstens 20), damit auch ein Kind ohne Zahlen sieht, wie viel es ist. */
+function coinPile(cents) {
+  const n = Math.min(20, Math.floor(Math.max(0, cents) / 100)), rest = cents > 0 && cents % 100 ? 1 : 0;
+  if (!n && !rest) return '';
+  let h = '<div class="kh-pile" aria-hidden="true">';
+  for (let i = 0; i < n; i++) h += coinSVG(30);
+  if (rest) h += '<span class="small-coin">' + coinSVG(20) + '</span>';
+  return h + (cents >= 2100 ? '<em>…</em>' : '') + '</div>';
+}
+function viewKonto() {
+  const bal = kontoBalance(S), list = kontoList(S), nm = S.cfg.name;
+  const gl = goalList(S, ST()), nextMoney = gl.find(g => !g.reached && g.money);
+  let h = '<section class="card konto-hero"><div class="kh-ico">' + coinSVG(76) + '</div><div class="kh-tx"><span class="eyebrow">' + esc(genitive(nm)) + ' Konto</span>' +
+    '<b class="kh-sum' + (bal > 0 ? '' : ' zero') + '" id="kontoSum">' + fmtEUR(bal) + '</b>' +
+    '<small>' + (bal > 0 ? 'Dieses Geld gehört dir. Mama und Papa heben es für dich auf.' : 'Noch nichts auf dem Konto. Manche Schätze bringen Geld!') + '</small></div>' + coinPile(bal) + '</section>';
+  if (nextMoney) h += '<button class="card pad konto-next" data-act="tab" data-tab="achieve"><span class="kn-ico">' + coinSVG(34) + '</span><span class="kn-tx"><b>Noch ' + dia(nextMoney.need) + '</b><small>Dann gibt es ' + fmtEUR(nextMoney.money) + ' aufs Konto.</small></span>' + IC.chevR + '</button>';
+  if (U.unlocked && !U.readonly) {
+    h += '<div class="xbtns kbtns">' +
+      '<button class="xbtn" data-act="konto-open" data-k="plus">' + IC.plus + '<span>Gutschreiben</span></button>' +
+      '<button class="xbtn" data-act="konto-open" data-k="minus">' + IC.minus + '<span>Abbuchen</span></button>' +
+      '<button class="xbtn" data-act="konto-open" data-k="pay">' + IC.coin + '<span>Auszahlen</span></button></div>';
+  }
+  h += '<div class="sec-h"><h2>Buchungen</h2>' + (list.length ? '<span class="hint">' + list.length + '</span>' : '') + '</div>';
+  h += list.length ? '<ul class="evs kl">' + list.map(kontoRow).join('') + '</ul>' : '<div class="card pad"><p class="hint">Noch keine Buchungen. Hier steht, was gutgeschrieben, abgebucht oder ausgezahlt wurde.</p></div>';
+  return h;
+}
+
 /* ---------- Eltern ---------- */
 const EMOJI_PRESETS = ['🦷', '🪥', '👗', '🧦', '👟', '🛏️', '🧸', '🍽️', '🌙', '🛁', '🧼', '💧', '📚', '🎨', '🧩', '🐶', '🌱', '🧹', '🎒', '💖', '⭐', '🌈'];
 const TASK_IDEAS = [['🧼', 'Hände waschen'], ['🛁', 'Baden'], ['🧦', 'Socken anziehen'], ['👟', 'Schuhe anziehen'], ['📚', 'Buch anschauen'], ['🌱', 'Blumen gießen'], ['🐶', 'Tier füttern'], ['🎒', 'Tasche packen']];
-const REWARD_IDEAS = ['Einhorn-Sticker', 'Extra Gute-Nacht-Geschichte', 'Eis essen gehen', 'Spielplatz mit Mama oder Papa', 'Glitzer-Tattoo', 'Kleines Spielzeug', 'Kino-Abend zu Hause', 'Ausflug in den Zoo'];
-const SECTIONS = [['aufgaben', 'Aufgaben'], ['schaetze', 'Schätze'], ['graben', 'Graben'], ['wolken', 'Wolken'], ['kind', 'Aussehen'], ['ton', 'Ton und Vorlesen']];
+const REWARD_IDEAS = ['1 € aufs Guthabenkonto', '2 € aufs Guthabenkonto', '5 € aufs Guthabenkonto', 'Einhorn-Sticker', 'Glitzer-Tattoo aussuchen', 'Haarspange aussuchen', 'Malbuch aussuchen', 'Kleines Spielzeug aussuchen', 'Extra Gute-Nacht-Geschichte', 'Filmnachmittag mit Popcorn', 'Eis essen gehen', 'Ausflug in den Zoo', 'Ausflug ins Schwimmbad', 'Ausflug in den Freizeitpark'];
+const SECTIONS = [['aufgaben', 'Aufgaben'], ['schaetze', 'Schätze'], ['graben', 'Graben und Spiele'], ['wolken', 'Wolken'], ['kind', 'Aussehen'], ['ton', 'Ton und Code']];
 const stepper = (obj, key, val, min, max, step, unit) => '<div class="stepper"><button data-act="step" data-obj="' + obj + '" data-key="' + key + '" data-d="' + (-step) + '" data-min="' + min + '" data-max="' + max + '" aria-label="weniger">−</button><output>' + val + (unit || '') + '</output><button data-act="step" data-obj="' + obj + '" data-key="' + key + '" data-d="' + step + '" data-min="' + min + '" data-max="' + max + '" aria-label="mehr">+</button></div>';
 const switchRow = (act, on, title, small, extra) => '<button class="switch" role="switch" aria-checked="' + on + '" data-act="' + act + '" ' + (extra || '') + '><span><b>' + title + '</b>' + (small ? '<small>' + small + '</small>' : '') + '</span><i class="sw"></i></button>';
 function lookPickers(cur, act) {
@@ -2022,7 +2186,7 @@ function adviceBox() {
 
 function viewCoach(st) {
   if (!U.unlocked) {
-    return '<section class="card gate"><div class="gate-art">' + crownSVG(90) + '</div><h2>Nur für Mama und Papa</h2><p class="hint">Hier stellt ihr Aufgaben, Schätze und Wolken ein.</p><button class="btn btn-main" data-act="lock">Eltern-Code eingeben</button></section>';
+    return '<section class="card gate"><div class="gate-art">' + crownSVG(90) + '</div><h2>Nur für Mama und Papa</h2><p class="hint">Hier stellt ihr Aufgaben, Schätze, Wolken und Spiele ein.</p><button class="btn btn-main" data-act="lock">Eltern-Code eingeben</button></section>';
   }
   const c = S.cfg, gs = c.goals;
   let h = adviceBox();
@@ -2031,6 +2195,7 @@ function viewCoach(st) {
     '<ul class="rules">' +
     '<li>' + IC.hand + '<span><b>' + esc(c.name) + ' tippt „Geschafft!“</b>, ihr gebt im Eltern-Modus mit <b>Diamant</b> frei. „Heute nicht“ ist neutral: Es gibt keinen Diamanten, aber auch kein Minus.</span></li>' +
     '<li>' + IC.shovel + '<span><b>Graben:</b> Jeder freigegebene Diamant wartet in der Erde. ' + esc(c.name) + ' tippt ' + (c.digTaps === 1 ? 'einmal' : c.digTaps + '-mal') + ', dann springt er heraus und fliegt in die Truhe. Er zählt aber schon ab der Freigabe.</span></li>' +
+    '<li>' + IC.coin + '<span><b>Konto:</b> Steht bei einem Schatz „2 € aufs Guthabenkonto“, wird der Betrag beim Einlösen gebucht. Gutschreiben, Abbuchen und Auszahlen im Tab Konto.</span></li>' +
     '<li>' + cloudSVG('yellow', 26) + '<span><b>Gelbe Wolke</b> = Verwarnung, minus ' + dia(c.yellowPts) + '. Zwei gelbe Wolken werden zur <b>Gewitterwolke</b> (minus ' + c.redPts + ', höchstens einmal am Tag). Wolken verfallen nicht, ihr könnt sie zurücknehmen.</span></li>' +
     '<li>' + gemMini(24) + '<span><b>Schätze:</b> Alle Diamanten zählen zusammen, abzüglich Wolken. Von ' + gs[0].at + ' bis ' + gs[gs.length - 1].at + ' Diamanten.</span></li></ul>' +
     '<div class="row-btns"><button class="btn btn-ghost btn-sm" data-act="parents">Hinweise für Eltern</button><button class="btn btn-ghost btn-sm" data-act="rules">Regeln für ' + esc(c.name) + '</button><button class="btn btn-ghost btn-sm" data-act="lock">' + IC.lock + 'Eltern-Modus beenden</button></div></section>';
@@ -2040,22 +2205,23 @@ function viewCoach(st) {
     '<button class="btn btn-ghost" data-act="task-add">' + IC.plus + 'Neue Aufgabe</button>' +
     '<div class="field"><span>Ideen zum Antippen</span><div class="chips-r ideas" role="group" aria-label="Aufgaben-Ideen">' + TASK_IDEAS.map((t, i) => '<button data-act="task-idea" data-i="' + i + '">' + t[0] + ' ' + esc(t[1]) + '</button>').join('') + '</div></div></section>';
 
-  h += '<section class="card coach-sec" id="sec-schaetze"><h2>Schätze und Belohnungen</h2><p class="hint">Was ' + esc(c.name) + ' bei welchem Stand bekommt. Es zählen alle Diamanten zusammen, abzüglich Wolken. Ohne Text steht dort „Überraschung!“. Bitte nie Essen, Schlaf, Kuscheln oder gemeinsame Zeit als Belohnung oder Entzug einsetzen.</p>' +
+  h += '<section class="card coach-sec" id="sec-schaetze"><h2>Schätze und Belohnungen</h2><p class="hint">Was ' + esc(c.name) + ' bei welchem Stand bekommt. Es zählen alle Diamanten zusammen, abzüglich Wolken. Die Texte sind Beispiele: Ändert sie am besten gemeinsam mit ' + esc(c.name) + '. Ohne Text steht dort „Überraschung!“. Mit „2 € aufs Guthabenkonto“ bucht die App den Betrag beim Einlösen aufs Konto. Bitte nie Mahlzeiten, Schlaf, Kuscheln oder die gewohnte gemeinsame Zeit als Belohnung oder Entzug einsetzen.</p>' +
     gs.map((g, i) => {
       const min = i > 0 ? gs[i - 1].at + 1 : 1, max = i < gs.length - 1 ? gs[i + 1].at - 1 : 100000;
       return '<div class="field goaled"><div class="row-btns" style="align-items:center;justify-content:space-between">' + stepper('goal:' + g.id, 'at', g.at, min, max, g.at < 30 ? 1 : 5, ' ' + gemMini(16)) +
         (gs.length > 1 ? '<button class="evx" data-act="goal-del" data-id="' + esc(g.id) + '" aria-label="Schatz bei ' + g.at + ' Diamanten entfernen">' + IC.cross + '</button>' : '') + '</div>' +
-        '<input type="text" id="f-goal-' + esc(g.id) + '" data-bind="goal:' + esc(g.id) + ':reward" value="' + esc(g.reward) + '" maxlength="120" placeholder="Belohnung (leer: Überraschung!)" aria-label="Belohnung bei ' + g.at + ' Diamanten"></div>';
+        '<input type="text" id="f-goal-' + esc(g.id) + '" data-bind="goal:' + esc(g.id) + ':reward" data-goal-id="' + esc(g.id) + '" value="' + esc(g.reward) + '" maxlength="120" placeholder="Belohnung (leer: Überraschung!)" aria-label="Belohnung bei ' + g.at + ' Diamanten"></div>';
     }).join('') +
-    '<div class="field"><span>Ideen (füllt den ersten leeren Schatz)</span><div class="chips-r ideas" role="group" aria-label="Belohnungs-Ideen">' + REWARD_IDEAS.map((t, i) => '<button data-act="reward-idea" data-i="' + i + '">' + esc(t) + '</button>').join('') + '</div></div>' +
+    '<div class="field"><span>Ideen (erst in ein Feld tippen, dann auf eine Idee)</span><div class="chips-r ideas" role="group" aria-label="Belohnungs-Ideen">' + REWARD_IDEAS.map((t, i) => '<button data-act="reward-idea" data-i="' + i + '">' + esc(t) + '</button>').join('') + '</div></div>' +
     '<button class="btn btn-ghost" data-act="goal-add">' + IC.plus + 'Schatz hinzufügen</button>' +
     '<div class="field"><span>Name der großen Truhe</span><input type="text" id="f-chest-title" data-bind="chest:title" value="' + esc(c.chest.title) + '" maxlength="40" aria-label="Name der großen Truhe"></div>' +
     '<div class="field"><span>Zauberbeutel</span><div class="row-btns" style="align-items:center">' + stepper('cfg', 'packEvery', c.packEvery, 3, 20, 1, ' ' + gemMini(16)) + '</div><small>So viele Diamanten bis zum nächsten Zauberbeutel. Sticker zählen 1, 2 oder 5 Punkte, je ' + PTS_PER_DIAMANT + ' Punkte gibt es einen Bonus-Diamanten.</small></div></section>';
 
-  h += '<section class="card coach-sec" id="sec-graben"><h2>Graben</h2>' +
+  h += '<section class="card coach-sec" id="sec-graben"><h2>Graben und Spiele</h2>' +
     switchRow('dig-mode', c.digMode !== false, esc(c.name) + ' gräbt jeden Diamanten selbst aus', 'Aus: Diamanten fliegen nach der Freigabe sofort in die Truhe.') +
     '<div class="field"><span>Tipps je Diamant</span>' + stepper('cfg', 'digTaps', c.digTaps, 1, 5, 1, '') + '<small>Vorschlag: 3. Weniger, wenn es zu lange dauert, mehr, wenn es mehr Spiel sein soll.</small></div>' +
-    switchRow('dig-fun', c.digFun !== false, 'Spaß-Funde', 'Ohne wartende Diamanten findet die Gräberin Kleinigkeiten (Wurm, Blume, Stern). Sie zählen nicht.') + '</section>';
+    switchRow('dig-fun', c.digFun !== false, 'Spaß-Funde', 'Ohne wartende Diamanten findet die Gräberin Kleinigkeiten (Wurm, Blume, Stern). Sie zählen nicht.') +
+    switchRow('games', c.games !== false, 'Spielwiese auf „Heute“', 'Memory, Hütchen und Sternenregen. Nur zum Spaß: Dabei gibt es keine Diamanten.') + '</section>';
 
   h += '<section class="card coach-sec" id="sec-wolken"><h2>Wolken</h2><p class="hint">Gelbe Wolke = Verwarnung. Zwei gelbe Wolken werden zur Gewitterwolke. Wolken kosten Diamanten bei den Schätzen; in der Truhe und in der Übersicht bleiben alle Diamanten stehen. Einen Grund müsst ihr nie angeben. Jede Wolke lässt sich zurücknehmen.</p>' +
     '<div class="field"><span>Gelbe Wolke: Abzug</span>' + stepper('cfg', 'yellowPts', c.yellowPts, 0, 5, 1, ' ' + gemMini(16)) + '</div>' +
@@ -2068,10 +2234,8 @@ function viewCoach(st) {
     '<div class="field"><span>Name des Einhorns</span><input type="text" id="f-unicorn" data-bind="cfg:unicorn" value="' + esc(c.unicorn) + '" maxlength="20"></div></div>' +
     lookPickers(c.look, 'look') + '</section>';
 
-  h += '<section class="card coach-sec" id="sec-ton"><h2>Ton, Vorlesen und Code</h2>' +
-    switchRow('sound', !U.muted, 'Töne auf diesem Gerät', 'Glöckchen, Funkeln, Graben. Auf dem iPhone: Seitenschalter auf laut.') +
-    switchRow('speak', U.speak, 'Vorlesen auf diesem Gerät', 'Antippen eines Bildes oder Lautsprechers liest vor. Nutzt die deutsche Stimme des Geräts.') +
-    '<div class="row-btns"><button class="btn btn-ghost btn-sm" data-act="voice-test">' + IC.sound + 'Stimme testen</button></div>' +
+  h += '<section class="card coach-sec" id="sec-ton"><h2>Ton und Code</h2>' +
+    switchRow('sound', !U.muted, 'Töne auf diesem Gerät', 'Glöckchen, Funkeln, Graben, Spiele. Auf dem iPhone: Seitenschalter auf laut.') +
     (c.pin ? '<div class="row-btns"><button class="btn btn-ghost btn-sm" data-act="pin-set">Code ändern</button><button class="btn btn-ghost btn-sm" data-act="pin-clear">Code entfernen</button></div>'
       : '<div class="warn-box"><span><b>Kein Eltern-Code gesetzt.</b> Dann kann ' + esc(c.name) + ' selbst Diamanten freigeben.</span><button class="btn btn-main btn-sm" data-act="pin-set">Code festlegen</button></div>') + '</section>';
 
@@ -2090,7 +2254,7 @@ function taskEditor(t) {
   if (!open) return h;
   const same = S.cfg.tasks.filter(x => x.slot === t.slot && !(x.until && x.until <= U.today)), i = same.indexOf(t);
   h += '<div class="tedit"><div class="field"><span>Symbol</span><div class="emojis">' + EMOJI_PRESETS.map(e => '<button data-act="emoji" data-id="' + t.id + '" data-e="' + e + '" aria-pressed="' + (t.icon === e) + '">' + e + '</button>').join('') + '</div></div>' +
-    '<div class="field"><span>Name (wird vorgelesen)</span><input type="text" id="te-title" data-bind="task:' + t.id + ':title" value="' + esc(t.title) + '" maxlength="40"></div>' +
+    '<div class="field"><span>Name</span><input type="text" id="te-title" data-bind="task:' + t.id + ':title" value="' + esc(t.title) + '" maxlength="40"></div>' +
     '<div class="field"><span>Tageszeit</span><div class="chips-r" role="group" aria-label="Tageszeit">' + Object.keys(SLOTS).map(s => '<button data-act="task-slot" data-id="' + t.id + '" data-v="' + s + '" aria-pressed="' + (t.slot === s) + '">' + SLOTS[s] + '</button>').join('') + '</div></div>' +
     '<div class="field"><span>Diamanten</span>' + stepper('task:' + t.id, 'pts', t.pts, 1, 3, 1, '') + '</div>' +
     '<div class="field"><span>Wochentage</span><div class="dchips">' + [1, 2, 3, 4, 5, 6, 0].map(d => '<button data-act="task-day" data-id="' + t.id + '" data-d="' + d + '" aria-pressed="' + (t.days.indexOf(d) >= 0) + '">' + WD_SHORT[d] + '</button>').join('') + '</div></div>' +
@@ -2125,14 +2289,6 @@ ACT['banner-go'] = el => {
   U.tab = el.dataset.tab; window.scrollTo(0, 0); render();
 };
 
-/* ---------- Vorlesen ---------- */
-ACT.say = el => { const t = el.dataset.say; if (!t) return; if (!Say.say(t)) { if (U.speak && !Say.available()) toast('Vorlesen geht auf diesem Gerät leider nicht.'); } };
-ACT['voice-test'] = () => {
-  if (!Say.available()) { toast('Dieses Gerät kann nicht vorlesen.', 'warn'); return; }
-  Say.say('Hallo ' + plain(S.cfg.name) + '! Ich bin ' + plain(S.cfg.unicorn) + ', dein Einhorn. Wollen wir Diamanten suchen?', true);
-  if (!Say.hasGerman()) toast('Keine deutsche Stimme gefunden. iPhone: Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Deutsch.', 'warn');
-};
-
 /* ---------- Fenster ---------- */
 function openSheet(html, cls) {
   const l = $('#layer'); if (!l) return;
@@ -2145,7 +2301,8 @@ const setSheet = html => { const s = $('.sheet'); if (s) s.innerHTML = html; };
 function closeSheet() {
   const l = $('#layer'); if (l) l.innerHTML = '';
   const was = U.sheet;
-  U.sheet = null; U.ob = null; U.ex = null; document.body.classList.remove('noscroll');
+  if (was === 'sheet-game') gameStop();
+  U.sheet = null; U.ob = null; U.ex = null; U.kx = null; document.body.classList.remove('noscroll');
   if (was) scheduleCeleb(400);
 }
 ACT['sheet-close'] = () => { if (U.sheet === 'onboard') return; closeSheet(); };
@@ -2208,24 +2365,21 @@ function showNextCeleb() {
       if (bn0 && bn0.firstElementChild && !bn0.querySelector('.go')) { scheduleCeleb(1400); return; }
       const n = U.packNote; U.packNote = 0;
       banner({ icon: pouchSVG(46), title: n === 1 ? 'Ein neuer Zauberbeutel!' : n + ' neue Zauberbeutel!', sub: n === 1 ? 'Tippe hier, um ihn bei den Schätzen zu öffnen.' : 'Tippe hier, um sie bei den Schätzen zu öffnen.', tone: 'violet', ms: 7000, go: 'achieve' });
-      Snd.sparkle(); Say.say(n === 1 ? 'Ein neuer Zauberbeutel!' : n + ' neue Zauberbeutel!');
+      Snd.sparkle();
     }
     return;
   }
   const name = esc(S.cfg.name), c = $('#celeb'); if (!c) return;
-  let html, spoken;
+  let html;
   if (it.type === 'perfect') {
     html = celCard(crownSVG(150), 'Alle Aufgaben geschafft', 'Glitzer-Tag!', 'Heute hast du alles geschafft, ' + name + '!', '', 'perfect');
-    spoken = 'Glitzer-Tag! Heute hast du alles geschafft, ' + plain(S.cfg.name) + '!';
   } else {
     const g = goalList(S, ST()).find(x => x.id === it.id);
     if (!g || !g.reached) { scheduleCeleb(100); return; }
     if (it.type === 'treasure') {
       html = celCard(chestSVG(1, 230, { cls: 'open' }), dia(g.at), 'Der große Schatz!', 'Du hast ' + esc(S.cfg.chest.title) + ' gefunden, ' + name + '!', rewardBox(g.reward), 'treasure');
-      spoken = 'Der große Schatz! Du hast ' + plain(S.cfg.chest.title) + ' gefunden!';
     } else {
       html = celCard(gemSVG(g.gem, 160), dia(g.at), 'Schatz gefunden!', 'Toll gemacht, ' + name + '!', rewardBox(g.reward));
-      spoken = 'Schatz gefunden! ' + dia(g.at) + '. ' + (rewardOf(g) ? 'Deine Belohnung: ' + rewardOf(g) : 'Eine Überraschung!');
     }
   }
   U.celeb = it;
@@ -2233,7 +2387,6 @@ function showNextCeleb() {
   c.innerHTML = html;
   document.body.classList.add('noscroll');
   Snd.fanfare(); FX.party(['💎', '✨', '👑']); Hap.go([40, 40, 40, 40, 90]);
-  setTimeout(() => Say.say(spoken), 700);
 }
 function closeCeleb() {
   const c = $('#celeb'); if (c) c.innerHTML = '';
@@ -2251,14 +2404,13 @@ ACT.claim = el => {
   Snd.claim(); Hap.go(15);
   const r = el.getBoundingClientRect(); FX.pop(r.left + r.width / 2, r.top + r.height / 2, ['✨', '💖']);
   U.fx = { task: id }; render();
-  Say.say('Super! ' + t.title + '. Jetzt schauen Mama oder Papa.');
 };
 ACT.hint = el => {
   if (U.unlocked) return;
   const st = el.dataset.st, t = taskById(el.dataset.task);
   const li = el.closest('.task'); if (li) { li.classList.remove('shake'); void li.offsetWidth; li.classList.add('shake'); }
-  const msg = st === 'c' ? 'Wartet auf Mama oder Papa.' : st === 'y' ? 'Diamant! Schon geschafft.' : st === 'n' ? 'Heute nicht. Morgen wieder.' : 'Das tragen Mama oder Papa ein.';
-  toast(msg); Say.say((t ? t.title + '. ' : '') + msg);
+  const msg = (t ? t.title + ': ' : '') + (st === 'c' ? 'Wartet auf Mama oder Papa.' : st === 'y' ? 'Diamant! Schon geschafft.' : st === 'n' ? 'Heute nicht. Morgen wieder.' : 'Das tragen Mama oder Papa ein.');
+  toast(msg);
 };
 function setMark(ds, id, st) {
   if (!taskById(id)) return;
@@ -2359,7 +2511,6 @@ async function unearth(quick) {
     if (!quick || !left) {
       const title = ds === U.today && n > 0 ? ladderText(n) : 'Funkel!';
       banner({ icon: gemSVG(col, 40), title: esc(title), sub: left ? (left === 1 ? 'Noch ein Diamant in der Erde.' : 'Noch ' + dia(left) + ' in der Erde.') : 'Alle Diamanten sind in der Truhe!', tone: 'gold', ms: 2400 });
-      if (!quick) Say.say(title + (left ? '' : ' Alle Diamanten sind in der Truhe!'));
     }
   } finally { U.digBusy = false; }
   if (!ST().waiting) scheduleCeleb(quick ? 900 : 1500);
@@ -2370,7 +2521,6 @@ function funFind() {
   const m = $('#mound');
   if (m && !stillMotion()) { const r = m.getBoundingClientRect(); FX.pop(r.left + r.width / 2, r.top, [f[0]]); }
   banner({ icon: '<span class="bn-emo">' + f[0] + '</span>', title: esc(f[1]) + '!', sub: 'Das ist kein Diamant. Aber lustig!', tone: '', ms: 2200 });
-  Say.say(f[1] + '!');
 }
 function digOnce(quick) {
   const c = S.cfg;
@@ -2474,7 +2624,22 @@ ACT['cloud-back'] = el => {
 ACT.redeem = el => {
   if (!U.unlocked) return;
   const k = el.dataset.key, g = S.cfg.goals.find(x => x.id === k); if (!g) return;
-  if (S.prog.red[k]) delete S.prog.red[k]; else S.prog.red[k] = U.today;
+  S.prog.redK = S.prog.redK || {};
+  if (S.prog.red[k]) {                                                // zurücknehmen: eine Konto-Gutschrift dazu wird wieder entfernt
+    delete S.prog.red[k];
+    const kid = S.prog.redK[k]; delete S.prog.redK[k];
+    if (kid && S.konto[kid]) { delete S.konto[kid]; persist('konto/' + kid); toast('Zurückgenommen. Die Gutschrift auf dem Konto wurde entfernt.'); }
+  } else {
+    S.prog.red[k] = U.today;
+    const cents = rewardMoney(g.reward);                              // „2 € aufs Guthabenkonto“ wird gleich gebucht, damit es nicht vergessen wird
+    if (cents > 0) {
+      const ts = Date.now(), id = 'k' + ts.toString(36) + rid();
+      S.konto[id] = { ts, ds: U.today, c: cents, k: 'plus', t: ('Schatz: ' + dia(g.at)).slice(0, 40) };
+      S.prog.redK[k] = id; persist('konto/' + id);
+      banner({ icon: coinSVG(42), title: esc('+' + fmtEUR(cents) + ' aufs Konto'), sub: esc('Schatz bei ' + dia(g.at) + ' · Guthaben jetzt ' + fmtEUR(kontoBalance(S))), tone: 'gold', ms: 3600, go: 'konto' });
+      Snd.fanfare(); FX.pop(innerWidth / 2, innerHeight / 3, ['🪙', '✨']);
+    }
+  }
   markChanged(); persist('cfg/progress'); render();
 };
 ACT['goal-add'] = () => {
@@ -2489,11 +2654,13 @@ ACT['goal-del'] = el => {
     S.cfg.goals = S.cfg.goals.filter(x => x.id !== g.id); markChanged(); persist('cfg/main'); render();
   });
 };
+/* Ideen füllen das zuletzt angetippte Belohnungsfeld, sonst den ersten leeren Schatz. */
 ACT['reward-idea'] = el => {
   if (!U.unlocked) return;
-  const t = REWARD_IDEAS[+el.dataset.i], g = S.cfg.goals.find(x => !rewardOf(x));
+  const t = REWARD_IDEAS[+el.dataset.i];
+  const g = S.cfg.goals.find(x => x.id === U.lastGoal) || S.cfg.goals.find(x => !rewardOf(x));
   if (!t) return;
-  if (!g) { toast('Alle Schätze haben schon eine Belohnung. Ändere den Text direkt im Feld.'); return; }
+  if (!g) { toast('Tippe zuerst in das Feld eines Schatzes, dann auf eine Idee.'); return; }
   g.reward = t; markChanged(); persist('cfg/main'); render();
   toast('„' + t + '“ bei ' + dia(g.at) + ' eingetragen.');
 };
@@ -2514,13 +2681,12 @@ function paintPack() {
       '<div class="emblem">' + stickerBig(s, true, foilKind, 'pop') + '</div><h2 class="ce-title small">' + esc(s.name) + '</h2>' +
       '<p class="ce-sub fact">' + esc(s.fact) + '</p>' +
       (foilKind ? '<p class="ce-sub">Dein Sticker glänzt jetzt.</p>' : '<p class="ce-sub sp-line">' + (p.bonusNew > 0 ? '<b class="bonus">💎 Bonus-Diamant!</b> ' : '') + 'Sticker ' + S.prog.album.length + ' von ' + STICKERS.length + ' · ' + R.name + '</p>') +
-      '<div class="row-btns">' + (st.packs.left > 0 ? '<button class="btn btn-main" data-act="pack-again">Nächster Beutel (' + st.packs.left + ')</button>' : '') + '<button class="btn ' + (st.packs.left > 0 ? 'btn-ghost' : 'btn-main') + '" data-act="pack-close">Ins Album</button>' + sayBtn(s.name + '. ' + s.fact) + '</div></div></div>';
+      '<div class="row-btns">' + (st.packs.left > 0 ? '<button class="btn btn-main" data-act="pack-again">Nächster Beutel (' + st.packs.left + ')</button>' : '') + '<button class="btn ' + (st.packs.left > 0 ? 'btn-ghost' : 'btn-main') + '" data-act="pack-close">Ins Album</button></div></div></div>';
   }
 }
 ACT['pack-open'] = () => {
   if (U.readonly || ST().packs.left <= 0) return;
   U.pack = { phase: 'closed' }; document.body.classList.add('noscroll'); paintPack(); Snd.tap();
-  Say.say('Ein Zauberbeutel! Tipp drauf.');
 };
 ACT['pack-again'] = () => { if (ST().packs.left > 0) { U.pack = { phase: 'closed' }; paintPack(); } else ACT['pack-close'](); };
 ACT['pack-close'] = () => { closeCeleb(); render(); scheduleCeleb(300); };
@@ -2539,7 +2705,6 @@ ACT['pack-tear'] = () => {
   setTimeout(() => {
     if (U.pack !== p) return;
     p.phase = 'opened'; p.sticker = s; p.kind = kind; paintPack(); FX.party(['✨', '💎']); Snd.sparkle();
-    Say.say((kind === 'foil' ? 'Glanz! ' : s.rar === 'u' ? 'Ultraselten! ' : s.rar === 'r' ? 'Selten! ' : '') + s.name + '. ' + s.fact + (p.bonusNew > 0 ? ' Und ein Bonus-Diamant!' : ''));
   }, stillMotion() ? 50 : 900);
 };
 ACT.sticker = el => {
@@ -2547,18 +2712,81 @@ ACT.sticker = el => {
   const got = (S.prog.album || []).indexOf(s.id) >= 0, foil = (S.prog.foil || []).indexOf(s.id) >= 0, R = RARITY[s.rar];
   openSheet('<h2>' + (got ? esc(s.name) : 'Noch nicht gefunden') + '</h2><div class="stbig-wrap">' + stickerBig(s, got, foil) + '</div>' +
     '<p class="sub">' + (got ? s.cat + ' · ' + R.name + ' · ' + punkte(R.pts) + (foil ? ' · Glanz' : '') : R.name + '. Alle ' + S.cfg.packEvery + ' Diamanten gibt es einen Zauberbeutel.') + '</p>' + (got ? '<p class="sub fact">' + esc(s.fact) + '</p>' : '') +
-    '<div class="row-btns">' + (got ? sayBtn(s.name + '. ' + s.fact) : '') + '<button class="btn btn-ghost" data-act="sheet-close">Schließen</button></div>', 'sheet-st');
-  if (got) Say.say(s.name + '. ' + s.fact);
+    '<button class="btn btn-ghost" data-act="sheet-close">Schließen</button>', 'sheet-st');
+};
+
+/* ---------- Konto: Gutschreiben, Abbuchen, Auszahlen (wie in der Torjäger-App) ---------- */
+const KX_TITLE = { plus: 'Gutschreiben', minus: 'Abbuchen', pay: 'Auszahlen' };
+const KX_CHIPS = { plus: ['Taschengeld', 'Geschenk', 'Oma und Opa', 'Extra-Hilfe'], minus: ['Spielzeug', 'Buch', 'Eis', 'Kleinigkeit'], pay: [] };
+const KX_AMOUNTS = [50, 100, 200, 500, 1000];
+function kxAfter() {
+  const x = U.kx; if (!x) return '';
+  const c = parseMoney(x.amt), bal = kontoBalance(S);
+  if (c == null) return 'Bitte einen Betrag eintragen, zum Beispiel 2,50.';
+  const after = x.k === 'plus' ? bal + c : bal - c;
+  return after < 0 ? 'Das Guthaben reicht nicht: Es sind nur ' + fmtEUR(bal) + ' auf dem Konto.' : 'Danach auf dem Konto: ' + fmtEUR(after);
+}
+function kontoSheetHTML() {
+  const x = U.kx, k = x.k, nm = esc(S.cfg.name);
+  const sub = {
+    plus: 'Für Taschengeld, ein Geschenk oder eine vereinbarte Extra-Hilfe.',
+    minus: 'Du hast etwas für ' + nm + ' gekauft. Der Betrag wird vom Konto abgebucht.',
+    pay: 'Du gibst ' + nm + ' Geld in die Hand oder ins Sparschwein. Der Betrag wird vom Konto abgebucht.',
+  }[k];
+  let h = '<h2 class="h-ic">' + coinSVG(34) + KX_TITLE[k] + '</h2><p class="sub">' + sub + '</p>';
+  h += '<div class="field"><span>Betrag in Euro</span><input type="text" inputmode="decimal" id="kx-amt" data-kx="amt" value="' + esc(x.amt) + '" maxlength="8" autocomplete="off" placeholder="z. B. 2,50"></div>';
+  if (k !== 'pay') h += '<div class="chips-r" role="group" aria-label="Schnellauswahl Betrag">' + KX_AMOUNTS.map(v => '<button data-act="kx-amt" data-c="' + v + '">' + fmtEUR(v) + '</button>').join('') + '</div>';
+  h += '<div class="field"><span>' + (k === 'pay' ? 'Notiz (freiwillig)' : 'Wofür?') + '</span><input type="text" id="kx-text" data-kx="t" value="' + esc(x.t) + '" maxlength="40" autocomplete="off"></div>';
+  if (KX_CHIPS[k].length) h += '<div class="chips-r" role="group" aria-label="Schnellauswahl">' + KX_CHIPS[k].map(t => '<button data-act="kx-chip" data-t="' + esc(t) + '" aria-pressed="' + (x.t === t) + '">' + esc(t) + '</button>').join('') + '</div>';
+  if (k === 'minus') h += switchRow('kx-ok', x.ok, nm + ' hat dazu Ja gesagt', 'Abgebucht wird nur, was ' + nm + ' sich selbst wünscht, nie etwas, das ihr ohnehin bezahlt.');
+  h += '<p class="hint" id="kx-after">' + esc(kxAfter()) + '</p>';
+  h += '<div class="row-btns"><button class="btn btn-main" data-act="kx-save">' + KX_TITLE[k] + '</button><button class="btn btn-ghost" data-act="sheet-close">Abbrechen</button></div>';
+  return h;
+}
+ACT['konto-open'] = el => {
+  if (!U.unlocked || U.readonly) return;
+  const k = el.dataset.k, bal = kontoBalance(S);
+  if ((k === 'minus' || k === 'pay') && bal <= 0) { toast('Auf dem Konto ist nichts, das sich abbuchen lässt.'); return; }
+  U.kx = { k, amt: k === 'pay' ? fmtPlain(bal) : '', t: k === 'pay' ? 'Ausgezahlt' : '', ok: false };
+  openSheet(kontoSheetHTML(), 'sheet-konto');
+};
+ACT['kx-amt'] = el => { U.kx.amt = fmtPlain(+el.dataset.c); setSheet(kontoSheetHTML()); };
+ACT['kx-ok'] = () => { U.kx.ok = !U.kx.ok; setSheet(kontoSheetHTML()); };
+ACT['kx-chip'] = el => { U.kx.t = U.kx.t === el.dataset.t ? '' : el.dataset.t; setSheet(kontoSheetHTML()); };
+ACT['kx-save'] = () => {
+  const x = U.kx; if (!x || !U.unlocked || U.readonly) return;
+  const c = parseMoney(x.amt), bal = kontoBalance(S), k = x.k;
+  if (c == null) { toast('Bitte einen Betrag über 0 eintragen, zum Beispiel 2,50.'); return; }
+  if (k === 'minus' && !x.ok) { toast('Bitte bestätigen: ' + S.cfg.name + ' hat dazu Ja gesagt.'); return; }
+  if ((k === 'minus' || k === 'pay') && c > bal) { toast('Das Guthaben reicht nicht: Es sind nur ' + fmtEUR(bal) + ' auf dem Konto.', 'warn'); return; }
+  const ts = Date.now(), id = 'k' + ts.toString(36) + rid(), t = (x.t || '').trim().slice(0, 40), credit = k === 'plus';
+  const en = { ts, ds: U.today, c: credit ? c : -c, k };
+  if (t) en.t = t;
+  S.konto[id] = en; markChanged(); persist('konto/' + id);
+  U.kx = null; closeSheet(); render();
+  const now = kontoBalance(S);
+  if (credit) { Snd.gem(); FX.pop(innerWidth / 2, innerHeight / 2, ['🪙', '✨']); } else Snd.soft();
+  banner({ icon: coinSVG(42), title: esc((credit ? '+' : '−') + fmtEUR(c) + (credit ? ' gutgeschrieben' : k === 'pay' ? ' ausgezahlt' : ' abgebucht')), sub: esc(kontoTitle(en)) + ' · Guthaben jetzt ' + esc(fmtEUR(now)), tone: credit ? 'gold' : '', ms: 3600 });
+};
+ACT['konto-del'] = el => {
+  if (!U.unlocked || U.readonly) return;
+  const id = el.dataset.id, en = S.konto[id]; if (!en) return;
+  confirmSheet({ title: 'Buchung löschen?', text: kontoTitle(en) + ' (' + (en.c < 0 ? '−' : '+') + fmtEUR(Math.abs(en.c)) + '). Das Guthaben ändert sich entsprechend.', ok: 'Löschen', danger: true }, () => {
+    delete S.konto[id];
+    Object.keys(S.prog.redK || {}).forEach(g => { if (S.prog.redK[g] === id) { delete S.prog.redK[g]; persist('cfg/progress'); } });
+    markChanged(); persist('konto/' + id); render(); toast('Buchung gelöscht.');
+  });
 };
 
 /* ---------- Regeln (für das Kind) und Hinweise für Eltern ---------- */
 function rulesHTML() {
   const c = S.cfg, nm = esc(c.name);
-  const spoken = 'So geht das Diamanten-Reich. Wenn du eine Aufgabe geschafft hast, tippst du auf Geschafft. Dann schauen Mama oder Papa und geben dir einen Diamanten. Der Diamant steckt in der Erde. Tipp auf Graben, dann holt die Schatzgräberin ihn heraus und legt ihn in deine Truhe. Für viele Diamanten findest du Schätze und bekommst eine Belohnung. Alle ' + c.packEvery + ' Diamanten gibt es einen Zauberbeutel mit einem Sticker. Eine gelbe Wolke ist eine Warnung. Zwei gelbe Wolken werden zum Gewitter. Dann gehen ein paar Diamanten bei den Schätzen ab. Aber deine Truhe bleibt voll. Wir haben dich lieb, egal was passiert.';
-  return '<h2 class="h-ic">' + gemMini(30) + 'So geht das Diamanten-Reich</h2><div class="row-btns">' + sayBtn(spoken, 'Regeln vorlesen') + '<span class="hint">Zum Vorlesen tippen</span></div>' +
+  return '<h2 class="h-ic">' + gemMini(30) + 'So geht das Diamanten-Reich</h2><p class="sub">Zum Vorlesen für Mama oder Papa.</p>' +
     '<div class="rb"><h3>' + IC.hand + ' Geschafft!</h3><p>Hast du eine Aufgabe geschafft, tippst du auf <b>Geschafft!</b>. Dann schauen Mama oder Papa und geben dir einen <b>Diamanten</b>.</p>' +
     '<h3>' + IC.shovel + ' Graben</h3><p>Jeder Diamant steckt in der Erde. Tipp auf <b>Graben!</b>, dann holt die Schatzgräberin ihn heraus und legt ihn in deine Truhe.</p>' +
     '<h3>' + gemMini(20) + ' Schätze</h3><p>Für viele Diamanten findest du Schätze mit einer Belohnung. Alle ' + c.packEvery + ' Diamanten gibt es einen <b>Zauberbeutel</b> mit einem Sticker.</p>' +
+    '<h3>' + IC.coin + ' Konto</h3><p>Manche Schätze bringen Geld auf dein <b>Konto</b>. Das Geld gehört dir. Abgebucht wird nur, wenn du dir etwas wünschst und Ja sagst.</p>' +
+    '<h3>' + IC.sparkle + ' Spielwiese</h3><p>Auf der <b>Spielwiese</b> kannst du Memory, Hütchen und Sternenregen spielen. Das ist nur zum Spaß.</p>' +
     '<h3>' + cloudSVG('yellow', 26) + ' Wolken</h3><p>Eine <b>gelbe Wolke</b> ist eine Warnung. Zwei gelbe Wolken werden zur <b>Gewitterwolke</b>. Dann gehen ein paar Diamanten bei den Schätzen ab. Deine Truhe bleibt aber voll.</p>' +
     '<p><b>Wir haben dich lieb, ' + nm + ', egal was passiert.</b></p></div>' +
     '<button class="btn btn-ghost btn-block" data-act="sheet-close">Schließen</button>';
@@ -2567,7 +2795,7 @@ ACT.rules = () => openSheet(rulesHTML(), 'sheet-rules');
 function parentsHTML() {
   const c = S.cfg, nm = esc(c.name);
   return '<h2>Hinweise für Eltern</h2><p class="sub">Mit fünf, sechs Jahren wirkt Lob viel stärker als Abzug. Wolken sind die Ausnahme, nicht der Alltag.</p><ol class="rb-ol">' +
-    '<li><b>Gemeinsam anfangen:</b> Zeigt ' + nm + ' die App in Ruhe, lest die Regeln vor (Lautsprecher-Knopf) und sucht die Belohnungen zusammen aus.</li>' +
+    '<li><b>Gemeinsam anfangen:</b> Zeigt ' + nm + ' die App in Ruhe, lest ihr die Regeln vor (Knopf „Regeln“ bei den Extras) und sucht die Belohnungen zusammen aus.</li>' +
     '<li><b>Lob zuerst:</b> Freigeben möglichst bald und mit einem Satz dazu („Du hast dich ganz allein angezogen!“). Die App ersetzt kein Lob.</li>' +
     '<li><b>Wolken sparsam:</b> Am besten die erste Woche ganz ohne. Nie für Gefühle (Weinen, Wut, Angst), nie für Missgeschicke, nie im Streit oder vor dem Schlafen.</li>' +
     '<li><b>Belohnungen nie zurücknehmen</b> und zeitnah einlösen. Essen, Schlaf, Kuscheln und gemeinsame Zeit sind nie Belohnung und nie Entzug.</li>' +
@@ -2657,7 +2885,6 @@ ACT['ob-go'] = async () => {
   U.sheet = null; closeSheet(); render();
   Snd.fanfare(); FX.party(['💎', '✨', '🦄']);
   banner({ icon: girlHeadSVG(c.look, 44), title: 'Willkommen, ' + esc(c.name) + '!', sub: 'Ein Zauberbeutel wartet schon. Tippe hier.', tone: 'violet', ms: 7000, go: 'achieve' });
-  Say.say('Willkommen im Diamanten-Reich, ' + c.name + '! Ein Zauberbeutel wartet schon auf dich.');
 };
 
 /* ---------- Einstellungen ---------- */
@@ -2687,11 +2914,7 @@ ACT.sound = () => {
   if (!U.muted) Snd.sparkle();
   render();
 };
-ACT.speak = () => {
-  U.speak = !U.speak; Say.setOn(U.speak);
-  try { localStorage.setItem('dia-speak', U.speak ? '1' : '0'); } catch (e) { /* nur Komfort */ }
-  render();
-};
+ACT.games = () => { S.cfg.games = S.cfg.games === false; markChanged(); persist('cfg/main'); render(); };
 ACT.look = el => { S.cfg.look[el.dataset.k] = el.dataset.v; markChanged(); persist('cfg/main'); render(); };
 ACT['task-edit'] = el => { U.editTask = U.editTask === el.dataset.id ? null : el.dataset.id; render(); };
 ACT.emoji = el => { const t = taskById(el.dataset.id); if (t) { t.icon = el.dataset.e; markChanged(); persist('cfg/main'); render(); } };
@@ -2731,13 +2954,14 @@ ACT['task-del'] = el => {
     U.editTask = null; markChanged(); persist('cfg/main'); render();
   });
 };
-ACT['reset-ask'] = () => confirmSheet({ title: 'Alles zurücksetzen?', text: 'Alle Tage, Diamanten, Wolken, Sticker und Einstellungen werden gelöscht. Das lässt sich nicht rückgängig machen.', ok: 'Ja, alles löschen', danger: true }, resetAll);
+ACT['reset-ask'] = () => confirmSheet({ title: 'Alles zurücksetzen?', text: 'Alle Tage, Diamanten, Wolken, Sticker, Buchungen auf dem Konto und Einstellungen werden gelöscht. Das lässt sich nicht rückgängig machen.', ok: 'Ja, alles löschen', danger: true }, resetAll);
 async function resetAll() {
-  const ids = Object.keys(S.days);
-  S.days = {}; S.cfg = defaultCfg(); S.prog = normProg(); markChanged();
+  const ids = Object.keys(S.days), kids = Object.keys(S.konto || {});
+  S.days = {}; S.konto = {}; S.cfg = defaultCfg(); S.prog = normProg(); markChanged();
   U.unlocked = false; U.editTask = null; U.bars = {}; U.celebQ = []; U.dig = { taps: 0 }; U.hasCfg = false;
   render();
   for (const id of ids) await flushKey('days/' + id);
+  for (const id of kids) await flushKey('konto/' + id);
   await flushKey('cfg/main'); await flushKey('cfg/progress');
   openOnboard();
 }
@@ -2787,11 +3011,13 @@ function bindEvents() {
     const el = ev.target;
     if (el.dataset && el.dataset.bind) bindInput(el);
     else if (el.dataset && el.dataset.ex && U.ex) U.ex.t = el.value;
+    else if (el.dataset && el.dataset.kx && U.kx) { U.kx[el.dataset.kx] = el.value; const a = $('#kx-after'); if (a) a.textContent = kxAfter(); }
     else if (el.dataset && el.dataset.ob && U.ob) {
       const k = el.dataset.ob; U.ob[k] = k === 'pin' ? el.value.replace(/\D/g, '').slice(0, 4) : el.value;
       if (k === 'pin' && el.value !== U.ob.pin) el.value = U.ob.pin;
     }
   });
+  document.addEventListener('focusin', ev => { const g = ev.target.dataset && ev.target.dataset.goalId; if (g) U.lastGoal = g; });
   document.addEventListener('change', ev => { if (ev.target.dataset && ev.target.dataset.bind) persist('cfg/main'); });
   document.addEventListener('contextmenu', ev => { if (ev.target.closest('.digbtn, .stage')) ev.preventDefault(); });
   /* Gedrückt halten (ab 0,6 s) gräbt alle wartenden Diamanten aus. */
@@ -2804,7 +3030,7 @@ function bindEvents() {
   };
   document.addEventListener('pointerup', endHold); document.addEventListener('pointercancel', endHold);
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { U.hiddenAt = Date.now(); Say.stop(); }
+    if (document.hidden) { U.hiddenAt = Date.now(); if (typeof gamePause === 'function') gamePause(); }
     else { if (U.unlocked && U.hiddenAt && Date.now() - U.hiddenAt > 60000) lockNow(); tick(); }
   });
 }
@@ -2839,16 +3065,213 @@ function boot() {
   document.body.insertAdjacentHTML('afterbegin', SVG_DEFS);
   try {
     U.muted = localStorage.getItem('dia-muted') === '1';
-    U.speak = localStorage.getItem('dia-speak') !== '0';
   } catch (e) { /* ohne Speicher geht es auch */ }
-  Snd.setMuted(U.muted); Say.setOn(U.speak);
+  Snd.setMuted(U.muted);
   FX.init(); bindEvents(); render();
   setInterval(tick, 20000);
   if (window.__PWA__ && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* ohne Offline-Hülle geht es auch */ });
   initStore();
 }
-boot();
 
+/* ============ Spielwiese: Mini-Spiele nur zum Spaß ============
+   Memory (Paare finden), Hütchen (Wo ist der Diamant?) und Sternenregen (fallende Diamanten fangen).
+   Keines bringt Diamanten, keines kennt Verlieren: Es gibt nur „Nochmal!“. Bestwerte stehen in cfg/progress (prog.games).
+   Die Spiele laufen in einem Fenster (Sheet „sheet-game“); Schließen beendet alle Zeitgeber (gameStop, aus closeSheet). */
+let gameTimers = [];
+const gLater = (fn, ms) => { const t = setTimeout(fn, ms); gameTimers.push(t); return t; };
+function gameStop() {
+  gameTimers.forEach(clearTimeout); gameTimers = [];
+  if (U.game && U.game.raf) cancelAnimationFrame(U.game.raf);
+  U.game = null; window.__game = null;
+}
+/* App im Hintergrund: Sternenregen endet sofort (sonst liefe die Zeit unsichtbar ab). */
+function gamePause() { if (U.game && U.game.id === 'catch' && U.game.phase === 'play') catchEnd(); }
+const gameAlive = g => U.game === g && U.sheet === 'sheet-game';
+function gameBest(id) { return ((S.prog.games || {})[id]); }
+/* Merkt sich einen neuen Bestwert (better: neu besser als alt?). Liefert true bei neuem Rekord. */
+function gameRecord(id, v, better) {
+  const gs = S.prog.games || (S.prog.games = {}), old = gs[id];
+  if (old != null && !better(v, old)) return false;
+  gs[id] = v; markChanged();
+  if (!U.readonly) persist('cfg/progress');
+  return old != null;
+}
+const GAME_TITLE = { memory: 'Edelstein-Memory', cups: 'Wo ist der Diamant?', catch: 'Sternenregen' };
+function gameShell(id, inner, foot) {
+  return '<div class="g-head"><h2>' + GAME_TITLE[id] + '</h2><button class="g-x" data-act="sheet-close" aria-label="Spiel schließen">' + IC.cross + '</button></div>' +
+    '<div class="g-body" id="gbody">' + inner + '</div><div class="g-foot" id="gfoot">' + (foot || '') + '</div>';
+}
+const setFoot = h => { const f = $('#gfoot'); if (f) f.innerHTML = h; };
+const doneFoot = (msg, again) => '<p class="g-msg">' + msg + '</p><div class="row-btns"><button class="btn btn-main" data-act="' + again + '">Nochmal!</button><button class="btn btn-ghost" data-act="sheet-close">Fertig</button></div>';
+
+ACT['game-open'] = el => {
+  const id = el.dataset.game;
+  if (!GAME_TITLE[id]) return;
+  gameStop();
+  openSheet(gameShell(id, '', ''), 'sheet-game');
+  ({ memory: memStart, cups: cupsStart, catch: catchStart })[id]();
+};
+
+/* ---------- Memory: 6 Paare, Karten umdrehen ---------- */
+const MEM_POOL = ['gem:rosa', 'gem:tuerkis', 'gem:topas', 'gem:smaragd', 'gem:saphir', 'gem:amethyst', '🦄', '👑', '🌈', '🦋', '🐬', '🌸', '🧚', '🏰'];
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
+const memFace = v => (v.indexOf('gem:') === 0 ? gemSVG(v.slice(4), 54) : '<span class="emo">' + v + '</span>');
+function memStart() {
+  const pick = shuffle(MEM_POOL.slice()).slice(0, 6);
+  const g = U.game = { id: 'memory', cards: shuffle(pick.concat(pick)).map(v => ({ v, open: false, done: false })), first: -1, lock: false, moves: 0, found: 0 };
+  window.__game = g;
+  const b = $('#gbody'); if (!b) return;
+  b.innerHTML = '<div class="mem-grid">' + g.cards.map((c, i) => '<button class="mcard" data-act="mem-flip" data-i="' + i + '" aria-label="Karte ' + (i + 1) + '"><span class="mc-in"><span class="mc-back">' + sparkleSVG(30, '#ffffff') + '</span><span class="mc-front">' + memFace(c.v) + '</span></span></button>').join('') + '</div>';
+  const best = gameBest('memory');
+  setFoot('<p class="g-msg">Finde die Paare! Tippe zwei Karten an.' + (best ? ' Rekord: ' + best + ' Züge.' : '') + '</p>');
+}
+function memPaint(i) {
+  const g = U.game, c = g.cards[i], el = $('.mcard[data-i="' + i + '"]'); if (!el) return;
+  el.classList.toggle('open', c.open || c.done); el.classList.toggle('done', c.done);
+}
+ACT['mem-flip'] = el => {
+  const g = U.game; if (!g || g.id !== 'memory' || g.lock) return;
+  const i = +el.dataset.i, c = g.cards[i]; if (!c || c.open || c.done) return;
+  c.open = true; memPaint(i); Snd.tap();
+  if (g.first < 0) { g.first = i; return; }
+  const j = g.first, d = g.cards[j]; g.first = -1; g.moves++;
+  if (d.v === c.v) {
+    c.done = d.done = true; g.found++;
+    gLater(() => { if (!gameAlive(g)) return; memPaint(i); memPaint(j); Snd.gem(); const r = el.getBoundingClientRect(); FX.pop(r.left + r.width / 2, r.top + r.height / 2, ['✨']); if (g.found === g.cards.length / 2) memDone(g); }, 250);
+  } else {
+    g.lock = true;
+    gLater(() => { if (!gameAlive(g)) return; c.open = d.open = false; memPaint(i); memPaint(j); g.lock = false; Snd.soft(); }, 900);
+  }
+};
+function memDone(g) {
+  const rec = gameRecord('memory', g.moves, (a, b) => a < b);
+  g.over = true;
+  Snd.fanfare(); FX.party(['💎', '✨', '🦄']); Hap.go([30, 40, 30]);
+  setFoot(doneFoot('<b>Alle Paare gefunden!</b> ' + g.moves + ' Züge.' + (rec ? ' Neuer Rekord!' : ''), 'mem-again'));
+}
+ACT['mem-again'] = () => { gameStop(); U.sheet = 'sheet-game'; memStart(); };
+
+/* ---------- Hütchen: Der Diamant liegt unter einem von drei Hütchen, die Hütchen werden vertauscht ---------- */
+const cupSVG = () => '<svg viewBox="0 0 100 96" aria-hidden="true" focusable="false"><path d="M18 90 32 14Q50 2 68 14L82 90z" fill="#ff8fc1" stroke="#b5447a" stroke-width="3.5" stroke-linejoin="round"/>' +
+  '<path d="M24 62q26 8 52 0" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".85"/><ellipse cx="50" cy="90" rx="34" ry="6" fill="#e0609d" stroke="#b5447a" stroke-width="3"/>' +
+  '<path d="' + sparklePath(42, 36, 6) + '" fill="#fff"/><circle cx="50" cy="9" r="6" fill="url(#gGold)" stroke="#ad7706" stroke-width="2"/></svg>';
+function cupsStart(keepStreak) {
+  const prev = U.game && U.game.id === 'cups' ? U.game.streak : 0;
+  const g = U.game = { id: 'cups', slots: [0, 1, 2], gem: Math.floor(Math.random() * 3), phase: 'show', streak: keepStreak ? prev : 0 };
+  window.__game = g;
+  const b = $('#gbody'); if (!b) return;
+  b.innerHTML = '<div class="cups-stage">' + [0, 1, 2].map(c => '<div class="cupw" data-cup="' + c + '" style="left:' + (c * 33.333) + '%">' + (c === g.gem ? '<span class="cup-gem">' + gemSVG('weiss', 54) + '</span>' : '') +
+    '<button class="cup up" data-act="cup-pick" data-cup="' + c + '" aria-label="Hütchen ' + (c + 1) + '" disabled>' + cupSVG() + '</button></div>').join('') + '</div>';
+  setFoot('<p class="g-msg">' + (g.streak ? '<b>' + g.streak + '× gefunden!</b> ' : '') + 'Schau genau hin: Hier ist der Diamant!</p>');
+  gLater(() => { if (!gameAlive(g)) return; $$('.cup').forEach(c => c.classList.remove('up')); Snd.soft(); }, 1300);
+  gLater(() => { if (gameAlive(g)) cupsShuffle(g); }, 1800);
+}
+function cupsPlace(g) {
+  $$('.cupw').forEach(w => { const c = +w.dataset.cup; w.style.left = (g.slots[c] * 33.333) + '%'; });
+}
+function cupsShuffle(g) {
+  g.phase = 'shuffle';
+  setFoot('<p class="g-msg">Die Hütchen tanzen …</p>');
+  const n = 3 + Math.min(g.streak, 5), ms = Math.max(260, 480 - g.streak * 35);
+  const stage = $('.cups-stage'); if (stage) stage.style.setProperty('--sw', ms + 'ms');
+  let k = 0;
+  const step = () => {
+    if (!gameAlive(g)) return;
+    if (k++ >= n) { g.phase = 'pick'; $$('.cup').forEach(c => { c.disabled = false; }); setFoot('<p class="g-msg"><b>Wo ist der Diamant?</b> Tippe auf ein Hütchen.</p>'); return; }
+    const a = Math.floor(Math.random() * 3), b = (a + 1 + Math.floor(Math.random() * 2)) % 3;
+    const ca = g.slots.indexOf(a), cb = g.slots.indexOf(b);
+    g.slots[ca] = b; g.slots[cb] = a; cupsPlace(g); Snd.tap();
+    gLater(step, ms + 60);
+  };
+  step();
+}
+ACT['cup-pick'] = el => {
+  const g = U.game; if (!g || g.id !== 'cups' || g.phase !== 'pick') return;
+  const c = +el.dataset.cup; g.phase = 'reveal';
+  $$('.cup').forEach(x => { x.disabled = true; });
+  el.classList.add('up');
+  if (c === g.gem) {
+    g.streak++;
+    const rec = gameRecord('cups', g.streak, (a, b) => a > b);
+    Snd.gem(); Hap.go([20, 30, 20]);
+    const r = el.getBoundingClientRect(); FX.pop(r.left + r.width / 2, r.top + r.height, ['💎', '✨']);
+    setFoot(doneFoot('<b>Gefunden!</b> ' + (g.streak > 1 ? g.streak + '-mal hintereinander.' : 'Super aufgepasst!') + (rec ? ' Neuer Rekord!' : ''), 'cups-again'));
+  } else {
+    Snd.soft();
+    gLater(() => { if (!gameAlive(g)) return; const right = $('.cup[data-cup="' + g.gem + '"]'); if (right) right.classList.add('up'); }, 500);
+    g.streak = 0;
+    setFoot(doneFoot('<b>Fast!</b> Hier war er versteckt. Nochmal?', 'cups-again'));
+  }
+};
+ACT['cups-again'] = () => { const keep = U.game && U.game.id === 'cups'; gameTimers.forEach(clearTimeout); gameTimers = []; cupsStart(keep); };
+
+/* ---------- Sternenregen: 25 Sekunden fallende Diamanten antippen ---------- */
+const CATCH_SECS = 25;
+const CATCH_COLS = ['weiss', 'rosa', 'tuerkis', 'topas', 'smaragd', 'saphir', 'amethyst'];
+function catchStart() {
+  const g = U.game = { id: 'catch', phase: 'ready', score: 0, items: [], raf: 0, t0: 0, last: 0, spawnIn: 0 };
+  window.__game = g;
+  const b = $('#gbody'); if (!b) return;
+  const best = gameBest('catch');
+  b.innerHTML = '<div class="catch-top"><span class="ct-score" aria-live="polite">' + gemMini(22) + '<b id="ctScore">0</b></span><span class="ct-time"><i id="ctTime" style="width:100%"></i></span></div>' +
+    '<div class="catch-area" id="carea"><div class="catch-start"><p>Tippe die fallenden Diamanten an!<br>Regenbogen-Diamanten zählen 3.</p>' + (best ? '<p class="hint">Dein Rekord: ' + best + '</p>' : '') + '<button class="btn btn-main" data-act="catch-go">Los!</button></div></div>';
+  setFoot('<p class="g-msg">Nur zum Spaß: Hier gibt es keine echten Diamanten.</p>');
+  const area = $('#carea');
+  area.addEventListener('pointerdown', ev => {
+    const el = ev.target.closest('.fall'); if (!el || !U.game || U.game !== g || g.phase !== 'play') return;
+    ev.preventDefault();
+    const it = g.items.find(x => x.el === el); if (!it || it.hit) return;
+    it.hit = true; g.score += it.pts; el.classList.add('hit');
+    const s = $('#ctScore'); if (s) s.textContent = g.score;
+    if (it.pts > 1) Snd.sparkle(); else Snd.gem();
+    const r = el.getBoundingClientRect(); FX.pop(r.left + r.width / 2, r.top + r.height / 2, it.pts > 1 ? ['🌈', '✨'] : ['✨']);
+    gLater(() => el.remove(), 260);
+  });
+}
+ACT['catch-go'] = () => {
+  const g = U.game; if (!g || g.id !== 'catch' || g.phase !== 'ready') return;
+  const st = $('.catch-start'); if (st) st.remove();
+  g.phase = 'play'; g.t0 = performance.now(); g.last = g.t0; g.spawnIn = 0;
+  const loop = now => {
+    if (!gameAlive(g) || g.phase !== 'play') return;
+    const dt = Math.min(64, now - g.last) / 1000, el = (now - g.t0) / 1000; g.last = now;
+    const area = $('#carea'); if (!area) return;
+    const H = area.clientHeight, W = area.clientWidth;
+    g.spawnIn -= dt;
+    if (g.spawnIn <= 0) {
+      const rb = Math.random() < .09, size = rb ? 64 : 50 + Math.round(Math.random() * 10);
+      const n = document.createElement('button');
+      n.className = 'fall' + (rb ? ' rb' : ''); n.type = 'button'; n.setAttribute('aria-label', rb ? 'Regenbogen-Diamant' : 'Diamant');
+      n.innerHTML = gemSVG(rb ? 'regenbogen' : CATCH_COLS[Math.floor(Math.random() * CATCH_COLS.length)], size);
+      const x = Math.random() * Math.max(10, W - size - 8) + 4;
+      n.style.left = x + 'px'; n.style.transform = 'translateY(-70px)';
+      area.appendChild(n);
+      g.items.push({ el: n, y: -70, v: (H * .32) + el * (H * .018) + Math.random() * 40, pts: rb ? 3 : 1, hit: false });
+      g.spawnIn = Math.max(.42, .85 - el * .018);
+    }
+    g.items = g.items.filter(it => {
+      if (it.hit) return true;
+      it.y += it.v * dt; it.el.style.transform = 'translateY(' + it.y.toFixed(1) + 'px)';
+      if (it.y > H + 10) { it.el.remove(); return false; }
+      return true;
+    }).filter(it => !(it.hit && !it.el.isConnected));
+    const left = Math.max(0, 1 - el / CATCH_SECS), bar = $('#ctTime'); if (bar) bar.style.width = (left * 100).toFixed(1) + '%';
+    if (el >= CATCH_SECS) { catchEnd(); return; }
+    g.raf = requestAnimationFrame(loop);
+  };
+  g.raf = requestAnimationFrame(loop);
+};
+function catchEnd() {
+  const g = U.game; if (!g || g.id !== 'catch' || g.phase !== 'play') return;
+  g.phase = 'over'; cancelAnimationFrame(g.raf);
+  $$('#carea .fall').forEach(n => n.remove()); g.items = [];
+  const rec = gameRecord('catch', g.score, (a, b) => a > b);
+  if (g.score > 0) { Snd.fanfare(); FX.party(['💎', '✨', '🌈']); }
+  setFoot(doneFoot('<b>' + (g.score === 1 ? 'Ein Diamant gefangen!' : g.score + ' Diamanten gefangen!') + '</b>' + (rec ? ' Neuer Rekord!' : ''), 'catch-again'));
+}
+ACT['catch-again'] = () => { gameStop(); U.sheet = 'sheet-game'; catchStart(); };
+
+boot();
 })();
 </script>
 </body>

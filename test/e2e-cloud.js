@@ -123,7 +123,7 @@ async function enter(page, name) {          // Einrichtung durchspielen
   await page.fill('#ob-name', 'Lia'); await page.click('[data-act="ob-go"]'); await h.wait(1200);
   ok('B Einrichtung fertig: App läuft, sieben Aufgaben', await h.cnt('.tabs') === 1 && await h.cnt('.task') === 7);
   const cfg1 = await waitFor(() => getDoc('cfg/main'), 8000);
-  ok('B Einstellungen liegen in Firestore unter dem Familiencode', !!cfg1 && cfg1.name === 'Lia' && cfg1.v === 1 && cfg1.tasks.length === 7, cfg1 ? 'Name ' + cfg1.name + ', ' + cfg1.tasks.length + ' Aufgaben' : 'nichts');
+  ok('B Einstellungen liegen in Firestore unter dem Familiencode', !!cfg1 && cfg1.name === 'Lia' && cfg1.v === 2 && cfg1.tasks.length === 7, cfg1 ? 'Name ' + cfg1.name + ', ' + cfg1.tasks.length + ' Aufgaben' : 'nichts');
   ok('B Fortschritt (Sticker, Schätze) ebenfalls', !!(await waitFor(() => getDoc('cfg/progress'), 6000)));
   const dev1 = page;
 
@@ -155,6 +155,17 @@ async function enter(page, name) {          // Einrichtung durchspielen
   ok('C gegrabener Diamant steht in Firestore (dg = 1)', !!dug);
   const dug1 = await waitFor(async () => (await h.txt('#chestN')) === '1', 8000);
   ok('C und live auf Gerät 1 (Truhe 1, noch einer wartet)', !!dug1 && (await h.txt('.wait-bubble')) === '1', await h.txt('#chestN'));
+
+  // Konto: Buchung auf Gerät 1 (Eltern-Modus) liegt als eigenes Dokument in Firestore und erscheint live auf Gerät 2
+  await dev1.click('.tab[data-tab="konto"]'); await h.wait(300);
+  await dev1.click('[data-act="konto-open"][data-k="plus"]'); await h.wait(250);
+  await dev1.fill('#kx-amt', '2'); await dev1.click('[data-act="kx-save"]'); await h.wait(600);
+  const kdocs = await waitFor(async () => { const l = await listDocs('konto'); return l.length === 1 && l[0].data.c === 200 ? l : null; }, 8000);
+  ok('C Konto-Buchung liegt in Firestore (konto/<id>, 200 Cent)', !!kdocs);
+  await dev2.click('.tab[data-tab="konto"]');
+  const k2 = await waitFor(async () => (await h2.txt('#kontoSum')) === '2,00 €', 8000);
+  ok('C und live auf Gerät 2 (Guthaben 2,00 €)', !!k2, await h2.txt('#kontoSum'));
+  await dev1.click('.tab[data-tab="today"]'); await dev2.click('.tab[data-tab="today"]'); await h.wait(400);
 
   // ---- D) Offline: schreiben, neu laden, später ankommen ----
   await dev1.evaluate(() => navigator.serviceWorker.ready); await h.wait(500);
