@@ -7,7 +7,7 @@ Belohnungs-App für ein Mädchen (5, bald 6), Schwester der Torjäger-App für d
 
 ## Stand in einem Satz
 
-Die **App ist fertig gebaut und getestet** (Regeln, Optik, Graben, Spielwiese mit drei Mini-Spielen, Wolken, Schätze mit Beispiel-Belohnungen, Guthabenkonto, Album, Woche, Eltern-Bereich; Vorlesen hat der Nutzer gestrichen), aber **noch nicht veröffentlicht**: Es fehlen das Repo `diamanten-reich`, der Familiencode in den Firestore-Regeln und Pages (Einrichtung in `UEBERGABE.md`, Abschnitt 10). Die offenen Fragen an den Nutzer sind mit Vorgaben belegt, die er im Eltern-Bereich ändern kann (`UEBERGABE.md`, Abschnitt 4). Auf einem echten iPhone ist diese App noch nicht geprüft.
+Die **App ist fertig gebaut und getestet** (Regeln, Optik, Graben, Spielwiese mit drei Mini-Spielen, Wolken, Schätze mit Beispiel-Belohnungen, Guthabenkonto, Album, Woche, Eltern-Bereich; Vorlesen hat der Nutzer gestrichen), und **seit 14.11.2026 live**: Repo `a-heuberger/diamanten-reich` (`main`), Pages unter `https://a-heuberger.github.io/diamanten-reich/`, Familiencode in den Firestore-Regeln neben dem der Torjäger-App (von außen geprüft). **Jeder Push auf `main` ist sofort live für die Familie.** Der Nutzer richtet die App auf dem iPhone ein; ein Test auf dem echten Gerät steht noch aus.
 
 ## Namen und Datenschutz im öffentlichen Repo
 
@@ -47,7 +47,8 @@ Vor jedem Push auf `main` müssen **alle** Suiten grün sein: Push = live für d
 ## Veröffentlichung und Repo
 
 - Ziel: eigenes öffentliches Repo `a-heuberger/diamanten-reich`, Branch `main`, GitHub Pages (Settings → Pages → Branch `main`, Ordner `/docs`) unter `https://a-heuberger.github.io/diamanten-reich/`, also in einem **Unterpfad**: nur relative Pfade (Manifest, Symbole, `sw.js`), nie ein führendes `/`. `test/subpath.js` fängt das ab.
-- **Vorläufiger Aufbewahrungsort:** Branch `schwester-app` (eigene Historie) im Repo `a-heuberger/torjaeger-app`. Er wird dort nicht ausgeliefert (Pages liest nur `main`). Sobald der Nutzer das neue Repo angelegt hat (leer, öffentlich, ohne README): `git push https://github.com/a-heuberger/diamanten-reich schwester-app:main`, dann nur noch dort arbeiten und diesen Satz hier anpassen.
+- **Hier wird gearbeitet:** `a-heuberger/diamanten-reich`, Branch `main` (am Mac des Nutzers: `~/Claude/diamanten-reich`). Der alte Branch `schwester-app` im Repo der Torjäger-App ist nur noch Archiv und wird nicht mehr gepflegt.
+- Am Mac des Nutzers ist `gh` als `a-heuberger` angemeldet (Repos anlegen, Pages schalten, Pages-Status: `gh api repos/a-heuberger/diamanten-reich/pages --jq .status`). Firebase-Konsole ging am 14.11. direkt über Claude in Chrome (Regeln-Editor: Cursor ans Zeilenende setzen und neuen Block tippen; der Editor schließt Klammern selbst, danach den Text per `get_page_text` vergleichen).
 - Pushen aus einer Claude-Sitzung: Repo mit `add_repo` (Zugriff `push`) anhängen, dann normal `git push`. Das läuft über die Claude-GitHub-App, die auf dem Konto `a-heuberger` für alle Repositories freigegeben ist. Meldet GitHub **403 „repo_not_connected“**, fehlt der App der Zugriff (github.com/settings/installations → Claude → Configure; nur der Kontoinhaber kann das). Das Anlegen eines Repos über die Werkzeuge geht nicht (403), das macht der Nutzer.
 - Die Cloud-Sitzung hat keinen Browser und erreicht den Computer des Nutzers nicht (auch nicht mit „du bist eingeloggt“). Konsolen- und Einstellungsschritte (GitHub, Firebase) erledigt der Nutzer selbst oder **das Claude-Fenster in seinem Chrome**: ein vollständiger Auftrag zum Einfügen, das Ergebnis kommt als Text zurück. Für Pages und Firebase hat das bei der Torjäger-App so funktioniert. Danach immer von außen nachprüfen (Pages-Lauf über die GitHub-Werkzeuge, Regeln per REST).
 

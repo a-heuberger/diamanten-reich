@@ -54,13 +54,13 @@ Der Nutzer war beim Bau nicht erreichbar und hat gebeten, ohne Rückfragen ferti
 
 **Torjäger-App:** unverändert (Branch `main`, nicht angefasst).
 
-**Diamanten-Reich (Branch `schwester-app`):** fertig gebaut, alle Suiten grün am 14.11. (nach Konto, Spielwiese, ohne Vorlesen): Regeln 79, Claude-Seite 95 (`test/e2e-dia.js`, ersetzt die alten Fußball-Tests e2e/e2e4/e2e6/e2e7), Web-App gegen den Firestore-Emulator alle Prüfungen (einschließlich Graben und Konto-Buchung über zwei Geräte, offline, iPhone-Statusleiste), Unterpfad alle. `docs/` ist eingecheckt (gebaut). Bildschirmfotos in iPhone-Größe erzeugt `test/e2e-dia.js` nach `shots/` (nicht im Repo).
+**Diamanten-Reich (seit 14.11. live, Repo `a-heuberger/diamanten-reich`, Branch `main`):** fertig gebaut, alle Suiten grün am 14.11. (nach Konto, Spielwiese, ohne Vorlesen): Regeln 79, Claude-Seite 95 (`test/e2e-dia.js`, ersetzt die alten Fußball-Tests e2e/e2e4/e2e6/e2e7), Web-App gegen den Firestore-Emulator alle Prüfungen (einschließlich Graben und Konto-Buchung über zwei Geräte, offline, iPhone-Statusleiste), Unterpfad alle. `docs/` ist eingecheckt (gebaut). Bildschirmfotos in iPhone-Größe erzeugt `test/e2e-dia.js` nach `shots/` (nicht im Repo).
 
 **Vorschau:** Die Claude-Seite (`build/diamanten.html`) ist als **private** Claude-Seite veröffentlicht (Adresse nur im Chat, nicht im Repo), Speicher = Claude-db der Seite, getrennt von Firestore. Zum Ausprobieren; was dort eingetragen wird, wandert nicht in die Web-App.
 
-**Firebase:** unverändert. Die Regeln enthalten weiter nur den Code der Torjäger-App. Ein neuer Code für diese App ist gewürfelt und liegt mit dem fertigen Regeltext (beide Codes), dem Familienlink und dem Chrome-Auftrag auf dem Mac des Nutzers in `~/Claude/diamanten-privat/` (außerhalb des Repos). Fehlt der Ordner: neu würfeln (`node tools/familiencode.js`), der alte wurde nie verwendet.
+**Firebase:** Die Regeln enthalten seit 14.11. beide Familiencodes (Torjäger-App und diese App), veröffentlicht über die Firebase-Konsole und von außen geprüft (beide Codes lesen/schreiben, falscher Code 403, Familienliste 403, Bens Stand unverändert). Der alte Regeltext, der Code dieser App, der Regeltext mit beiden Codes und der Familienlink liegen auf dem Mac des Nutzers in `~/Claude/diamanten-privat/` (außerhalb des Repos).
 
-**Noch nicht vorhanden:** Repo `diamanten-reich`, Pages, Code in den Regeln, Prüfung auf einem echten iPhone (Ton, Graben und Spiele mit dem Finger, Statusleiste).
+**Live seit 14.11.:** Repo, Pages (`https://a-heuberger.github.io/diamanten-reich/`), Regeln. Rauchtest mit dem echten Link (nur lesend): Einrichtung erscheint, keine Fehler, nichts geschrieben. **Noch offen:** Einrichtung und Test auf dem echten iPhone (Ton, Graben und Spiele mit dem Finger, Statusleiste).
 
 ## 6. Code-Landkarte
 
@@ -85,7 +85,7 @@ Der Nutzer war beim Bau nicht erreichbar und hat gebeten, ohne Rückfragen ferti
 ## 9. Nächste Schritte
 
 1. Antworten des Nutzers auf Abschnitt 4 einarbeiten (Aufgaben, Belohnungen; Aussehen stellt er bei der Einrichtung selbst ein).
-2. Veröffentlichung nach Abschnitt 10 (Auftrag für das Chrome-Fenster liegt im Chat bereit).
+2. ~~Veröffentlichung nach Abschnitt 10~~ erledigt am 14.11.
 3. Test auf dem echten iPhone durch den Nutzer; danach Feinschliff.
 4. Optional KI-Bilder nach Preisangabe und Freigabe.
 
@@ -118,4 +118,4 @@ Der Nutzer war beim Bau nicht erreichbar und hat gebeten, ohne Rückfragen ferti
 
 ## 13. Startprompt für den nächsten Chat (ohne Zugangsdaten)
 
-> Wir machen weiter mit der Diamanten-App für meine Tochter (Schwester der Torjäger-App). Hänge `a-heuberger/torjaeger-app` mit Push-Zugriff an, klone den Branch `schwester-app`, lies `AGENTS.md` und `UEBERGABE.md` komplett. Die App ist gebaut; arbeite meine Antworten auf Abschnitt 4 ein und veröffentliche sie nach Abschnitt 10. Den Familienlink der Torjäger-App gebe ich dir im Chat (daraus Firebase-Konfiguration und Bens Code). Regeln wie in `AGENTS.md`: Deutsch, kurz, ehrlich; nie Codes, Konfiguration, Link oder echten Vornamen ins Repo; vor KI-Bildern Preis nennen und fragen; Konsolenschritte als Auftrag für mein Claude-Fenster in Chrome; die Torjäger-App (`main`) nicht ändern, ohne dass ich es sage.
+> Wir machen weiter mit der Diamanten-App für meine Tochter (Schwester der Torjäger-App). Arbeite in `a-heuberger/diamanten-reich` (Branch `main`, am Mac `~/Claude/diamanten-reich`), lies `AGENTS.md` und `UEBERGABE.md` komplett. Die App ist live; jeder Push auf `main` geht sofort an die Familie, also vorher alle Tests. Den Familienlink der Torjäger-App gebe ich dir im Chat (daraus Firebase-Konfiguration und Bens Code). Regeln wie in `AGENTS.md`: Deutsch, kurz, ehrlich; nie Codes, Konfiguration, Link oder echten Vornamen ins Repo; vor KI-Bildern Preis nennen und fragen; Konsolenschritte als Auftrag für mein Claude-Fenster in Chrome; die Torjäger-App (`main`) nicht ändern, ohne dass ich es sage.
