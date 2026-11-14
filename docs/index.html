@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-/qkqn3rM+3fsKJ2td7yAbQSyfG9hL+ejcQy+sEJu9Vo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google.com; font-src 'self'; connect-src 'self' https://firestore.googleapis.com wss://firestore.googleapis.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-eVki8oIMCD4W5MUfIaeHcqwNvyQlgtW7mQadGS5tffQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google.com; font-src 'self'; connect-src 'self' https://firestore.googleapis.com wss://firestore.googleapis.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <title>Diamanten</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0b5563">
@@ -410,8 +410,6 @@ button.packline .pl-go { margin-left: auto; }
 .pl-go svg { width: 16px; height: 16px; }
 .tl-gem { flex: none; }
 .hint.big { font-size: 17px; color: var(--ink); }
-.tiers-gap { text-align: center; color: var(--ink-3); font-weight: 900; letter-spacing: .3em; }
-.more-goals { justify-self: center; }
 .pl-tx b { font: 700 17px var(--f-display); color: #4b2a96; }
 .pl-tx small { font-size: 13.5px; color: #5c4a85; }
 .tally { padding: 6px 14px; display: grid; }
@@ -470,6 +468,23 @@ button.packline .pl-go { margin-left: auto; }
 .sticker.big .nm2 { font-size: 18px; }
 .sticker.big .pt { width: 30px; height: 30px; font-size: 15px; line-height: 26px; }
 .sticker.pop { animation: stampIn .7s cubic-bezier(.3, 1.6, .5, 1); }
+/* Zauberbeutel: Enthüllung, Wegrutschen, Flug ins Album */
+.emblem.reveal-wrap { position: relative; animation: none; }
+.reveal-glow { position: absolute; left: 50%; top: 50%; width: 260px; height: 260px; margin: -130px 0 0 -130px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 246, 200, 1) 0, rgba(255, 201, 60, .55) 38%, rgba(255, 201, 60, 0) 70%); animation: glowIn 1.1s ease-out both, glowPulse 2.4s ease-in-out 1.1s infinite; pointer-events: none; }
+@keyframes glowIn { from { transform: scale(.2); opacity: 0 } 60% { transform: scale(1.25); opacity: 1 } to { transform: scale(1) } }
+@keyframes glowPulse { 0%, 100% { transform: scale(1); opacity: .9 } 50% { transform: scale(1.08); opacity: 1 } }
+.sticker.reveal { position: relative; animation: reveal 1s cubic-bezier(.25, 1.2, .45, 1) both; }
+@keyframes reveal { from { transform: perspective(700px) rotateY(540deg) scale(.25); opacity: 0 } 25% { opacity: 1 } to { transform: perspective(700px) rotateY(0) scale(1) } }
+.late { animation: lateIn .45s ease-out both; }
+.late.l1 { animation-delay: .55s } .late.l2 { animation-delay: .8s } .late.l3 { animation-delay: 1s } .late.l4 { animation-delay: 1.25s }
+@keyframes lateIn { from { opacity: 0; transform: translateY(10px) } }
+.sticker.tuck { animation: tuck .6s cubic-bezier(.5, 0, .75, 0) forwards; }
+@keyframes tuck { to { transform: translateY(55vh) scale(.25) rotate(12deg); opacity: 0 } }
+.flysticker { position: fixed; z-index: 96; pointer-events: none; transform-origin: 0 0; filter: drop-shadow(0 10px 18px rgba(75, 42, 150, .4)); }
+.flysticker .sticker { width: 100%; margin: 0; animation: none; }
+.sticker.landing { visibility: hidden; }
+.sticker.landed { animation: landed .7s cubic-bezier(.3, 1.6, .5, 1); box-shadow: 0 0 0 3px var(--gold), 0 0 22px rgba(255, 201, 60, .9); }
+@keyframes landed { 0% { transform: scale(1.25) } 60% { transform: scale(.94) } 100% { transform: none } }
 .stbig-wrap { display: grid; place-items: center; padding: 6px 0; }
 
 /* ---------- Eltern ---------- */
@@ -747,7 +762,7 @@ function isoWeek(s) {
 }
 
 /* ---------- Voreinstellungen ---------- */
-const CFG_V = 2;
+const CFG_V = 3;
 const SLOTS = { morgens: 'Morgens', abends: 'Abends' };
 const HAIR = { braun: { name: 'Braun', fill: '#7a4a2a', dark: '#5a331b' }, blond: { name: 'Blond', fill: '#f2c45a', dark: '#c99a2e' }, schwarz: { name: 'Schwarz', fill: '#2d2433', dark: '#16111a' }, rot: { name: 'Rot', fill: '#d4643a', dark: '#a8461f' }, hellbraun: { name: 'Hellbraun', fill: '#b07a4a', dark: '#83572f' } };
 const DRESS = { tuerkis: { name: 'Türkis', fill: '#2cc6c3', dark: '#14918f' }, rosa: { name: 'Rosa', fill: '#ff8fc1', dark: '#e0609d' }, lila: { name: 'Lila', fill: '#a98bff', dark: '#7c5ce0' }, gold: { name: 'Gold', fill: '#ffc93c', dark: '#d79a12' }, blau: { name: 'Blau', fill: '#5aa8ff', dark: '#2f7fdc' } };
@@ -760,7 +775,9 @@ const DEFAULT_GOALS = [
   [100, '5 € aufs Guthabenkonto'],
   [150, 'Ausflug in den Zoo'],
   [200, 'Neues Buch oder Spiel aussuchen'],
+  [250, 'Bastel- oder Malset aussuchen'],
   [300, '10 € aufs Guthabenkonto'],
+  [400, 'Ausflug zum Ponyhof'],
   [500, 'Ausflug in den Freizeitpark'],
 ];
 function defaultCfg() {
@@ -792,7 +809,7 @@ function defaultCfg() {
     ],
     /* Schätze: alle Diamanten zusammen (Aufgaben, Extra-Diamanten, Bonus-Diamanten der Sticker), abzüglich Wolken.
        Der erste nach etwa 2 bis 3 Tagen, danach größere Abstände. Die Belohnungen sind Beispiele, die Eltern ändern sie.
-       „2 € aufs Guthabenkonto“ bucht den Betrag beim Einlösen aufs Konto. Leer = Überraschung. */
+       Geld („2 € aufs Guthabenkonto“) buchen die Eltern selbst im Konto; die App erinnert beim Einlösen daran. Leer = Überraschung. */
     goals: DEFAULT_GOALS.map(g => ({ id: 'g' + g[0], at: g[0], reward: g[1] })),
     chest: { title: 'Der große Schatz' },
     goodReasons: ['Lieb geteilt', 'Toll geholfen', 'Mutig gewesen', 'Gut zugehört', 'Allein geschafft', 'Lieb getröstet'],
@@ -837,6 +854,11 @@ function migrateCfg(c) {
   out.goals = normGoals(old.goals, d.goals);
   /* Fassung 1 hatte leere Belohnungen: Die Vorgabe-Schätze bekommen die Beispiele, eigene Texte bleiben. */
   if ((old.v || 0) < 2) out.goals.forEach(g => { const dg = d.goals.find(x => x.id === g.id && x.at === g.at); if (dg && !String(g.reward || '').trim()) g.reward = dg.reward; });
+  /* Fassung 3 bringt die Zwischenschritte 250 und 400 dazu (einmalig; wer sie danach löscht, behält das). */
+  if (old.v && old.v < 3 && Array.isArray(old.goals)) {
+    [250, 400].forEach(at => { if (!out.goals.some(g => g.at === at || g.id === 'g' + at)) { const dg = d.goals.find(x => x.at === at); out.goals.push({ id: dg.id, at, reward: dg.reward }); } });
+    out.goals = normGoals(out.goals, d.goals);
+  }
   out.yellowPts = clampInt(out.yellowPts, 0, 5, d.yellowPts);
   out.redPts = clampInt(out.redPts, 1, 9, d.redPts);
   out.extraMax = clampInt(out.extraMax, 1, 10, d.extraMax);
@@ -2169,12 +2191,10 @@ function viewAchieve(st) {
     (nx && !nx.last && last ? '<p class="hint">Bis zu „' + esc(S.cfg.chest.title) + '“: noch ' + dia(left) + '.</p>' : '') +
     packLine(st) + '</div></section>';
   h += tally(st);
-  /* Für das Kind: gefundene, der nächste und zwei weitere. Der Rest auf Wunsch (Eltern sehen immer alles). */
-  const ni = nx ? gl.indexOf(nx) : gl.length;
-  const shown = U.unlocked || U.allGoals ? gl : gl.filter((g, i) => g.reached || i <= ni + 2 || g.last);
+  /* Alle Schätze sind immer zu sehen (Wunsch des Nutzers, 14.11.). */
+  const shown = gl;
   h += '<div class="sec-h"><h2>Meine Schätze</h2>' + (U.unlocked ? '<button class="btn btn-ghost btn-sm" data-act="goto-sec" data-sec="schaetze">Schätze ändern</button>' : '<span class="hint">' + gl.filter(g => g.reached).length + ' von ' + gl.length + ' gefunden</span>') + '</div><div class="tiers">' +
-    shown.map((g, i) => (i > 0 && g.last && shown[i - 1] !== gl[gl.length - 2] ? '<p class="tiers-gap" aria-hidden="true">· · ·</p>' : '') + goalRow(g, st, nx && nx.id === g.id)).join('') + '</div>' +
-    (shown.length < gl.length ? '<button class="btn btn-ghost btn-sm more-goals" data-act="all-goals">Alle Schätze zeigen (' + (gl.length - shown.length) + ' mehr)</button>' : '');
+    shown.map(g => goalRow(g, st, nx && nx.id === g.id)).join('') + '</div>';
   const own = S.prog.album || [], foilL = S.prog.foil || [];
   h += '<div class="sec-h"><h2>Sammelalbum</h2><span class="hint">' + own.filter(id => STICKER_BY[id]).length + ' von ' + STICKERS.length + '</span></div>' + stickerPointsCard(st);
   CATS.forEach(cat => {
@@ -2265,7 +2285,7 @@ function viewCoach(st) {
     '<ul class="rules">' +
     '<li>' + IC.hand + '<span><b>Ihr tragt im Eltern-Modus ein</b>, am besten gemeinsam mit ' + esc(c.name) + ': <b>Geschafft</b> bringt einen Diamanten. <b>Nicht geschafft</b> ist neutral: kein Diamant, aber auch kein Minus. Ohne Eltern-Modus kann ' + esc(c.name) + ' nichts selbst abhaken.</span></li>' +
     '<li>' + IC.shovel + '<span><b>Graben:</b> Jeder freigegebene Diamant wartet in der Erde. ' + esc(c.name) + ' tippt ' + (c.digTaps === 1 ? 'einmal' : c.digTaps + '-mal') + ', dann springt er heraus und fliegt in die Truhe. Er zählt aber schon ab der Freigabe.</span></li>' +
-    '<li>' + IC.coin + '<span><b>Konto:</b> Steht bei einem Schatz „2 € aufs Guthabenkonto“, wird der Betrag beim Einlösen gebucht. Gutschreiben, Abbuchen und Auszahlen im Tab Konto.</span></li>' +
+    '<li>' + IC.coin + '<span><b>Konto:</b> Gutschreiben, Abbuchen und Auszahlen macht ihr selbst im Tab Konto. Steht bei einem Schatz Geld („2 € aufs Guthabenkonto“), erinnert die App beim Einlösen daran, bucht aber nichts von allein.</span></li>' +
     '<li>' + cloudSVG('yellow', 26) + '<span><b>Gelbe Wolke</b> = Verwarnung, minus ' + dia(c.yellowPts) + '. Zwei gelbe Wolken werden zur <b>Gewitterwolke</b> (minus ' + c.redPts + ', höchstens einmal am Tag). Wolken verfallen nicht, ihr könnt sie zurücknehmen.</span></li>' +
     '<li>' + gemMini(24) + '<span><b>Schätze:</b> Alle Diamanten zählen zusammen, abzüglich Wolken. Von ' + gs[0].at + ' bis ' + gs[gs.length - 1].at + ' Diamanten.</span></li></ul>' +
     '<div class="row-btns"><button class="btn btn-ghost btn-sm" data-act="parents">Hinweise für Eltern</button><button class="btn btn-ghost btn-sm" data-act="rules">Regeln für ' + esc(c.name) + '</button><button class="btn btn-ghost btn-sm" data-act="lock">' + IC.lock + 'Eltern-Modus beenden</button></div></section>';
@@ -2275,7 +2295,7 @@ function viewCoach(st) {
     '<button class="btn btn-ghost" data-act="task-add">' + IC.plus + 'Neue Aufgabe</button>' +
     '<div class="field"><span>Ideen zum Antippen</span><div class="chips-r ideas" role="group" aria-label="Aufgaben-Ideen">' + TASK_IDEAS.map((t, i) => '<button data-act="task-idea" data-i="' + i + '">' + t[0] + ' ' + esc(t[1]) + '</button>').join('') + '</div></div></section>';
 
-  h += '<section class="card coach-sec" id="sec-schaetze"><h2>Schätze und Belohnungen</h2><p class="hint">Was ' + esc(c.name) + ' bei welchem Stand bekommt. Es zählen alle Diamanten zusammen, abzüglich Wolken. Die Texte sind Beispiele: Ändert sie am besten gemeinsam mit ' + esc(c.name) + '. Ohne Text steht dort „Überraschung!“. Mit „2 € aufs Guthabenkonto“ bucht die App den Betrag beim Einlösen aufs Konto. Bitte nie Mahlzeiten, Schlaf, Kuscheln oder die gewohnte gemeinsame Zeit als Belohnung oder Entzug einsetzen.</p>' +
+  h += '<section class="card coach-sec" id="sec-schaetze"><h2>Schätze und Belohnungen</h2><p class="hint">Was ' + esc(c.name) + ' bei welchem Stand bekommt. Es zählen alle Diamanten zusammen, abzüglich Wolken. Die Texte sind Beispiele: Ändert sie am besten gemeinsam mit ' + esc(c.name) + '. Ohne Text steht dort „Überraschung!“. Geld wie „2 € aufs Guthabenkonto“ bucht ihr nach dem Einlösen selbst im Tab Konto. Bitte nie Mahlzeiten, Schlaf, Kuscheln oder die gewohnte gemeinsame Zeit als Belohnung oder Entzug einsetzen.</p>' +
     gs.map((g, i) => {
       const min = i > 0 ? gs[i - 1].at + 1 : 1, max = i < gs.length - 1 ? gs[i + 1].at - 1 : 100000;
       return '<div class="field goaled"><div class="row-btns" style="align-items:center;justify-content:space-between">' + stepper('goal:' + g.id, 'at', g.at, min, max, g.at < 30 ? 1 : 5, ' ' + gemMini(16)) +
@@ -2406,7 +2426,7 @@ function scheduleCeleb(ms) { clearTimeout(celebT); celebT = setTimeout(checkCele
 
 /* ---------- Feiern: aus den Daten abgeleitet, damit sie auch geräteübergreifend genau einmal kommen ----------
    Gefeiert wird erst, wenn nichts mehr in der Erde wartet (Feier nach dem Graben). Was gezeigt wurde, steht in cfg/progress. */
-function celebBlocked() { return !U.ready || U.readonly || Store.noAccess || Store.gate || U.celeb || U.pack || U.sheet || U.digBusy || U.volley || U.holdAt != null; }
+function celebBlocked() { return !U.ready || U.readonly || Store.noAccess || Store.gate || U.celeb || U.pack || U.sheet || U.digBusy || U.volley || U.flying || U.holdAt != null; }
 function checkCelebs() {
   if (celebBlocked()) { if (U.ready && !U.readonly && !Store.gate) { clearTimeout(celebT); celebT = setTimeout(checkCelebs, 900); } return; }
   const st = ST(), prog = S.prog, shown = prog.shown || (prog.shown = {}), cel = prog.cel;
@@ -2687,21 +2707,12 @@ ACT['cloud-back'] = el => {
 ACT.redeem = el => {
   if (!U.unlocked) return;
   const k = el.dataset.key, g = S.cfg.goals.find(x => x.id === k); if (!g) return;
-  S.prog.redK = S.prog.redK || {};
-  if (S.prog.red[k]) {                                                // zurücknehmen: eine Konto-Gutschrift dazu wird wieder entfernt
-    delete S.prog.red[k];
-    const kid = S.prog.redK[k]; delete S.prog.redK[k];
-    if (kid && S.konto[kid]) { delete S.konto[kid]; persist('konto/' + kid); toast('Zurückgenommen. Die Gutschrift auf dem Konto wurde entfernt.'); }
-  } else {
+  /* Geld bucht ihr selbst (Wunsch des Nutzers, 14.11.): Einlösen erinnert nur daran und führt zum Konto. */
+  if (S.prog.red[k]) delete S.prog.red[k];
+  else {
     S.prog.red[k] = U.today;
-    const cents = rewardMoney(g.reward);                              // „2 € aufs Guthabenkonto“ wird gleich gebucht, damit es nicht vergessen wird
-    if (cents > 0) {
-      const ts = Date.now(), id = 'k' + ts.toString(36) + rid();
-      S.konto[id] = { ts, ds: U.today, c: cents, k: 'plus', t: ('Schatz: ' + dia(g.at)).slice(0, 40) };
-      S.prog.redK[k] = id; persist('konto/' + id);
-      banner({ icon: coinSVG(42), title: esc('+' + fmtEUR(cents) + ' aufs Konto'), sub: esc('Schatz bei ' + dia(g.at) + ' · Guthaben jetzt ' + fmtEUR(kontoBalance(S))), tone: 'gold', ms: 3600, go: 'konto' });
-      Snd.fanfare(); FX.pop(innerWidth / 2, innerHeight / 3, ['🪙', '✨']);
-    }
+    const cents = rewardMoney(g.reward);
+    if (cents > 0) banner({ icon: coinSVG(42), title: esc(fmtEUR(cents) + ' fürs Konto'), sub: 'Noch nicht gebucht. Tippe hier und dann auf „Gutschreiben“.', tone: 'gold', ms: 6000, go: 'konto' });
   }
   markChanged(); persist('cfg/progress'); render();
 };
@@ -2740,19 +2751,61 @@ function paintPack() {
   } else {
     const st = ST(), s = p.sticker, R = RARITY[s.rar], foilKind = p.kind === 'foil';
     const eyebrow = foilKind ? 'Glanz-Sticker!' : s.rar === 'u' ? 'Ultraselten!' : s.rar === 'r' ? 'Selten!' : 'Neu im Album!';
-    c.innerHTML = '<div class="celeb pack open r-' + s.rar + '" role="dialog" aria-modal="true" aria-label="Neuer Sticker"><div class="rays"></div><div class="ce-card"><div class="ce-eyebrow">' + eyebrow + '</div>' +
-      '<div class="emblem">' + stickerBig(s, true, foilKind, 'pop') + '</div><h2 class="ce-title small">' + esc(s.name) + '</h2>' +
-      '<p class="ce-sub fact">' + esc(s.fact) + '</p>' +
-      (foilKind ? '<p class="ce-sub">Dein Sticker glänzt jetzt.</p>' : '<p class="ce-sub sp-line">' + (p.bonusNew > 0 ? '<b class="bonus">💎 Bonus-Diamant!</b> ' : '') + 'Sticker ' + S.prog.album.length + ' von ' + STICKERS.length + ' · ' + R.name + '</p>') +
-      '<div class="row-btns">' + (st.packs.left > 0 ? '<button class="btn btn-main" data-act="pack-again">Nächster Beutel (' + st.packs.left + ')</button>' : '') + '<button class="btn ' + (st.packs.left > 0 ? 'btn-ghost' : 'btn-main') + '" data-act="pack-close">Ins Album</button></div></div></div>';
+    /* Enthüllung: Glanz hinter dem Sticker, der Sticker dreht sich herein, danach erscheinen Name und Steckbrief. */
+    c.innerHTML = '<div class="celeb pack open r-' + s.rar + '" role="dialog" aria-modal="true" aria-label="Neuer Sticker"><div class="rays"></div><div class="ce-card"><div class="ce-eyebrow late l1">' + eyebrow + '</div>' +
+      '<div class="emblem reveal-wrap"><span class="reveal-glow" aria-hidden="true"></span>' + stickerBig(s, true, foilKind, 'reveal') + '</div><h2 class="ce-title small late l2">' + esc(s.name) + '</h2>' +
+      '<p class="ce-sub fact late l3">' + esc(s.fact) + '</p>' +
+      (foilKind ? '<p class="ce-sub">Dein Sticker glänzt jetzt.</p>' : '<p class="ce-sub sp-line late l3">' + (p.bonusNew > 0 ? '<b class="bonus">💎 Bonus-Diamant!</b> ' : '') + 'Sticker ' + S.prog.album.length + ' von ' + STICKERS.length + ' · ' + R.name + '</p>') +
+      '<div class="row-btns late l4">' + (st.packs.left > 0 ? '<button class="btn btn-main" data-act="pack-again">Nächster Beutel (' + st.packs.left + ')</button>' : '') + '<button class="btn ' + (st.packs.left > 0 ? 'btn-ghost' : 'btn-main') + '" data-act="pack-close">Ins Album legen</button></div></div></div>';
   }
 }
 ACT['pack-open'] = () => {
   if (U.readonly || ST().packs.left <= 0) return;
   U.pack = { phase: 'closed' }; document.body.classList.add('noscroll'); paintPack(); Snd.tap();
 };
-ACT['pack-again'] = () => { if (ST().packs.left > 0) { U.pack = { phase: 'closed' }; paintPack(); } else ACT['pack-close'](); };
-ACT['pack-close'] = () => { closeCeleb(); render(); scheduleCeleb(300); };
+/* Nächster Beutel: Der Sticker rutscht erst sichtbar nach unten ins Album, dann kommt der neue Beutel. */
+ACT['pack-again'] = () => {
+  const p = U.pack; if (!p || p.tucking) return;
+  if (ST().packs.left <= 0) { ACT['pack-close'](); return; }
+  const big = $('#celeb .sticker.big');
+  const next = () => { if (U.pack !== p) return; U.pack = { phase: 'closed' }; paintPack(); };
+  if (!big || stillMotion()) { next(); return; }
+  p.tucking = true; big.classList.add('tuck'); Snd.soft();
+  setTimeout(next, 620);
+};
+/* Ins Album legen: Fenster zu, das Album zeigt den Platz des Stickers, der Sticker fliegt hinein und landet mit Funkeln. */
+ACT['pack-close'] = () => {
+  const p = U.pack, s = p && p.phase === 'opened' ? p.sticker : null;
+  const big = s && $('#celeb .sticker.big'), from = big && big.getBoundingClientRect(), html = big ? big.outerHTML : '';
+  closeCeleb();
+  if (!s) { render(); scheduleCeleb(300); return; }
+  U.tab = 'achieve'; U.newSticker = s.id; render();
+  flyToAlbum(s.id, from, html).then(() => scheduleCeleb(300));
+};
+function flyToAlbum(id, from, html) {
+  return new Promise(res => {
+    const target = $('#main .sticker[data-id="' + id + '"]');
+    if (!target) return res();
+    target.scrollIntoView({ block: 'center' });
+    const land = () => { target.classList.remove('landing'); target.classList.add('landed'); const r = target.getBoundingClientRect(); FX.pop(r.left + r.width / 2, r.top + r.height / 2, ['✨', '💖']); Snd.sparkle(); Hap.go([15, 30, 15]); U.flying = false; res(); };
+    if (!from || !html || stillMotion() || !document.body.animate) { land(); return; }
+    U.flying = true; target.classList.add('landing');
+    requestAnimationFrame(() => {
+      const to = target.getBoundingClientRect(), k = to.width / Math.max(1, from.width);
+      const el = document.createElement('div'); el.className = 'flysticker'; el.innerHTML = html;
+      el.style.left = from.left + 'px'; el.style.top = from.top + 'px'; el.style.width = from.width + 'px';
+      document.body.appendChild(el);
+      const dx = to.left - from.left, dy = to.top - from.top, lift = Math.min(dy, 0) - 90;
+      const an = el.animate([
+        { transform: 'translate(0,0) scale(1) rotate(0deg)' },
+        { transform: 'translate(' + (dx * .45) + 'px,' + (dy * .3 + lift) + 'px) scale(' + ((1 + k) / 2 + .1) + ') rotate(-10deg)', offset: .45 },
+        { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + k + ') rotate(0deg)' },
+      ], { duration: 1000, easing: 'cubic-bezier(.35,.05,.35,1)', fill: 'forwards' });
+      const done = () => { el.remove(); land(); };
+      an.onfinish = done; an.oncancel = done;
+    });
+  });
+}
 ACT['pack-tear'] = () => {
   const p = U.pack; if (!p || p.phase !== 'closed') return;
   const album = S.prog.album, foil = S.prog.foil;
@@ -2920,7 +2973,6 @@ ACT['pin-clear'] = () => confirmSheet({ title: 'Code entfernen?', text: 'Dann ka
 ACT.tab = el => { U.tab = el.dataset.tab; window.scrollTo(0, 0); render(); };
 ACT.day = el => { U.date = el.dataset.date; if (el.dataset.go) { U.tab = 'today'; window.scrollTo(0, 0); } render(); };
 ACT['goto-today'] = () => { U.date = U.today; render(); };
-ACT['all-goals'] = () => { U.allGoals = true; render(); };
 ACT.wk = el => { U.weekOff = clamp(U.weekOff + (+el.dataset.d), -52, 0); render(); };
 
 /* ---------- Einrichtung (Start) ---------- */

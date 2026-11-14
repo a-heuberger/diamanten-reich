@@ -123,7 +123,7 @@ async function enter(page, name) {          // Einrichtung durchspielen
   await page.fill('#ob-name', 'Lia'); await page.click('[data-act="ob-go"]'); await h.wait(1200);
   ok('B Einrichtung fertig: App läuft, sieben Aufgaben', await h.cnt('.tabs') === 1 && await h.cnt('.task') === 7);
   const cfg1 = await waitFor(() => getDoc('cfg/main'), 8000);
-  ok('B Einstellungen liegen in Firestore unter dem Familiencode', !!cfg1 && cfg1.name === 'Lia' && cfg1.v === 2 && cfg1.tasks.length === 7, cfg1 ? 'Name ' + cfg1.name + ', ' + cfg1.tasks.length + ' Aufgaben' : 'nichts');
+  ok('B Einstellungen liegen in Firestore unter dem Familiencode', !!cfg1 && cfg1.name === 'Lia' && cfg1.v === 3 && cfg1.tasks.length === 7, cfg1 ? 'Name ' + cfg1.name + ', ' + cfg1.tasks.length + ' Aufgaben' : 'nichts');
   ok('B Fortschritt (Sticker, Schätze) ebenfalls', !!(await waitFor(() => getDoc('cfg/progress'), 6000)));
   const dev1 = page;
 

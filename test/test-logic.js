@@ -12,11 +12,15 @@ const T = '2026-11-13';   // Freitag
 const d = L.defaultCfg();
 eq('Vorgabe: Name ist der Platzhalter Lia', d.name, 'Lia');
 eq('Vorgabe: 3 Tipps je Diamant, Graben an, Spaß-Funde an', [d.digTaps, d.digMode, d.digFun], [3, true, true]);
-eq('Vorgabe: Schätze 10 bis 500', d.goals.map(g => g.at), [10, 25, 50, 75, 100, 150, 200, 300, 500]);
+eq('Vorgabe: Schätze 10 bis 500 mit 250 und 400', d.goals.map(g => g.at), [10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500]);
+const m3 = L.migrateCfg({ v: 2, goals: [{ id: 'g10', at: 10, reward: 'A' }, { id: 'g300', at: 300, reward: 'B' }, { id: 'g500', at: 500, reward: 'C' }] });
+eq('migrate v2: 250 und 400 kommen dazu, eigene bleiben', m3.goals.map(g => g.at + ':' + g.reward), ['10:A', '250:Bastel- oder Malset aussuchen', '300:B', '400:Ausflug zum Ponyhof', '500:C']);
+eq('migrate v3: gelöschte 250/400 bleiben gelöscht', L.migrateCfg({ v: 3, goals: [{ id: 'g10', at: 10, reward: 'A' }, { id: 'g500', at: 500, reward: 'C' }] }).goals.map(g => g.at), [10, 500]);
+eq('migrate v2: vorhandene 250 wird nicht doppelt', L.migrateCfg({ v: 2, goals: [{ id: 'x', at: 250, reward: 'Eigenes' }, { id: 'g500', at: 500, reward: 'C' }] }).goals.map(g => g.at + ':' + g.reward), ['250:Eigenes', '400:Ausflug zum Ponyhof', '500:C']);
 ok('Vorgabe: alle Schätze mit Beispiel-Belohnung', d.goals.every(g => g.reward.length > 3));
 eq('Vorgabe: drei Schätze bringen Geld aufs Konto', d.goals.filter(g => L.rewardMoney(g.reward) > 0).map(g => [g.at, L.rewardMoney(g.reward)]), [[25, 200], [100, 500], [300, 1000]]);
 const m0 = L.migrateCfg({ v: 1, goals: [{ id: 'g10', at: 10, reward: '' }, { id: 'g25', at: 25, reward: 'Eis' }, { id: 'g40', at: 40, reward: '' }] });
-eq('migrate v1: leere Vorgabe-Schätze bekommen Beispiele, eigene bleiben', m0.goals.map(g => g.reward), ['Glitzer-Tattoo aussuchen', 'Eis', '']);
+eq('migrate v1: leere Vorgabe-Schätze bekommen Beispiele, eigene bleiben', m0.goals.filter(g => g.at <= 40).map(g => g.reward), ['Glitzer-Tattoo aussuchen', 'Eis', '']);
 eq('migrate v2: leere Belohnung bleibt leer (Überraschung)', L.migrateCfg({ v: 2, goals: [{ id: 'g10', at: 10, reward: '' }] }).goals[0].reward, '');
 ok('Vorgabe: Spielwiese an', d.games === true && L.migrateCfg({ games: false }).games === false);
 eq('Vorgabe: Wolken 1 und 3, Zauberbeutel alle 5', [d.yellowPts, d.redPts, d.packEvery], [1, 3, 5]);
@@ -32,7 +36,7 @@ eq('migrate: unbekannte Haarfarbe → Vorgabe, Kleid bleibt', [m1.look.hair, m1.
 eq('migrate: unbekannte Tageszeit → morgens, Diamanten 1 bis 3, leere Tage → täglich', [m1.tasks[0].slot, m1.tasks[0].pts, m1.tasks[0].days.length], ['morgens', 3, 7]);
 eq('migrate: Version gesetzt', m1.v, L.CFG_V);
 eq('migrate: Ziele sortiert und eindeutig', L.migrateCfg({ goals: [{ at: 20 }, { at: 10 }, { at: 10 }] }).goals.map(g => g.at), [10, 11, 20]);
-ok('migrate: kaputte Ziele → Vorgaben', L.migrateCfg({ goals: [{ at: 'x' }] }).goals.length === 9);
+ok('migrate: kaputte Ziele → Vorgaben', L.migrateCfg({ goals: [{ at: 'x' }] }).goals.length === 11);
 eq('migrate: Graben aus bleibt aus', L.migrateCfg({ digMode: false }).digMode, false);
 
 // ---- Ein Tag: Kind tippt (c), Eltern geben frei (y), heute nicht (n) ----

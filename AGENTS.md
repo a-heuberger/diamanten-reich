@@ -30,8 +30,8 @@ Dokumente: `cfg/main` (Einstellungen), `cfg/progress` (Feiern, Eingelöstes, Alb
 npm install                      # in einer frischen Sitzung nötig (firebase, esbuild, Schriften Fredoka/Nunito, firebase-tools für den Emulator)
 # Playwright ist nicht in package.json: in der Cloud global (export NODE_PATH=$(npm root -g)), am Mac: npm install --no-save playwright@<Version passend zum vorhandenen Chromium>
 node build.js                    # baut build/ (Claude-Seite, Testversionen) und docs/ (Web-App)
-node test/test-logic.js          # Regeln, rein (76)
-node test/e2e-dia.js             # Browser-Tests der Claude-Seite mit Attrappe (93, Sternenregen läuft 25 s), Bildschirmfotos nach shots/
+node test/test-logic.js          # Regeln, rein (79)
+node test/e2e-dia.js             # Browser-Tests der Claude-Seite mit Attrappe (95, Sternenregen läuft 25 s), Bildschirmfotos nach shots/
 node tools/rules.js CODE1 [CODE2 …] --out Zieldatei    # Regeln aus der Vorlage, ein Block je Familiencode (--out ist Pflicht für eine Datei)
 node tools/rules.js TESTCODE23456789 TESTZWEI23456789 --out build/test.firestore.rules   # für den Emulator (build/ vorher anlegen)
 ./node_modules/.bin/firebase emulators:start --only firestore --project demo-diamanten --config firebase.json   # Emulator auf 127.0.0.1:8085 (braucht Java 21; am Mac ohne Java: JRE von Adoptium in den Scratchpad laden, JAVA_HOME setzen)
@@ -74,11 +74,12 @@ Einzelheiten und Wortlaut in `UEBERGABE.md`. Kurz:
 - **Zählen:** Schätze und Zauberbeutel rechnen mit **allen freigegebenen** Diamanten (plus Bonus der Sticker, minus Wolken); Kopf und Truhe zeigen die **gegrabenen**. Gefeiert wird erst, wenn nichts mehr wartet.
 - **Feiern sind aus den Daten abgeleitet** (`checkCelebs` nach jedem Rendern): erreichter Schatz ohne `prog.shown[id]`, perfekter Tag ohne `prog.cel['p:'+ds]`, mehr Beutel als `prog.packN`. So kommen sie genau einmal, auch wenn die Eltern auf einem anderen Gerät freigeben. Nur ansehen und ohne Zugriff: keine Feiern.
 - **Wolken** = Karten der Torjäger-App (`buildLedger`, Ereignisse `y`/`r`, zwei offene gelbe = Gewitter, Gewitter höchstens einmal pro Tag, verfallen nie, Eltern nehmen zurück). Erst nach „Hinweise für Eltern“ freigeschaltet (`cloudsAck`).
+- **Zauberbeutel:** Tippen öffnet, der Sticker dreht sich mit Glanz herein (Enthüllung), dann Name und Steckbrief. „Ins Album legen“ schließt und lässt den Sticker sichtbar in seinen Platz im Album fliegen (`flyToAlbum`, Platz bis zur Landung `.landing`); „Nächster Beutel“ lässt ihn erst nach unten wegrutschen. Bei reduzierter Bewegung ohne Flug.
 - **Extras:** Sammelalbum (**100 Sticker**, Wunsch des Nutzers: mindestens 100; fünf Kategorien à 20 mit je 12 normal, 6 selten, 2 ultraselten; s01–s40 unverändert, neue nur hinten anhängen; Edelsteine als Zeichnung `gem:<farbe>`, Steckbrief `fact` als Text), Wochenrückblick als Regenbogen.
 - **Mini-Spiele (Nutzer will mehr davon):** Graben (Hauptspiel) und die **Spielwiese** auf „Heute“ (`cfg.games`): Memory, Hütchen, Sternenregen (`games.js`). Nur zum Spaß, nie Diamanten, kein Verlieren; Bestwerte in `prog.games`. Neue Spiele dort ergänzen (Kachel in `gamesCard`, Start in `game-open`).
 - **Kein Vorlesen** (vom Nutzer gestrichen): keine `speechSynthesis`, keine Lautsprecher-Knöpfe. Der Browser-Test meldet jeden Sprachaufruf als Konsolenfehler.
-- **Konto** wie in der Torjäger-App, ohne Noten: Gutschreiben, Abbuchen (nur mit Ja des Kindes), Auszahlen; „X € aufs Guthabenkonto“ in einer Belohnung bucht beim Einlösen (`rewardMoney`, `prog.redK`).
-- **Schätze:** Vorgabe 10, 25, 50, 75, 100, 150, 200, 300, 500 mit Beispiel-Belohnungen (`DEFAULT_GOALS`, darunter drei Geldbeträge fürs Konto), leeres Feld = „Überraschung!“. Ideen-Chips füllen das zuletzt angetippte Feld. Die Schätze-Seite zeigt oben den nächsten Schatz (nicht den Weg bis 500), die Liste für das Kind gekürzt.
+- **Konto** wie in der Torjäger-App, ohne Noten: Gutschreiben, Abbuchen (nur mit Ja des Kindes), Auszahlen. **Gebucht wird nur von Hand** (Wunsch des Nutzers): Steht Geld in einer Belohnung („2 € aufs Guthabenkonto“, `rewardMoney`), zeigt das Einlösen nur einen Hinweis mit Weg zum Konto. `prog.redK` stammt aus der kurzen automatischen Zeit und wird nicht mehr geschrieben.
+- **Schätze:** Vorgabe 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500 mit Beispiel-Belohnungen (`DEFAULT_GOALS`, darunter drei Geldbeträge fürs Konto), leeres Feld = „Überraschung!“. `CFG_V 3` ergänzt 250 und 400 einmalig in alten Ständen. Ideen-Chips füllen das zuletzt angetippte Feld. Die Schätze-Seite zeigt oben den nächsten Schatz und darunter **immer alle** Schätze (keine gekürzte Liste, kein „Alle zeigen“).
 - **Bilder:** alles selbst gezeichnete Vektorgrafik (`svg.js`). KI-Bilder (Magnific) nur nach Preisangabe und Freigabe des Nutzers; bisher keine erzeugt.
 - Entfallen: Gegner/Spielstand, Angeln, Fußball, Vorlesen.
 

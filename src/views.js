@@ -380,12 +380,10 @@ function viewAchieve(st) {
     (nx && !nx.last && last ? '<p class="hint">Bis zu „' + esc(S.cfg.chest.title) + '“: noch ' + dia(left) + '.</p>' : '') +
     packLine(st) + '</div></section>';
   h += tally(st);
-  /* Für das Kind: gefundene, der nächste und zwei weitere. Der Rest auf Wunsch (Eltern sehen immer alles). */
-  const ni = nx ? gl.indexOf(nx) : gl.length;
-  const shown = U.unlocked || U.allGoals ? gl : gl.filter((g, i) => g.reached || i <= ni + 2 || g.last);
+  /* Alle Schätze sind immer zu sehen (Wunsch des Nutzers, 14.11.). */
+  const shown = gl;
   h += '<div class="sec-h"><h2>Meine Schätze</h2>' + (U.unlocked ? '<button class="btn btn-ghost btn-sm" data-act="goto-sec" data-sec="schaetze">Schätze ändern</button>' : '<span class="hint">' + gl.filter(g => g.reached).length + ' von ' + gl.length + ' gefunden</span>') + '</div><div class="tiers">' +
-    shown.map((g, i) => (i > 0 && g.last && shown[i - 1] !== gl[gl.length - 2] ? '<p class="tiers-gap" aria-hidden="true">· · ·</p>' : '') + goalRow(g, st, nx && nx.id === g.id)).join('') + '</div>' +
-    (shown.length < gl.length ? '<button class="btn btn-ghost btn-sm more-goals" data-act="all-goals">Alle Schätze zeigen (' + (gl.length - shown.length) + ' mehr)</button>' : '');
+    shown.map(g => goalRow(g, st, nx && nx.id === g.id)).join('') + '</div>';
   const own = S.prog.album || [], foilL = S.prog.foil || [];
   h += '<div class="sec-h"><h2>Sammelalbum</h2><span class="hint">' + own.filter(id => STICKER_BY[id]).length + ' von ' + STICKERS.length + '</span></div>' + stickerPointsCard(st);
   CATS.forEach(cat => {
@@ -476,7 +474,7 @@ function viewCoach(st) {
     '<ul class="rules">' +
     '<li>' + IC.hand + '<span><b>Ihr tragt im Eltern-Modus ein</b>, am besten gemeinsam mit ' + esc(c.name) + ': <b>Geschafft</b> bringt einen Diamanten. <b>Nicht geschafft</b> ist neutral: kein Diamant, aber auch kein Minus. Ohne Eltern-Modus kann ' + esc(c.name) + ' nichts selbst abhaken.</span></li>' +
     '<li>' + IC.shovel + '<span><b>Graben:</b> Jeder freigegebene Diamant wartet in der Erde. ' + esc(c.name) + ' tippt ' + (c.digTaps === 1 ? 'einmal' : c.digTaps + '-mal') + ', dann springt er heraus und fliegt in die Truhe. Er zählt aber schon ab der Freigabe.</span></li>' +
-    '<li>' + IC.coin + '<span><b>Konto:</b> Steht bei einem Schatz „2 € aufs Guthabenkonto“, wird der Betrag beim Einlösen gebucht. Gutschreiben, Abbuchen und Auszahlen im Tab Konto.</span></li>' +
+    '<li>' + IC.coin + '<span><b>Konto:</b> Gutschreiben, Abbuchen und Auszahlen macht ihr selbst im Tab Konto. Steht bei einem Schatz Geld („2 € aufs Guthabenkonto“), erinnert die App beim Einlösen daran, bucht aber nichts von allein.</span></li>' +
     '<li>' + cloudSVG('yellow', 26) + '<span><b>Gelbe Wolke</b> = Verwarnung, minus ' + dia(c.yellowPts) + '. Zwei gelbe Wolken werden zur <b>Gewitterwolke</b> (minus ' + c.redPts + ', höchstens einmal am Tag). Wolken verfallen nicht, ihr könnt sie zurücknehmen.</span></li>' +
     '<li>' + gemMini(24) + '<span><b>Schätze:</b> Alle Diamanten zählen zusammen, abzüglich Wolken. Von ' + gs[0].at + ' bis ' + gs[gs.length - 1].at + ' Diamanten.</span></li></ul>' +
     '<div class="row-btns"><button class="btn btn-ghost btn-sm" data-act="parents">Hinweise für Eltern</button><button class="btn btn-ghost btn-sm" data-act="rules">Regeln für ' + esc(c.name) + '</button><button class="btn btn-ghost btn-sm" data-act="lock">' + IC.lock + 'Eltern-Modus beenden</button></div></section>';
@@ -486,7 +484,7 @@ function viewCoach(st) {
     '<button class="btn btn-ghost" data-act="task-add">' + IC.plus + 'Neue Aufgabe</button>' +
     '<div class="field"><span>Ideen zum Antippen</span><div class="chips-r ideas" role="group" aria-label="Aufgaben-Ideen">' + TASK_IDEAS.map((t, i) => '<button data-act="task-idea" data-i="' + i + '">' + t[0] + ' ' + esc(t[1]) + '</button>').join('') + '</div></div></section>';
 
-  h += '<section class="card coach-sec" id="sec-schaetze"><h2>Schätze und Belohnungen</h2><p class="hint">Was ' + esc(c.name) + ' bei welchem Stand bekommt. Es zählen alle Diamanten zusammen, abzüglich Wolken. Die Texte sind Beispiele: Ändert sie am besten gemeinsam mit ' + esc(c.name) + '. Ohne Text steht dort „Überraschung!“. Mit „2 € aufs Guthabenkonto“ bucht die App den Betrag beim Einlösen aufs Konto. Bitte nie Mahlzeiten, Schlaf, Kuscheln oder die gewohnte gemeinsame Zeit als Belohnung oder Entzug einsetzen.</p>' +
+  h += '<section class="card coach-sec" id="sec-schaetze"><h2>Schätze und Belohnungen</h2><p class="hint">Was ' + esc(c.name) + ' bei welchem Stand bekommt. Es zählen alle Diamanten zusammen, abzüglich Wolken. Die Texte sind Beispiele: Ändert sie am besten gemeinsam mit ' + esc(c.name) + '. Ohne Text steht dort „Überraschung!“. Geld wie „2 € aufs Guthabenkonto“ bucht ihr nach dem Einlösen selbst im Tab Konto. Bitte nie Mahlzeiten, Schlaf, Kuscheln oder die gewohnte gemeinsame Zeit als Belohnung oder Entzug einsetzen.</p>' +
     gs.map((g, i) => {
       const min = i > 0 ? gs[i - 1].at + 1 : 1, max = i < gs.length - 1 ? gs[i + 1].at - 1 : 100000;
       return '<div class="field goaled"><div class="row-btns" style="align-items:center;justify-content:space-between">' + stepper('goal:' + g.id, 'at', g.at, min, max, g.at < 30 ? 1 : 5, ' ' + gemMini(16)) +

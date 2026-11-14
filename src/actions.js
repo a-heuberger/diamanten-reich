@@ -72,7 +72,7 @@ function scheduleCeleb(ms) { clearTimeout(celebT); celebT = setTimeout(checkCele
 
 /* ---------- Feiern: aus den Daten abgeleitet, damit sie auch geräteübergreifend genau einmal kommen ----------
    Gefeiert wird erst, wenn nichts mehr in der Erde wartet (Feier nach dem Graben). Was gezeigt wurde, steht in cfg/progress. */
-function celebBlocked() { return !U.ready || U.readonly || Store.noAccess || Store.gate || U.celeb || U.pack || U.sheet || U.digBusy || U.volley || U.holdAt != null; }
+function celebBlocked() { return !U.ready || U.readonly || Store.noAccess || Store.gate || U.celeb || U.pack || U.sheet || U.digBusy || U.volley || U.flying || U.holdAt != null; }
 function checkCelebs() {
   if (celebBlocked()) { if (U.ready && !U.readonly && !Store.gate) { clearTimeout(celebT); celebT = setTimeout(checkCelebs, 900); } return; }
   const st = ST(), prog = S.prog, shown = prog.shown || (prog.shown = {}), cel = prog.cel;
@@ -353,21 +353,12 @@ ACT['cloud-back'] = el => {
 ACT.redeem = el => {
   if (!U.unlocked) return;
   const k = el.dataset.key, g = S.cfg.goals.find(x => x.id === k); if (!g) return;
-  S.prog.redK = S.prog.redK || {};
-  if (S.prog.red[k]) {                                                // zurücknehmen: eine Konto-Gutschrift dazu wird wieder entfernt
-    delete S.prog.red[k];
-    const kid = S.prog.redK[k]; delete S.prog.redK[k];
-    if (kid && S.konto[kid]) { delete S.konto[kid]; persist('konto/' + kid); toast('Zurückgenommen. Die Gutschrift auf dem Konto wurde entfernt.'); }
-  } else {
+  /* Geld bucht ihr selbst (Wunsch des Nutzers, 14.11.): Einlösen erinnert nur daran und führt zum Konto. */
+  if (S.prog.red[k]) delete S.prog.red[k];
+  else {
     S.prog.red[k] = U.today;
-    const cents = rewardMoney(g.reward);                              // „2 € aufs Guthabenkonto“ wird gleich gebucht, damit es nicht vergessen wird
-    if (cents > 0) {
-      const ts = Date.now(), id = 'k' + ts.toString(36) + rid();
-      S.konto[id] = { ts, ds: U.today, c: cents, k: 'plus', t: ('Schatz: ' + dia(g.at)).slice(0, 40) };
-      S.prog.redK[k] = id; persist('konto/' + id);
-      banner({ icon: coinSVG(42), title: esc('+' + fmtEUR(cents) + ' aufs Konto'), sub: esc('Schatz bei ' + dia(g.at) + ' · Guthaben jetzt ' + fmtEUR(kontoBalance(S))), tone: 'gold', ms: 3600, go: 'konto' });
-      Snd.fanfare(); FX.pop(innerWidth / 2, innerHeight / 3, ['🪙', '✨']);
-    }
+    const cents = rewardMoney(g.reward);
+    if (cents > 0) banner({ icon: coinSVG(42), title: esc(fmtEUR(cents) + ' fürs Konto'), sub: 'Noch nicht gebucht. Tippe hier und dann auf „Gutschreiben“.', tone: 'gold', ms: 6000, go: 'konto' });
   }
   markChanged(); persist('cfg/progress'); render();
 };
@@ -406,19 +397,61 @@ function paintPack() {
   } else {
     const st = ST(), s = p.sticker, R = RARITY[s.rar], foilKind = p.kind === 'foil';
     const eyebrow = foilKind ? 'Glanz-Sticker!' : s.rar === 'u' ? 'Ultraselten!' : s.rar === 'r' ? 'Selten!' : 'Neu im Album!';
-    c.innerHTML = '<div class="celeb pack open r-' + s.rar + '" role="dialog" aria-modal="true" aria-label="Neuer Sticker"><div class="rays"></div><div class="ce-card"><div class="ce-eyebrow">' + eyebrow + '</div>' +
-      '<div class="emblem">' + stickerBig(s, true, foilKind, 'pop') + '</div><h2 class="ce-title small">' + esc(s.name) + '</h2>' +
-      '<p class="ce-sub fact">' + esc(s.fact) + '</p>' +
-      (foilKind ? '<p class="ce-sub">Dein Sticker glänzt jetzt.</p>' : '<p class="ce-sub sp-line">' + (p.bonusNew > 0 ? '<b class="bonus">💎 Bonus-Diamant!</b> ' : '') + 'Sticker ' + S.prog.album.length + ' von ' + STICKERS.length + ' · ' + R.name + '</p>') +
-      '<div class="row-btns">' + (st.packs.left > 0 ? '<button class="btn btn-main" data-act="pack-again">Nächster Beutel (' + st.packs.left + ')</button>' : '') + '<button class="btn ' + (st.packs.left > 0 ? 'btn-ghost' : 'btn-main') + '" data-act="pack-close">Ins Album</button></div></div></div>';
+    /* Enthüllung: Glanz hinter dem Sticker, der Sticker dreht sich herein, danach erscheinen Name und Steckbrief. */
+    c.innerHTML = '<div class="celeb pack open r-' + s.rar + '" role="dialog" aria-modal="true" aria-label="Neuer Sticker"><div class="rays"></div><div class="ce-card"><div class="ce-eyebrow late l1">' + eyebrow + '</div>' +
+      '<div class="emblem reveal-wrap"><span class="reveal-glow" aria-hidden="true"></span>' + stickerBig(s, true, foilKind, 'reveal') + '</div><h2 class="ce-title small late l2">' + esc(s.name) + '</h2>' +
+      '<p class="ce-sub fact late l3">' + esc(s.fact) + '</p>' +
+      (foilKind ? '<p class="ce-sub">Dein Sticker glänzt jetzt.</p>' : '<p class="ce-sub sp-line late l3">' + (p.bonusNew > 0 ? '<b class="bonus">💎 Bonus-Diamant!</b> ' : '') + 'Sticker ' + S.prog.album.length + ' von ' + STICKERS.length + ' · ' + R.name + '</p>') +
+      '<div class="row-btns late l4">' + (st.packs.left > 0 ? '<button class="btn btn-main" data-act="pack-again">Nächster Beutel (' + st.packs.left + ')</button>' : '') + '<button class="btn ' + (st.packs.left > 0 ? 'btn-ghost' : 'btn-main') + '" data-act="pack-close">Ins Album legen</button></div></div></div>';
   }
 }
 ACT['pack-open'] = () => {
   if (U.readonly || ST().packs.left <= 0) return;
   U.pack = { phase: 'closed' }; document.body.classList.add('noscroll'); paintPack(); Snd.tap();
 };
-ACT['pack-again'] = () => { if (ST().packs.left > 0) { U.pack = { phase: 'closed' }; paintPack(); } else ACT['pack-close'](); };
-ACT['pack-close'] = () => { closeCeleb(); render(); scheduleCeleb(300); };
+/* Nächster Beutel: Der Sticker rutscht erst sichtbar nach unten ins Album, dann kommt der neue Beutel. */
+ACT['pack-again'] = () => {
+  const p = U.pack; if (!p || p.tucking) return;
+  if (ST().packs.left <= 0) { ACT['pack-close'](); return; }
+  const big = $('#celeb .sticker.big');
+  const next = () => { if (U.pack !== p) return; U.pack = { phase: 'closed' }; paintPack(); };
+  if (!big || stillMotion()) { next(); return; }
+  p.tucking = true; big.classList.add('tuck'); Snd.soft();
+  setTimeout(next, 620);
+};
+/* Ins Album legen: Fenster zu, das Album zeigt den Platz des Stickers, der Sticker fliegt hinein und landet mit Funkeln. */
+ACT['pack-close'] = () => {
+  const p = U.pack, s = p && p.phase === 'opened' ? p.sticker : null;
+  const big = s && $('#celeb .sticker.big'), from = big && big.getBoundingClientRect(), html = big ? big.outerHTML : '';
+  closeCeleb();
+  if (!s) { render(); scheduleCeleb(300); return; }
+  U.tab = 'achieve'; U.newSticker = s.id; render();
+  flyToAlbum(s.id, from, html).then(() => scheduleCeleb(300));
+};
+function flyToAlbum(id, from, html) {
+  return new Promise(res => {
+    const target = $('#main .sticker[data-id="' + id + '"]');
+    if (!target) return res();
+    target.scrollIntoView({ block: 'center' });
+    const land = () => { target.classList.remove('landing'); target.classList.add('landed'); const r = target.getBoundingClientRect(); FX.pop(r.left + r.width / 2, r.top + r.height / 2, ['✨', '💖']); Snd.sparkle(); Hap.go([15, 30, 15]); U.flying = false; res(); };
+    if (!from || !html || stillMotion() || !document.body.animate) { land(); return; }
+    U.flying = true; target.classList.add('landing');
+    requestAnimationFrame(() => {
+      const to = target.getBoundingClientRect(), k = to.width / Math.max(1, from.width);
+      const el = document.createElement('div'); el.className = 'flysticker'; el.innerHTML = html;
+      el.style.left = from.left + 'px'; el.style.top = from.top + 'px'; el.style.width = from.width + 'px';
+      document.body.appendChild(el);
+      const dx = to.left - from.left, dy = to.top - from.top, lift = Math.min(dy, 0) - 90;
+      const an = el.animate([
+        { transform: 'translate(0,0) scale(1) rotate(0deg)' },
+        { transform: 'translate(' + (dx * .45) + 'px,' + (dy * .3 + lift) + 'px) scale(' + ((1 + k) / 2 + .1) + ') rotate(-10deg)', offset: .45 },
+        { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + k + ') rotate(0deg)' },
+      ], { duration: 1000, easing: 'cubic-bezier(.35,.05,.35,1)', fill: 'forwards' });
+      const done = () => { el.remove(); land(); };
+      an.onfinish = done; an.oncancel = done;
+    });
+  });
+}
 ACT['pack-tear'] = () => {
   const p = U.pack; if (!p || p.phase !== 'closed') return;
   const album = S.prog.album, foil = S.prog.foil;
@@ -586,7 +619,6 @@ ACT['pin-clear'] = () => confirmSheet({ title: 'Code entfernen?', text: 'Dann ka
 ACT.tab = el => { U.tab = el.dataset.tab; window.scrollTo(0, 0); render(); };
 ACT.day = el => { U.date = el.dataset.date; if (el.dataset.go) { U.tab = 'today'; window.scrollTo(0, 0); } render(); };
 ACT['goto-today'] = () => { U.date = U.today; render(); };
-ACT['all-goals'] = () => { U.allGoals = true; render(); };
 ACT.wk = el => { U.weekOff = clamp(U.weekOff + (+el.dataset.d), -52, 0); render(); };
 
 /* ---------- Einrichtung (Start) ---------- */

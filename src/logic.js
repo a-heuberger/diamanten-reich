@@ -24,7 +24,7 @@ function isoWeek(s) {
 }
 
 /* ---------- Voreinstellungen ---------- */
-const CFG_V = 2;
+const CFG_V = 3;
 const SLOTS = { morgens: 'Morgens', abends: 'Abends' };
 const HAIR = { braun: { name: 'Braun', fill: '#7a4a2a', dark: '#5a331b' }, blond: { name: 'Blond', fill: '#f2c45a', dark: '#c99a2e' }, schwarz: { name: 'Schwarz', fill: '#2d2433', dark: '#16111a' }, rot: { name: 'Rot', fill: '#d4643a', dark: '#a8461f' }, hellbraun: { name: 'Hellbraun', fill: '#b07a4a', dark: '#83572f' } };
 const DRESS = { tuerkis: { name: 'Türkis', fill: '#2cc6c3', dark: '#14918f' }, rosa: { name: 'Rosa', fill: '#ff8fc1', dark: '#e0609d' }, lila: { name: 'Lila', fill: '#a98bff', dark: '#7c5ce0' }, gold: { name: 'Gold', fill: '#ffc93c', dark: '#d79a12' }, blau: { name: 'Blau', fill: '#5aa8ff', dark: '#2f7fdc' } };
@@ -37,7 +37,9 @@ const DEFAULT_GOALS = [
   [100, '5 € aufs Guthabenkonto'],
   [150, 'Ausflug in den Zoo'],
   [200, 'Neues Buch oder Spiel aussuchen'],
+  [250, 'Bastel- oder Malset aussuchen'],
   [300, '10 € aufs Guthabenkonto'],
+  [400, 'Ausflug zum Ponyhof'],
   [500, 'Ausflug in den Freizeitpark'],
 ];
 function defaultCfg() {
@@ -69,7 +71,7 @@ function defaultCfg() {
     ],
     /* Schätze: alle Diamanten zusammen (Aufgaben, Extra-Diamanten, Bonus-Diamanten der Sticker), abzüglich Wolken.
        Der erste nach etwa 2 bis 3 Tagen, danach größere Abstände. Die Belohnungen sind Beispiele, die Eltern ändern sie.
-       „2 € aufs Guthabenkonto“ bucht den Betrag beim Einlösen aufs Konto. Leer = Überraschung. */
+       Geld („2 € aufs Guthabenkonto“) buchen die Eltern selbst im Konto; die App erinnert beim Einlösen daran. Leer = Überraschung. */
     goals: DEFAULT_GOALS.map(g => ({ id: 'g' + g[0], at: g[0], reward: g[1] })),
     chest: { title: 'Der große Schatz' },
     goodReasons: ['Lieb geteilt', 'Toll geholfen', 'Mutig gewesen', 'Gut zugehört', 'Allein geschafft', 'Lieb getröstet'],
@@ -114,6 +116,11 @@ function migrateCfg(c) {
   out.goals = normGoals(old.goals, d.goals);
   /* Fassung 1 hatte leere Belohnungen: Die Vorgabe-Schätze bekommen die Beispiele, eigene Texte bleiben. */
   if ((old.v || 0) < 2) out.goals.forEach(g => { const dg = d.goals.find(x => x.id === g.id && x.at === g.at); if (dg && !String(g.reward || '').trim()) g.reward = dg.reward; });
+  /* Fassung 3 bringt die Zwischenschritte 250 und 400 dazu (einmalig; wer sie danach löscht, behält das). */
+  if (old.v && old.v < 3 && Array.isArray(old.goals)) {
+    [250, 400].forEach(at => { if (!out.goals.some(g => g.at === at || g.id === 'g' + at)) { const dg = d.goals.find(x => x.at === at); out.goals.push({ id: dg.id, at, reward: dg.reward }); } });
+    out.goals = normGoals(out.goals, d.goals);
+  }
   out.yellowPts = clampInt(out.yellowPts, 0, 5, d.yellowPts);
   out.redPts = clampInt(out.redPts, 1, 9, d.redPts);
   out.extraMax = clampInt(out.extraMax, 1, 10, d.extraMax);

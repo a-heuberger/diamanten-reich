@@ -163,17 +163,19 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
   page = await open(b, BASE({ 'cfg/main': { v: 2, name: 'Lia', goals: [{ id: 'g10', at: 10, reward: 'Glitzer-Tattoo' }, { id: 'g25', at: 25, reward: '' }, { id: 'g50', at: 50, reward: '' }, { id: 'g75', at: 75, reward: '' }, { id: 'g100', at: 100, reward: '' }, { id: 'g500', at: 500, reward: 'Freizeitpark' }] }, ['days/' + T]: { m: marks(ALL.slice(0, 4), 'y'), dg: 4 } })); h = H(page);
   await tap(page, '.tab[data-tab="achieve"]', 900);
   ok('G oben der nächste Schatz: noch 6 bis 10, Belohnung', /Nächster Schatz/.test(await h.txt('.big-chest h2')) && /Noch 6 Diamanten/.test(await h.txt('.big-chest')) && /Glitzer-Tattoo/.test(await h.txt('.big-chest .reward-box')));
-  ok('G Liste gekürzt für das Kind (gefundene, nächster, zwei weitere, großer Schatz), Knopf für alle', await h.cnt('.tier') === 4 && /2 mehr/.test(await h.txt('[data-act="all-goals"]')), await h.cnt('.tier'));
+  ok('G alle Schätze sofort sichtbar (6 eigene + 250 und 400), kein Knopf „Alle zeigen“, keine Lücke', await h.cnt('.tier') === 8 && await h.cnt('[data-act="all-goals"], .tiers-gap') === 0 && JSON.stringify(await page.evaluate(() => Array.from(document.querySelectorAll('.tier')).map(t => t.dataset.goal))) === JSON.stringify(['g10', 'g25', 'g50', 'g75', 'g100', 'g250', 'g400', 'g500']), await h.cnt('.tier'));
   ok('G leere Belohnung heißt Überraschung', /Überraschung!/.test(await h.txt('.tier[data-goal="g25"]')));
   await h.shot('07-schaetze');
   await tap(page, '[data-act="pack-open"]', 400);
   ok('G Zauberbeutel öffnet sich', /Aufmachen!/.test(await h.txt('#celeb')));
   await tap(page, '[data-act="pack-tear"]', 1400, true);   // der Beutel wackelt ständig: für Playwright „nicht stabil“
   const al = (await h.store('cfg/progress')).album;
-  ok('G neuer Sticker im Album, Steckbrief wird gezeigt', al.length === 1 && (await h.txt('#celeb .fact')).length > 10);
+  ok('G Sticker wird enthüllt: dreht sich herein, Name und Steckbrief, Knopf „Ins Album legen“', al.length === 1 && await h.cnt('#celeb .sticker.big.reveal') === 1 && (await h.txt('#celeb .fact')).length > 10 && /Ins Album legen/.test(await h.txt('#celeb [data-act="pack-close"]')));
   await h.shot('08-sticker');
-  await tap(page, '[data-act="pack-close"]', 500);
-  ok('G Sticker im Album sichtbar', await h.cnt('.sticker.got') === 1);
+  await tap(page, '[data-act="pack-close"]', 150);
+  ok('G Sticker fliegt ins Album, sein Platz wartet', await h.cnt('.flysticker') === 1 && await h.cnt('.sticker.got.landing[data-id="' + al[0] + '"]') === 1);
+  await h.wait(1400);
+  ok('G gelandet: Sticker im Album sichtbar und hervorgehoben', await h.cnt('.flysticker') === 0 && await h.cnt('.sticker.got') === 1 && await h.cnt('.sticker.landed[data-id="' + al[0] + '"]') === 1 && await page.evaluate(id => { const r = document.querySelector('.sticker[data-id="' + id + '"]').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }, al[0]));
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); await h.wait(300);
   await h.shot('09-album');
   await page.close();
@@ -280,19 +282,22 @@ const tap = async (page, sel, ms = 250, force) => { await page.click(sel, force 
   await tap(page, '[data-act="redeem"][data-key="g25"]', 700);
   ks = await konto();
   const pr = await h.store('cfg/progress');
-  ok('N Schatz „2 € aufs Guthabenkonto“ einlösen bucht 2 € aufs Konto', ks.length === 3 && ks.some(k => k.c === 200 && /Schatz: 25 Diamanten/.test(k.t)) && pr.red.g25 === T && !!pr.redK.g25 && /2,00 € aufs Konto/.test(await h.txt('#banner')));
-  await tap(page, '.tab[data-tab="konto"]', 400);
-  ok('N Guthaben jetzt 3,50 €, drei Buchungen', (await h.txt('#kontoSum')) === '3,50 €' && await h.cnt('.ev.kb') === 3);
+  ok('N Schatz mit Geld einlösen bucht nichts, erinnert nur', ks.length === 2 && pr.red.g25 === T && /2,00 € fürs Konto/.test(await h.txt('#banner')) && /Noch nicht gebucht/.test(await h.txt('#banner')));
+  await page.evaluate(() => document.querySelector('#banner .bn.go').click()); await h.wait(400);   // Einblendung bewegt sich: per Skript antippen
+  ok('N Hinweis führt zum Konto, Guthaben unverändert 1,50 €', (await h.txt('#kontoSum')) === '1,50 €' && await h.cnt('.ev.kb') === 2);
+  await tap(page, '[data-act="konto-open"][data-k="plus"]', 300); await tap(page, '[data-act="kx-amt"][data-c="200"]', 200);
+  await page.fill('#kx-text', 'Schatz 25'); await tap(page, '[data-act="kx-save"]', 600);
+  ok('N Eltern buchen selbst: 3,50 €, drei Buchungen', (await h.txt('#kontoSum')) === '3,50 €' && await h.cnt('.ev.kb') === 3);
   await h.shot('13-konto');
   await tap(page, '.tab[data-tab="achieve"]', 400); await tap(page, '[data-act="redeem"][data-key="g25"]', 500);
-  ok('N Einlösen zurücknehmen entfernt die Gutschrift', (await konto()).length === 2 && !(await h.store('cfg/progress')).red.g25);
+  ok('N Einlösen zurücknehmen lässt das Konto in Ruhe', (await konto()).length === 3 && !(await h.store('cfg/progress')).red.g25);
   const kstore = await page.evaluate(() => Object.fromEntries(window.__mock.store));
   await page.close();
   page = await open(b, kstore); h = H(page);
   await tap(page, '.tab[data-tab="konto"]', 400);
-  ok('N nach dem Neuladen: Guthaben 1,50 €', (await h.txt('#kontoSum')) === '1,50 €');
+  ok('N nach dem Neuladen: Guthaben 3,50 €', (await h.txt('#kontoSum')) === '3,50 €');
   await tap(page, '[data-act="lock"]', 300); await tap(page, '.ev.kb [data-act="konto-del"]', 300); await tap(page, '[data-act="confirm-yes"]', 500);
-  ok('N Buchung löschen', (await konto()).length === 1);
+  ok('N Buchung löschen', (await konto()).length === 2);
   await page.close();
 
   // ---- O) Spielwiese ----

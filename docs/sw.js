@@ -1,7 +1,7 @@
 /* Offline-Hülle der Web-App: Netz zuerst (neue Fassungen kommen sofort an), ohne Netz die zuletzt gemerkte Fassung.
    Die Daten selbst liegen nicht hier, sondern im Zwischenspeicher von Firestore.
    Die Schriften stehen schon in der Hülle: Beim allerersten Laden ist der Service Worker noch nicht aktiv, was die Seite dabei lädt, würde sonst nie gemerkt. */
-const CACHE = 'diamanten-da5a48d46e7a';
+const CACHE = 'diamanten-f8ba7b75507b';
 const SHELL = ['./', 'index.html', 'firebase.js', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png'];
 const FONTS = ["fonts/fredoka-latin-500-normal.woff2","fonts/fredoka-latin-600-normal.woff2","fonts/fredoka-latin-700-normal.woff2","fonts/nunito-latin-600-normal.woff2","fonts/nunito-latin-700-normal.woff2","fonts/nunito-latin-800-normal.woff2","fonts/nunito-latin-900-normal.woff2"];
 self.addEventListener('install', e => {
